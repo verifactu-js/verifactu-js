@@ -1,28 +1,23 @@
 {
-  "name": "@verifactu-js/core",
-  "version": "0.2.0",
-  "description": "Huella encadenada SHA-256 y verificación de cadenas VERI*FACTU (AEAT). Cero dependencias, isomórfico. / Chained SHA-256 hash and chain verification for Spanish VERI*FACTU billing records. Zero dependencies, isomorphic.",
+  "name": "@verifactu-js/xml",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Serialización al esquema oficial VERI*FACTU (AEAT) y envoltorio SOAP. Cero dependencias. / Official VERI*FACTU schema serialisation and SOAP envelope.",
   "keywords": [
     "verifactu",
-    "veri-factu",
     "aeat",
-    "facturacion",
+    "xml",
+    "xsd",
+    "soap",
     "factura",
-    "sif",
-    "rd-1007-2023",
-    "huella",
-    "hash",
-    "spain",
-    "invoicing",
-    "tax"
+    "spain"
   ],
   "license": "MIT",
-  "author": "",
-  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/core#readme",
+  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/xml#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/verifactu-js/verifactu-js.git",
-    "directory": "packages/core"
+    "directory": "packages/xml"
   },
   "bugs": {
     "url": "https://github.com/verifactu-js/verifactu-js/issues"
@@ -56,9 +51,11 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "@verifactu-js/core": "workspace:^"
+  },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json && node ../../scripts/emit-cts-types.mjs dist",
-    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",

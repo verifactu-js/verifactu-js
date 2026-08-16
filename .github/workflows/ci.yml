@@ -78,6 +78,12 @@ jobs:
       - name: README structure
         run: pnpm check:readmes
 
+      # docs/reference redistributes official AEAT, BOE and W3C documents. The AEAT's terms
+      # forbid "la desnaturalización del contenido"; this proves they are byte-identical to what
+      # was downloaded, and catches an accidental edit or a re-download that silently differs.
+      - name: Reference documents unaltered
+        run: pnpm check:manifest
+
       - name: Lint (Biome)
         run: pnpm lint
 

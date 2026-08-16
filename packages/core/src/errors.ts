@@ -12,6 +12,8 @@ export type VerifactuErrorCode =
   | 'CAMPO_REQUERIDO'
   /** A value carries edge whitespace whose correct treatment is undocumented (I-01). */
   | 'ESPACIO_AMBIGUO_EN_BORDE'
+  /** A series/invoice number carries a character the AEAT forbids there. */
+  | 'CARACTER_NO_PERMITIDO'
   /** A digest is not 64 uppercase hexadecimal characters. */
   | 'HUELLA_FORMATO_INVALIDO'
   /** The runtime does not recognise the IANA time zone, or none was given. */
@@ -115,6 +117,75 @@ export function assertNoAmbiguousEdgeWhitespace(fieldName: string, value: string
       'y, si no, elimínalo. Así el literal del XML y la huella quedan sin ambigüedad.',
     referencia: 'docs/spec-notes.md §11, I-01 (BLOQUEA-ESTABLE)',
   });
+}
+
+/**
+ * Characters the AEAT forbids inside a series + invoice number, with their ASCII codes.
+ *
+ * Validaciones v1.2.2 §3.1.3.1: «NumSerieFactura solo puede contener caracteres ASCII del 32 a
+ * 126 (caracteres imprimibles), no permitiéndose la existencia de los siguientes caracteres».
+ */
+const CARACTERES_PROHIBIDOS_SERIE: ReadonlyArray<readonly [string, number]> = [
+  ['"', 34],
+  ["'", 39],
+  ['<', 60],
+  ['>', 62],
+  ['=', 61],
+];
+
+/**
+ * Validates a series + invoice number against the AEAT's character rules.
+ *
+ * The `=` prohibition is what keeps the canonical hash string unforgeable. That string uses `&`
+ * and `=` as separators and escapes nothing, so forging a field boundary would need the
+ * sequence `&Nombre=` inside a value — and `=` cannot appear. `&` on its own is harmless and is
+ * *not* rejected: the AEAT permits it, and refusing it would block legitimate invoices.
+ *
+ * See docs/spec-notes.md §18 for the full analysis (I-28).
+ *
+ * TODO(verify: I-28) — §3.1.3.1 documents this for `NumSerieFactura` only. We apply it to
+ * `NumSerieFacturaAnulada` as well: an anulación cancels an invoice whose series had to pass the
+ * alta validation, so a series with `=` could not legitimately exist. That is reasoning, not a
+ * citation. Also undocumented: whether a breach rejects the record or merely flags it.
+ */
+export function assertSerieValida(fieldName: string, value: string): void {
+  for (const [character, code] of CARACTERES_PROHIBIDOS_SERIE) {
+    if (!value.includes(character)) continue;
+
+    throw new VerifactuError({
+      code: 'CARACTER_NO_PERMITIDO',
+      message: `El campo «${fieldName}» contiene el carácter «${character}» (ASCII ${code}), que la AEAT no admite ahí.`,
+      causaProbable:
+        'El documento de validaciones de la AEAT (v1.2.2, §3.1.3.1) prohíbe " \' < > y = en el ' +
+        'número de serie y factura. La prohibición del «=» no es cosmética: la cadena sobre la ' +
+        'que se calcula la huella usa «=» y «&» como separadores y no escapa nada, así que un ' +
+        '«=» dentro del valor permitiría fabricar dos registros distintos con la misma huella.',
+      accionSugerida:
+        `Elimina el carácter «${character}» de «${fieldName}». Si tu numeración lo usa, tendrás ` +
+        'que cambiarla: la AEAT rechazará esa serie. El «&» sí está permitido.',
+      referencia: 'docs/spec-notes.md §18 (I-28); AEAT Validaciones v1.2.2 §3.1.3.1',
+    });
+  }
+
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    if (code >= 32 && code <= 126) continue;
+
+    throw new VerifactuError({
+      code: 'CARACTER_NO_PERMITIDO',
+      message:
+        `El campo «${fieldName}» contiene un carácter fuera de ASCII 32-126 ` +
+        `(código ${code}, posición ${i}).`,
+      causaProbable:
+        'La AEAT solo admite caracteres ASCII imprimibles en el número de serie y factura ' +
+        '(Validaciones v1.2.2, §3.1.3.1). Suelen colarse acentos, la Ñ, o un guion tipográfico ' +
+        'copiado desde un procesador de textos.',
+      accionSugerida:
+        `Sustituye ese carácter en «${fieldName}» por su equivalente ASCII. Ojo con los guiones ` +
+        'largos (–, —) y las comillas tipográficas, que se parecen mucho a los ASCII.',
+      referencia: 'docs/spec-notes.md §18 (I-28); AEAT Validaciones v1.2.2 §3.1.3.1',
+    });
+  }
 }
 
 /** A digest as the specification defines it: 64 uppercase hexadecimal characters. */

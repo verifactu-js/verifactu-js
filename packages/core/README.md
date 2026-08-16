@@ -168,6 +168,31 @@ await db.guardar({ ...misDatos, huella: registro.huella });   // ❌ pierde la c
 Si guardas tu entrada cruda y más tarde reconstruyes el registro para `verifyChain`, obtendrás
 huellas distintas y la cadena parecerá rota.
 
+Desde la `0.2.0` esto no depende de que te acuerdes: **el tipo lo impide**. Lo que devuelve
+`canonicalizeRegistroAlta` y `chain.alta()` lleva una marca (`Canonical<…>`) que un objeto
+cualquiera no tiene, y `@verifactu-js/xml` solo acepta lo marcado.
+
+### La vuelta desde la base de datos
+
+Lo que recuperas de tu base de datos es un objeto plano, sin marca. **Vuelve a canonicalizarlo**:
+
+```ts
+const guardado = await db.cargarRegistro(id);          // sin marca
+const { fields } = canonicalizeRegistroAlta(guardado); // Canonical<RegistroAltaHashInput>
+```
+
+Canonicalizar es **idempotente** —hay tests que lo demuestran—, así que sobre datos ya canónicos
+es una operación nula que se limita a devolverlos marcados. Si no lo eran, los arregla; y si el
+problema es de los que no queremos adivinar, lanza.
+
+Ese es el camino de vuelta oficial, y el único. **No hay `asCanonical()`**: un cast sin
+comprobar reintroduciría exactamente el fallo que la marca existe para evitar, y volver a
+canonicalizar ya es barato, total y seguro.
+
+`verifyChain` **no necesita la marca** y acepta lo que recuperes tal cual: al calcular la huella
+se canonicaliza internamente de todas formas. La marca solo hace falta donde el literal importa,
+que es al serializar el XML.
+
 ---
 
 ## Verificación de cadenas

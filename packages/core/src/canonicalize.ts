@@ -6,7 +6,20 @@
  * Analysis and citations: docs/spec-notes.md §1.2, §1.3 and §1.3.1.
  */
 
-import { assertNoAmbiguousEdgeWhitespace, assertSerialisedString } from './errors.js';
+import {
+  assertNoAmbiguousEdgeWhitespace,
+  assertSerialisedString,
+  assertSerieValida,
+} from './errors.js';
+
+/**
+ * Fields the AEAT restricts to a subset of ASCII (Validaciones v1.2.2 §3.1.3.1).
+ *
+ * These are the only free-text fields that enter the hash, which is exactly why the restriction
+ * matters: forbidding `=` there is what stops the canonical string from being forgeable.
+ * See docs/spec-notes.md §18.
+ */
+const CAMPOS_SERIE: ReadonlySet<string> = new Set(['NumSerieFactura', 'NumSerieFacturaAnulada']);
 
 /**
  * Trims a value using **Java's** `String.trim()` semantics: it removes leading and trailing
@@ -74,6 +87,7 @@ export function canonicalizeValue(name: string, value: string | null | undefined
   if (trimmed === '') return null;
 
   assertNoAmbiguousEdgeWhitespace(name, trimmed);
+  if (CAMPOS_SERIE.has(name)) assertSerieValida(name, trimmed);
   return trimmed;
 }
 

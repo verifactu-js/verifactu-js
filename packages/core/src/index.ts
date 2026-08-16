@@ -23,7 +23,10 @@ export type {
   EncadenamientoPrevioOptions,
   Eslabon,
   EslabonAlta,
+  EslabonAltaCanonico,
   EslabonAnulacion,
+  EslabonAnulacionCanonico,
+  EslabonCanonico,
   RegistroAnteriorRef,
   SifChain,
   SifChainConfig,
@@ -59,6 +62,7 @@ export {
   TIPO_HUELLA_SHA256,
 } from './hash.js';
 export type {
+  Canonical,
   CanonicalRegistroAlta,
   CanonicalRegistroAnulacion,
   RegistroAltaHashInput,

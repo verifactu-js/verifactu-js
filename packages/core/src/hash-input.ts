@@ -11,6 +11,38 @@
 
 import { canonicalizeValue, joinFields, renderField } from './canonicalize.js';
 
+declare const canonicalBrand: unique symbol;
+
+/**
+ * A value that has been through {@link canonicalizeRegistroAlta} or
+ * {@link canonicalizeRegistroAnulacion}.
+ *
+ * The brand exists because canonical and raw field objects are structurally identical, so
+ * without it TypeScript would happily let `@verifactu-js/xml` serialise the caller's raw input —
+ * and then the literal in the XML would not be the literal the hash was computed over
+ * (docs/spec-notes.md §1.3.1). A comment cannot prevent that; a nominal type can.
+ *
+ * `Canonical<T>` is assignable to `T`, so anything that merely reads the fields — `verifyChain`,
+ * your database layer — keeps working with either.
+ *
+ * ## Coming back from storage
+ *
+ * A record read back from a database is a plain object with no brand. **Re-canonicalise it.**
+ * Canonicalisation is idempotent — proven by test — so on already-canonical data it is a no-op
+ * that returns the same values, branded:
+ *
+ * ```ts
+ * const guardado = await db.cargarRegistro(id);            // RegistroAltaHashInput, sin marca
+ * const { fields } = canonicalizeRegistroAlta(guardado);   // Canonical<RegistroAltaHashInput>
+ * ```
+ *
+ * That is the official route back, and the only one. There is deliberately no `asCanonical()`
+ * escape hatch: an unchecked cast would reintroduce exactly the bug the brand exists to prevent,
+ * and re-canonicalising is cheap, total and already safe. If the stored data was *not* canonical,
+ * this fixes it — or throws, if the problem is one we refuse to guess at.
+ */
+export type Canonical<T> = T & { readonly [canonicalBrand]: 'verifactu-canonical' };
+
 /**
  * The eight fields of a `RegistroAlta` that feed the hash, in the order the specification
  * enumerates them — which is also their order of appearance in the record design.
@@ -30,7 +62,7 @@ import { canonicalizeValue, joinFields, renderField } from './canonicalize.js';
  * `<NumSerieFactura>    12345678 / G33  </NumSerieFactura>`. That opens a gap between "what is
  * in the XML" and "what was hashed".
  *
- * **This package closes the gap rather than tolerating it.** `@verifactu/xml` must write the
+ * **This package closes the gap rather than tolerating it.** `@verifactu-js/xml` must write the
  * values returned by {@link canonicalizeRegistroAlta}, not the caller's raw input. After
  * canonicalisation the XML literal and the hashed value are the same string by construction,
  * so trimming becomes a no-op on the AEAT's side and cannot diverge from ours.
@@ -99,16 +131,16 @@ export interface RegistroAnulacionHashInput {
  * the XML and the hash agree by construction.
  */
 export interface CanonicalRegistroAlta {
-  /** Exact literals `@verifactu/xml` must write. */
-  readonly fields: RegistroAltaHashInput;
+  /** Exact literals `@verifactu-js/xml` must write. Branded; see {@link Canonical}. */
+  readonly fields: Canonical<RegistroAltaHashInput>;
   /** Exact string that is hashed. */
   readonly hashInput: string;
 }
 
 /** Canonicalised `RegistroAnulacion`. See {@link CanonicalRegistroAlta}. */
 export interface CanonicalRegistroAnulacion {
-  /** Exact literals `@verifactu/xml` must write. */
-  readonly fields: RegistroAnulacionHashInput;
+  /** Exact literals `@verifactu-js/xml` must write. Branded; see {@link Canonical}. */
+  readonly fields: Canonical<RegistroAnulacionHashInput>;
   /** Exact string that is hashed. */
   readonly hashInput: string;
 }
@@ -178,7 +210,10 @@ export function canonicalizeRegistroAlta(input: RegistroAltaHashInput): Canonica
     FechaHoraHusoGenRegistro: required('FechaHoraHusoGenRegistro', input.FechaHoraHusoGenRegistro),
   };
 
-  return { fields, hashInput: buildRegistroAltaHashInput(fields) };
+  return {
+    fields: fields as Canonical<RegistroAltaHashInput>,
+    hashInput: buildRegistroAltaHashInput(fields),
+  };
 }
 
 /** Canonicalises a `RegistroAnulacion`. See {@link canonicalizeRegistroAlta}. */
@@ -196,5 +231,8 @@ export function canonicalizeRegistroAnulacion(
     FechaHoraHusoGenRegistro: required('FechaHoraHusoGenRegistro', input.FechaHoraHusoGenRegistro),
   };
 
-  return { fields, hashInput: buildRegistroAnulacionHashInput(fields) };
+  return {
+    fields: fields as Canonical<RegistroAnulacionHashInput>,
+    hashInput: buildRegistroAnulacionHashInput(fields),
+  };
 }

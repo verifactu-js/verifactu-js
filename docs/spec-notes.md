@@ -1087,6 +1087,17 @@ antes de declarar `0.1.0` estable.
   de huella con importe negativo (facturas rectificativas por diferencias). No consta si el `+`
   explícito se conserva en la cadena de la huella. **Sin confirmar.**
 
+- **I-28 `BLOQUEA-ESTABLE` — Separadores sin escapar dentro de los valores.** La cadena canónica
+  usa `&` y `=` como separadores y **no escapa nada** dentro de los valores. Si
+  `NumSerieFactura` valiera `A&B`, la cadena queda visualmente ambigua:
+  `…&NumSerieFactura=A&B&FechaExpedicionFactura=…`
+
+  **Parcialmente resuelto (16/08/2026).** Ver §18 para el análisis completo. Resumen:
+  F3 v1.2.2 §3.1.3.1 **prohíbe `=`** (junto a `"`, `'`, `<`, `>`) en `NumSerieFactura`, lo que
+  hace imposible falsificar un límite de campo. `&` **no** está prohibido, pero por sí solo es
+  inocuo. Queda abierto que la restricción está documentada **solo para el alta**, no para
+  `NumSerieFacturaAnulada`.
+
 ### Fechas y reloj
 
 - **I-06 `ABIERTA` — Valor del «margen de error»** admitido entre `FechaHoraHusoGenRegistro` y el reloj de
@@ -1534,3 +1545,97 @@ la huella (§7.9), nada lo detecta: el cotejo simplemente responde «No encontra
 - Caracteres no ASCII: la especificación los prohíbe (ASCII 32-126), así que no aplica.
 - Si el entorno de **producción** se comporta igual que preproducción. Se asume que sí; queda
   como comprobación previa a la fase 2 definitiva.
+
+---
+
+## 18. Separadores dentro de los valores de la huella (I-28)
+
+> Analizado el **16/08/2026**.
+
+### 18.1 El problema
+
+La cadena canónica es `nombre=valor&nombre=valor…` y **no escapa nada**. De los ocho campos que
+entran en la huella del alta, siete están fuertemente restringidos (NIF de 9, fecha `dd-mm-yyyy`,
+enumeración, patrón numérico, hex de 64, `xs:dateTime`). **Solo `NumSerieFactura` es texto
+libre**, y el XSD no le impone patrón: `TextoIDFacturaType` es `minLength 1, maxLength 60`.
+
+Si un valor pudiera contener `&` y `=`, sería construible una serie que simulara el final de un
+campo y el principio de otro, y dos registros distintos producirían la misma cadena y la misma
+huella.
+
+### 18.2 Lo que dice la fuente
+
+**F3 (Validaciones v1.2.2), §3.1.3.1, p. 8** — cita textual:
+
+> «NumSerieFactura solo puede contener caracteres ASCII del 32 a 126 (caracteres imprimibles), no permitiéndose la existencia de los siguientes caracteres:
+> - `"`   (ASCII 34)
+> - `'`   (ASCII 39)
+> - `<`   (ASCII 60)
+> - `>`   (ASCII 62)
+> - `=`   (ASCII 61)»
+
+Esta restricción tiene historia propia en el documento, que confirma que es deliberada:
+
+| Rev. | Fecha | Descripción (cita del histórico de F3) |
+|---|---|---|
+| 1.1.3 | 09/09/2025 | «Caracteres no permitidos en campos alfanuméricos de texto libre en sección 3.1» |
+| 1.1.4 | 23/09/2025 | «Se eliminan las validaciones de caracteres no permitidos en campos alfanuméricos de texto libre […] pero **se mantienen exclusivamente a nivel de IDFactura (número serie/factura)**» |
+
+Es decir: la AEAT probó a restringir todos los campos de texto libre, lo revirtió, y **conservó
+la restricción justo en el único campo de texto libre que entra en la huella.**
+
+### 18.3 Conclusión: `=` prohibido resuelve el problema; `&` es inocuo
+
+Para falsificar un límite de campo hace falta la secuencia `&Nombre=`. Sin `=` **no es
+construible**. `&` por sí solo no puede crear un campo nuevo, así que el conjunto de cadenas
+canónicas sigue siendo inyectivo respecto de los valores de los campos.
+
+Además, ni la AEAT ni nosotros *parseamos* la cadena: ambos la **construimos** desde los mismos
+valores. La ambigüedad sería un problema de parseo, y no hay parseo.
+
+→ **`&` no debe rechazarse.** La AEAT lo permite explícitamente (no está en su lista), y
+prohibirlo bloquearía facturas legítimas con series tipo `A&B`. Es el mismo error que rechazar
+un CIF por una regla no publicada (§15).
+
+### 18.4 Lo que queda abierto
+
+**La restricción está documentada solo para el alta.** F3 §3.1.4 (validaciones de
+`RegistroAnulacion`) **no la repite**, y en todo el documento la lista de caracteres aparece una
+sola vez. Formalmente, `NumSerieFacturaAnulada` podría contener `=` y la cadena de la anulación
+volvería a ser falsificable.
+
+Contra eso juega un argumento fuerte: una anulación anula una factura cuyo `NumSerieFactura` ya
+pasó (o pasará) por la validación del alta, así que una serie con `=` no debería poder existir.
+Pero eso es razonamiento, no cita.
+
+También sin confirmar:
+
+- Si el incumplimiento **rechaza** el registro o solo lo marca como «Aceptado con errores».
+  §3.1.3 está bajo «Validaciones de negocio», y F3 no lo especifica para esta regla.
+- **Discrepancia D-14:** el documento del QR (F2 §6) admite para `numserie` «ASCII 32-126» **sin**
+  la lista de cinco caracteres prohibidos. Un `=` sería válido en el QR e inválido en el registro.
+
+### 18.5 Decisión para `@verifactu-js/core`
+
+| Carácter | Decisión | Motivo |
+|---|---|---|
+| `=` (ASCII 61) | **rechazar** en `NumSerieFactura` y `NumSerieFacturaAnulada` | Prohibido por F3 §3.1.3.1, y es lo que garantiza que la cadena canónica no sea falsificable |
+| `"` `'` `<` `>` | **rechazar** en los mismos campos | Prohibidos por F3 §3.1.3.1 |
+| Fuera de ASCII 32-126 | **rechazar** | F3 §3.1.3.1 |
+| `&` (ASCII 38) | **permitir** | La AEAT lo permite; con `=` prohibido no crea ambigüedad explotable |
+
+La restricción se aplica **también a la anulación**, aunque ahí no esté documentada: es
+consistente con el alta y no puede rechazar nada legítimo, porque esa serie tampoco habría podido
+darse de alta.
+
+Código de error: `CARACTER_NO_PERMITIDO`, citando §3.1.3.1.
+
+### 18.6 Cómo se cierra
+
+Requiere medir contra preproducción con certificado, así que **pertenece a la fase 3**, no a la
+sonda del QR (que mide otro servicio: ver D-14). Casos a enviar:
+
+1. Alta con `&` en `NumSerieFactura` → ¿`Correcto` o `AceptadoConErrores`? Confirmaría que la
+   huella con `&` sin escapar coincide con la que recalcula la AEAT.
+2. Alta con `=` en `NumSerieFactura` → ¿rechazo o aviso? Determina la severidad.
+3. Anulación con `=` en `NumSerieFacturaAnulada` → cierra el hueco de §18.4.

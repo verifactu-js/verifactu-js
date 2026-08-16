@@ -7,8 +7,19 @@
 
 import { formatFechaHoraHusoGenRegistro } from './datetime.js';
 import { VerifactuError } from './errors.js';
-import { type HashOptions, hashRegistroAlta, hashRegistroAnulacion } from './hash.js';
-import type { RegistroAltaHashInput, RegistroAnulacionHashInput } from './hash-input.js';
+import {
+  type HashOptions,
+  hashRegistroAlta,
+  hashRegistroAnulacion,
+  sha256HexUpper,
+} from './hash.js';
+import {
+  type Canonical,
+  canonicalizeRegistroAlta,
+  canonicalizeRegistroAnulacion,
+  type RegistroAltaHashInput,
+  type RegistroAnulacionHashInput,
+} from './hash-input.js';
 
 /**
  * Identity of the invoice a record chains to, plus its hash — the contents of
@@ -53,6 +64,30 @@ export interface EslabonAnulacion {
 
 /** One link of a chain: an alta or an anulación. */
 export type Eslabon = EslabonAlta | EslabonAnulacion;
+
+/**
+ * A link exactly as `createSifChain` produced it.
+ *
+ * Its `fields` carry the canonical brand, so it can go straight to `@verifactu-js/xml`. It is
+ * assignable to {@link EslabonAlta}, so {@link verifyChain} and your storage layer accept it
+ * without ceremony.
+ *
+ * The reverse — a link read back from a database — is a plain {@link EslabonAlta} with no brand.
+ * That is deliberate: verification does not need the brand, because hashing canonicalises
+ * internally anyway. Only serialisation does, and the way back is to re-canonicalise
+ * (see {@link Canonical}).
+ */
+export type EslabonAltaCanonico = Omit<EslabonAlta, 'fields'> & {
+  readonly fields: Canonical<RegistroAltaHashInput>;
+};
+
+/** See {@link EslabonAltaCanonico}. */
+export type EslabonAnulacionCanonico = Omit<EslabonAnulacion, 'fields'> & {
+  readonly fields: Canonical<RegistroAnulacionHashInput>;
+};
+
+/** A link produced by this library, as opposed to one read back from storage. */
+export type EslabonCanonico = EslabonAltaCanonico | EslabonAnulacionCanonico;
 
 /** What can go wrong in a chain. */
 export type ChainIssueCode =
@@ -378,10 +413,10 @@ export interface AnulacionRequest {
 
 /** A chain: turns invoice data plus the previous record into the next record. */
 export interface SifChain {
-  /** Builds the next `RegistroAlta`. */
-  alta(request: AltaRequest): Promise<EslabonAlta>;
-  /** Builds the next `RegistroAnulacion`. */
-  anulacion(request: AnulacionRequest): Promise<EslabonAnulacion>;
+  /** Builds the next `RegistroAlta`. Its fields are canonical and branded. */
+  alta(request: AltaRequest): Promise<EslabonAltaCanonico>;
+  /** Builds the next `RegistroAnulacion`. Its fields are canonical and branded. */
+  anulacion(request: AnulacionRequest): Promise<EslabonAnulacionCanonico>;
 }
 
 function referenciaA(link: Eslabon): RegistroAnteriorRef {
@@ -435,9 +470,13 @@ export function createSifChain(config: SifChainConfig): SifChain {
   const hashOptions: HashOptions = sha256 ? { sha256 } : {};
 
   return {
-    async alta(request: AltaRequest): Promise<EslabonAlta> {
+    async alta(request: AltaRequest): Promise<EslabonAltaCanonico> {
       const registroAnterior = request.previous ? referenciaA(request.previous) : null;
-      const fields: RegistroAltaHashInput = {
+
+      // Canonicalise once and hash the string it produced, rather than hashing the raw input
+      // and storing something subtly different. `fields` and `hashInput` are then the same
+      // data by construction, which is the invariant `@verifactu-js/xml` depends on.
+      const { fields, hashInput } = canonicalizeRegistroAlta({
         IDEmisorFactura: request.IDEmisorFactura,
         NumSerieFactura: request.NumSerieFactura,
         FechaExpedicionFactura: request.FechaExpedicionFactura,
@@ -446,30 +485,31 @@ export function createSifChain(config: SifChainConfig): SifChain {
         ImporteTotal: request.ImporteTotal,
         Huella: registroAnterior?.Huella ?? null,
         FechaHoraHusoGenRegistro: formatFechaHoraHusoGenRegistro(now(), { timeZone }),
-      };
+      });
 
       return {
         tipo: 'alta',
         fields,
-        huella: await hashRegistroAlta(fields, hashOptions),
+        huella: await sha256HexUpper(hashInput, hashOptions),
         registroAnterior,
       };
     },
 
-    async anulacion(request: AnulacionRequest): Promise<EslabonAnulacion> {
+    async anulacion(request: AnulacionRequest): Promise<EslabonAnulacionCanonico> {
       const registroAnterior = request.previous ? referenciaA(request.previous) : null;
-      const fields: RegistroAnulacionHashInput = {
+
+      const { fields, hashInput } = canonicalizeRegistroAnulacion({
         IDEmisorFacturaAnulada: request.IDEmisorFacturaAnulada,
         NumSerieFacturaAnulada: request.NumSerieFacturaAnulada,
         FechaExpedicionFacturaAnulada: request.FechaExpedicionFacturaAnulada,
         Huella: registroAnterior?.Huella ?? null,
         FechaHoraHusoGenRegistro: formatFechaHoraHusoGenRegistro(now(), { timeZone }),
-      };
+      });
 
       return {
         tipo: 'anulacion',
         fields,
-        huella: await hashRegistroAnulacion(fields, hashOptions),
+        huella: await sha256HexUpper(hashInput, hashOptions),
         registroAnterior,
       };
     },

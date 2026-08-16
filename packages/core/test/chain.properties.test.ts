@@ -21,20 +21,34 @@ import {
 } from '../src/index.js';
 
 /**
- * Replaces every code unit Java's `trim()` would remove (everything `<= U+0020`) with a dot.
+ * Characters the AEAT forbids in a series + invoice number (Validaciones v1.2.2 §3.1.3.1).
+ * Note that `&` is **not** among them: it is legal, and the generator must keep producing it.
+ * See docs/spec-notes.md §18.
+ */
+const PROHIBIDOS_EN_SERIE = new Set(['"', "'", '<', '>', '=']);
+
+/**
+ * Maps a generated string onto something a series number may legally contain.
+ *
+ * Replaces every code unit Java's `trim()` would remove (everything `<= U+0020`), everything
+ * outside printable ASCII, and the five characters the AEAT forbids.
  *
  * Done by inspecting code units rather than with a regex: a character class covering the
- * control range needs literal control characters in the source, which is both unreviewable
- * and a lint error.
+ * control range needs literal control characters in the source, which is both unreviewable and
+ * a lint error.
  */
-const withoutTrimmables = (value: string): string =>
-  Array.from(value, (character) => (character.charCodeAt(0) <= 0x20 ? '.' : character)).join('');
+const asSerieLegal = (value: string): string =>
+  Array.from(value, (character) => {
+    const code = character.charCodeAt(0);
+    if (code < 0x21 || code > 0x7e) return '.';
+    return PROHIBIDOS_EN_SERIE.has(character) ? '.' : character;
+  }).join('');
 
 /** Field values that survive canonicalisation unchanged: no edge whitespace, non-empty. */
 const safeText = (maxLength: number) =>
   fc
     .string({ minLength: 1, maxLength, unit: 'grapheme-ascii' })
-    .map(withoutTrimmables)
+    .map(asSerieLegal)
     .filter((s) => s.length > 0);
 
 /** An amount already serialised, as the caller would supply it. */
