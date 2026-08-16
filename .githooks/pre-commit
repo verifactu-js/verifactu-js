@@ -29,5 +29,7 @@ EOF
 fi
 
 echo "[pre-commit] gitleaks: escaneando cambios en stage..."
-gitleaks protect --staged --redact --verbose --config .gitleaks.toml
+# `git --staged` es la forma actual. `protect` sigue funcionando como alias obsoleto en 8.30,
+# pero ya no aparece en la ayuda y acabará desapareciendo.
+gitleaks git --staged --redact --verbose --no-banner --config .gitleaks.toml
 echo "[pre-commit] gitleaks: sin hallazgos."

@@ -22,26 +22,44 @@ jobs:
   gitleaks:
     name: Secret scan
     runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: 8.30.1
     steps:
-      - uses: actions/checkout@v4
+      # `fetch-depth: 0` because the scan walks the whole history, not just the tip: a secret
+      # that was committed and then removed is still a leaked secret.
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITLEAKS_CONFIG: .gitleaks.toml
+
+      # We install the gitleaks binary instead of using gitleaks/gitleaks-action.
+      #
+      # The binary is MIT-licensed and free. The Action wrapper is not: for repositories owned
+      # by an organisation — which this one is — it refuses to run without a paid GITLEAKS_LICENSE
+      # secret. Running the binary directly gets the same scan with no licence, no third-party
+      # action in the supply chain, and no Node 20 deprecation warnings from the wrapper.
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location "$url" -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Scan history
+        run: gitleaks git . --config .gitleaks.toml --redact --no-banner --verbose
 
   quality:
     name: Lint, typecheck, tests and coverage
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -76,7 +94,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: packages/*/coverage
@@ -96,13 +114,13 @@ jobs:
           - runtime: bun
           - runtime: deno
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -115,7 +133,7 @@ jobs:
 
       - name: Set up Node ${{ matrix.runtime }}
         if: startsWith(matrix.runtime, 'node-')
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.runtime == 'node-20' && '20' || matrix.runtime == 'node-22' && '22' || '24' }}
 
