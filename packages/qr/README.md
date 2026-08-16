@@ -3,9 +3,21 @@
 **URL de cotejo y especificación del código QR tributario VERI\*FACTU (AEAT).**
 Cero dependencias en runtime. Isomórfico.
 
+> **Para rasterizar el símbolo hace falta instalar `qrcode` aparte.** Es una `peerDependency`
+> **opcional**: sin ella tienes la URL de cotejo, la validación, los literales del art. 20 y las
+> constantes del art. 21 — todo lo que exige criterio. Con ella, además, `renderSvg()` y
+> `renderPngDataUrl()`. Si la llamas sin tenerla, el error dice exactamente eso y cómo
+> arreglarlo.
+
 ```bash
-npm i @verifactu-js/qr
+npm i @verifactu-js/qr          # URL, validación, literales
+npm i @verifactu-js/qr qrcode   # …y además SVG/PNG
 ```
+
+No reimplementamos un codificador QR a propósito: Reed-Solomon y la selección de máscara son
+sutiles, y un símbolo que escanea en un lector y no en otro es un mal fallo del que ser dueño.
+Tampoco hay nada que diferenciar ahí. El valor de este paquete está en la URL, que está medida
+contra el servicio real de la AEAT.
 
 ```ts
 import { buildQrUrl, textosFactura } from '@verifactu-js/qr';
@@ -29,7 +41,8 @@ entorno web («URL encoding»)», y su ejemplo de referencia usa `java.net.URLEn
 *form-urlencoded* y no coincide con `encodeURIComponent` en `espacio ! ' ( ) ~`.
 
 Lo medimos contra el servicio real, aprovechando que con `formato=json` **devuelve el `numserie`
-que ha decodificado** ([`scripts/probe-qr-encoding.mjs`](../../scripts/probe-qr-encoding.mjs),
+que ha decodificado**
+([`scripts/probe-qr-encoding.mjs`](https://github.com/verifactu-js/verifactu-js/blob/main/scripts/probe-qr-encoding.mjs),
 16/08/2026):
 
 | Enviado | Devuelto | |
@@ -49,7 +62,8 @@ fue usarlo: era concatenar sin codificar.
 ```
 
 Y esto no lo detecta nadie: **el QR no lleva la huella**, así que un error de codificación solo
-se manifiesta como «Factura no encontrada» al cotejar. Ver `docs/spec-notes.md` §17.
+se manifiesta como «Factura no encontrada» al cotejar. Ver
+[`docs/spec-notes.md`](https://github.com/verifactu-js/verifactu-js/blob/main/docs/spec-notes.md) §17.
 
 ## Falla en tu máquina, no en la factura impresa
 
@@ -69,11 +83,46 @@ nada, y lanza si los rechazaría. `validarParametrosQR` hace lo mismo sin lanzar
 - Las constantes físicas del art. 21: tamaño 30–40 mm, nivel de corrección **M**,
   ISO/IEC 18004:2015, margen mínimo 2 mm (recomendado 6 mm).
 
-## Qué NO incluye todavía
+## Rasterización
 
-**No rasteriza el símbolo QR.** Este paquete construye y valida la URL; para dibujarla usa
-cualquier codificador (`qrcode`, `qr-creator`…) con nivel de corrección `M`. El render a SVG y
-PNG está pendiente.
+Con `qrcode` instalado:
+
+```ts
+import { buildQrUrl, renderSvg, renderPngDataUrl, isRenderAvailable } from '@verifactu-js/qr';
+
+const url = buildQrUrl(params, { entorno: 'produccion', modo: 'verificable' });
+
+const svg = await renderSvg(url);                       // string SVG
+const png = await renderPngDataUrl(url, { width: 512 }); // data:image/png;base64,...
+```
+
+**El nivel de corrección de errores está fijado a `M` y no es configurable.** El artículo 21.1
+lo impone: «Para la generación del código «QR» se empleará el nivel M (medio) de corrección de
+errores». Subirlo a Q o H produce una factura no conforme, y no hay motivo legítimo para
+quererlo.
+
+SVG es lo razonable para una factura: el símbolo se imprime a un tamaño físico de 30×30 a 40×40 mm
+y el vector sobrevive al DPI que use tu pipeline de PDF.
+
+Sobre el margen: la Orden expresa la zona de silencio en **milímetros** (mínimo 2, recomendado 6),
+que es una propiedad del resultado impreso, no del bitmap. El valor por defecto son 4 módulos —el
+mínimo del estándar—, que a 30–40 mm de ancho cae en torno a 2–3 mm. Para los 6 mm recomendados,
+añade el hueco en la maquetación en vez de inflar el símbolo.
+
+Si no la tienes instalada:
+
+```
+QrRenderDependencyError: Para rasterizar el código QR hace falta el paquete «qrcode», que es
+una dependencia opcional de @verifactu-js/qr y no está instalada.
+
+  code: 'QRCODE_NO_INSTALADO'
+  accionSugerida: Instálalo:  npm i qrcode
+                  Si solo necesitas la URL de cotejo, la validación o los literales de la
+                  factura, no hace falta: buildQrUrl, validarParametrosQR y textosFactura
+                  funcionan sin ella.
+```
+
+`isRenderAvailable()` lo comprueba sin lanzar, por si quieres degradar con elegancia.
 
 ## Aviso legal
 

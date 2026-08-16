@@ -4,6 +4,14 @@
   "private": true,
   "description": "Toolkit TypeScript para VeriFactu (AEAT): huella, XML, QR y cliente SOAP.",
   "license": "MIT",
+  "homepage": "https://github.com/verifactu-js/verifactu-js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/verifactu-js/verifactu-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/verifactu-js/verifactu-js/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -13,6 +21,8 @@
     "test": "pnpm -r --no-bail test",
     "test:coverage": "pnpm -r test:coverage",
     "typecheck": "pnpm -r typecheck",
+    "check:placeholders": "node scripts/check-placeholders.mjs",
+    "check:readmes": "node scripts/check-readmes.mjs",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
@@ -21,8 +31,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.8",
+    "@types/qrcode": "^1.5.6",
     "@vitest/coverage-v8": "^4.1.10",
     "fast-check": "^4.9.0",
+    "qrcode": "^1.5.4",
     "tsup": "^8.5.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"

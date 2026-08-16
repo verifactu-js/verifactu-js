@@ -336,6 +336,14 @@ export const RESULTADO_COTEJO = {
   '02': 'No contrastable',
 } as const;
 
+export type { RenderOptions } from './render.js';
+export {
+  isRenderAvailable,
+  QrRenderDependencyError,
+  renderPngDataUrl,
+  renderSvg,
+} from './render.js';
+
 /** Shape of the JSON answer, for callers that use `formato=json`. */
 export interface RespuestaCotejo {
   readonly status: 'OK' | 'KO';

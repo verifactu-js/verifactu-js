@@ -11,14 +11,14 @@
     "spain"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/OWNER/verifactu-js/tree/main/packages/qr#readme",
+  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/qr#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/verifactu-js.git",
+    "url": "git+https://github.com/verifactu-js/verifactu-js.git",
     "directory": "packages/qr"
   },
   "bugs": {
-    "url": "https://github.com/OWNER/verifactu-js/issues"
+    "url": "https://github.com/verifactu-js/verifactu-js/issues"
   },
   "type": "module",
   "sideEffects": false,
@@ -45,6 +45,14 @@
   ],
   "engines": {
     "node": ">=20"
+  },
+  "peerDependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "peerDependenciesMeta": {
+    "qrcode": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"

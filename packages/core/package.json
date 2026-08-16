@@ -1,6 +1,6 @@
 {
   "name": "@verifactu-js/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Huella encadenada SHA-256 y verificación de cadenas VERI*FACTU (AEAT). Cero dependencias, isomórfico. / Chained SHA-256 hash and chain verification for Spanish VERI*FACTU billing records. Zero dependencies, isomorphic.",
   "keywords": [
     "verifactu",
@@ -18,14 +18,14 @@
   ],
   "license": "MIT",
   "author": "",
-  "homepage": "https://github.com/OWNER/verifactu-js/tree/main/packages/core#readme",
+  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/core#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/verifactu-js.git",
+    "url": "git+https://github.com/verifactu-js/verifactu-js.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/OWNER/verifactu-js/issues"
+    "url": "https://github.com/verifactu-js/verifactu-js/issues"
   },
   "type": "module",
   "sideEffects": false,

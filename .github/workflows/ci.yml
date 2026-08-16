@@ -48,6 +48,18 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # @verifactu-js/core@0.1.0 shipped with an unsubstituted repository placeholder in its
+      # package.json, so the npm page linked to a repository that does not exist. npm versions
+      # are immutable, so it needed a 0.1.1. This step is why it cannot happen twice.
+      # (The literal strings live in scripts/check-placeholders.mjs, which excludes itself.)
+      - name: Unsubstituted placeholders
+        run: pnpm check:placeholders
+
+      # npm renders package READMEs with a different pipeline from GitHub's, and relative links
+      # from a monorepo subdirectory are the usual casualty. Published versions are immutable.
+      - name: README structure
+        run: pnpm check:readmes
+
       - name: Lint (Biome)
         run: pnpm lint
 

@@ -202,30 +202,39 @@ puesto produce una huella correcta sobre un NIF mal puesto: son problemas distin
 
 ## Comparativa honesta
 
-| | `@verifactu-js` | `@inoguerols/verifactu` | `@doscientos/verifactu` |
-|---|---|---|---|
-| Huella y encadenado | ✅ | ✅ | ✅ |
-| `verifyChain` (rotura/hueco/alteración) | ✅ | ⚠️ «verificador de cumplimiento» | ❌ |
-| Vectores oficiales AEAT en tests | ✅ 3 + 1 de terceros | no documentado | no documentado |
-| Property-based sobre el encadenado | ✅ | ❌ | ❌ |
-| Dependencias en runtime | **0** | 8 | 4 |
-| Isomórfico (Bun/Deno/Workers) | ✅ | ❌ | ❌ |
-| **Generación de XML** | ❌ *fase 2* | ✅ | ✅ |
-| **Envío SOAP con mTLS** | ❌ *fase 3* | ✅ | ✅ |
-| **Firma XAdES** | ❌ *fase 5* | ✅ | ❌ |
-| **QR de cotejo** | ❌ *fase 2* | ✅ | ✅ |
-| Licencia | MIT | MIT | MIT |
+El ecosistema no está vacío: una búsqueda en el registro devuelve **unos 30 paquetes**
+relacionados con VERI\*FACTU. Estos son los que se solapan con lo que hace este:
 
-**Dicho claramente: hoy hacen más cosas que nosotros.** `@inoguerols/verifactu` cubre XML, SOAP,
-XAdES y QR, que aquí son fases 2, 3 y 5. Si necesitas el flujo completo hoy, es una opción real.
+| Paquete | Huella | Cadena | XML | SOAP | XAdES | QR | Deps | Isomórfico |
+|---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| **`@verifactu-js/core`** + [`/qr`](https://www.npmjs.com/package/@verifactu-js/qr) | ✅ | ✅ | ❌ *f2* | ❌ *f3* | ❌ *f5* | ✅ | **0** | ✅ |
+| `@inoguerols/verifactu` | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | 8 | ❌ |
+| `@doscientos/verifactu` | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | 4 | ❌ |
+| `verifactu-node-lib` | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | 2 | ❌ |
+| `@kreyo/verifactu-hash-calculator` | ✅ | ? | ❌ | ❌ | ❌ | ❌ | 0 | ? |
 
-Lo que aporta este paquete es otra cosa: un núcleo pequeño, sin dependencias, que funciona en
-cualquier runtime, y cuya corrección está demostrada contra los vectores oficiales en vez de
-asumida. Si integras VERI\*FACTU en un Worker, en Deno, o quieres auditar cadenas existentes sin
-arrastrar ocho dependencias, esto es lo que hay.
+**Cadena** = detectar rotura, hueco y alteración sobre una cadena ya generada, no solo
+encadenar al generar. La `⚠️` de `@inoguerols` es que declara un «verificador de cumplimiento»
+cuyo alcance no he comprobado.
 
-No he auditado la corrección de las alternativas. La tabla refleja lo que declaran sus README y
-sus `package.json`, consultados el 16/08/2026.
+Además existen al menos `verifactu-tools`, `verifactu-utils`, la familia `facturahub-*` y varios
+SDK de proveedores (`@beel_es/sdk`, `@verifacturapi/sdk`, `@gliese710/verifactu-sdk`,
+`@factuarea/sdk`, `@calltek/invo-sdk`). **No los he mirado**, así que no aparecen arriba; su
+ausencia de la tabla no significa nada sobre ellos.
+
+**Dicho claramente: hoy varios hacen más cosas que nosotros.** `@inoguerols/verifactu` cubre XML,
+SOAP, XAdES y QR, que aquí son fases 2, 3 y 5. Si necesitas el flujo completo hoy, es una opción
+real. Y `@kreyo/verifactu-hash-calculator` ataca exactamente el mismo problema que este paquete,
+también sin dependencias.
+
+Lo que aporta este: la corrección está **demostrada** contra los tres vectores oficiales de la
+AEAT y uno de terceros reproducido de forma independiente, más property-based sobre el
+encadenado; funciona sin cambios en Node, Bun, Deno, Workers y navegador; y trae `verifyChain`
+para auditar cadenas que ya existen.
+
+No he auditado la corrección de ninguna alternativa, y no insinúo que sea peor. La tabla refleja
+lo que declaran sus README y sus `package.json`, consultados el 16/08/2026. Las `?` son cosas que
+no he comprobado, no defectos.
 
 ---
 
@@ -239,9 +248,9 @@ que impiden declarar esto estable:
 - Cómo normaliza la AEAT los decimales al recalcular (I-04); importes con signo (I-05).
 - Si acepta `Z` en vez de `+00:00` (I-08), fracciones de segundo (I-07), offsets con segundos (I-09).
 
-Están en [`docs/spec-notes.md`](../../docs/spec-notes.md) §11, cada una con su
-`TODO(verify: I-XX)` en el código. Se resolverán contra preproducción antes de marcar `0.1.0`
-como estable.
+Están en [`docs/spec-notes.md`](https://github.com/verifactu-js/verifactu-js/blob/main/docs/spec-notes.md)
+§11, cada una con su `TODO(verify: I-XX)` en el código. Se resolverán contra preproducción antes
+de marcar la versión como estable.
 
 **No se ha validado todavía ningún envío real contra la AEAT.**
 
