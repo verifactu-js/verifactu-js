@@ -1,0 +1,2119 @@
+
+
+===== [PAGINA 1 de 52] =====
+ 1 4 de diciembre de 2025 
+ 
+ACLARACIONES A DUDAS DE LOS DESARROLLADORES 
+(Versión 1.3) 
+Tabla de contenido 
+1. PERIODO TRANSITORIO. ....................................................................................................... 3 
+2. CUÁNDO SE PUEDE EMPEZAR A USAR SISTEMAS INFORMÁTICOS DE FACTURACION 
+ADAPTADOS AL RD 1007/2023. ................................................................................................... 7 
+3. CONSIDERACIÓN SOBRE FABRICACIÓN Y COMERCIALIZACIÓN DE UN ÚNICO PRODUCTO 
+SIF VS. UN “CONJUNTO, PAQUETE O FAMILIA” DE PRODUCTOS SIF, EN LO QUE CONCIERNE A 
+CUMPLIR O NO CON EL RD 1007/2023. ....................................................................................... 7 
+4. CÓMO IDENTIFICAR UN SIF. QUÉ SE CONSIDERA SIF Y NÚMERO DE INSTALACIÓN, Y 
+CÓMO IDENTIFICARLOS. SIF QUE GESTIONAN MÁS DE UNA FACTURACIÓN. ........................... 9 
+5. ARQUITECTURAS DE LOS SIF. ............................................................................................. 11 
+6. PROHIBICIÓN DE NUMERACIÓN DUPLICADA DE UN REGISTRO ....................................... 16 
+7. SIF PARA MÚLTIPLES USUARIOS: VISUALIZACIÓN DE USUARIOS. .................................... 17 
+8. SIF ÚNICO COMPUESTO DE FUNCIONALIDAD DE INTRODUCCION + SERVICIO DE ENVÍO. 
+FORMA DE HACER LA CERTIFICACIÓN. ...................................................................................... 18 
+9. PERSONALIZACIÓN DE SOFTWARE. ................................................................................... 19 
+10. IMPORTACION DE FACTURAS DESDE OTRO SISTEMA. .................................................. 20 
+11. BORRADORES DE FACTURA, “PRE-FACTURAS”, FACTURAS PROFORMA, ALBARANES, 
+FACTURAS DE PRUEBA… ............................................................................................................. 21 
+12. MAQUINAS DE VENDING Y RRSIF .................................................................................. 23 
+13. CONSERVACIÓN DE REGISTROS EN VERI*FACTU Y LIBROS REGISTROS ....................... 24 
+14. RESPONSABILIDAD DEL FABRICANTE EN LA COMERCIALIZACIÓN DE PRODUCTOS DE 
+SOFTWARE ADAPTADOS AL RRSIF ............................................................................................. 25 
+15. CHEQUEO AUTOMÁTICO DEL CORRECTO ENCADENAMIENTO. COMPROBACIONES 
+AUTOMÁTICAS A REALIZAR POR LOS SIF ................................................................................... 28 
+16. REPRESENTACIÓN DE LOS OBLIGADOS A EMITIR FACTURAS (OEF) POR PARTE DE LAS 
+EMPRESAS DE SOFTWARE. CONVENIO DE COLABORACIÓN 17 ................................................ 31 
+17. FORMA DE PROCEDER ANTE ERRORES COMETIDOS AL FACTURAR: RECTIFICACIONES, 
+ANULACIONES, SUBSANACIONES. ............................................................................................. 34 
+18. SOBRE RESPUESTA A REQUERIMIENTOS DE REGISTROS DE FACTURACIÓN DE SIF NO 
+VERI*FACTU. ............................................................................................................................... 38 
+19. RAPPELS Y RECTIFICACIÓN. ............................................................................................ 38 
+20. CONCEPTO “IMPORTE TOTAL” EN EL REGISTRO DE FACTURACIÓN ............................. 39 
+21. EQUIVALENCIA CLAVE L13 CAUSA DE NO SUJECIÓN EN TICKETBAI ............................. 41 
+22. ¿CÓMO SE REFLEJA LA VENTA DE UN BOLETO DE LOTERÍA EN UN REGISTRO DE 
+FACTURACIÓN? ........................................................................................................................... 42 
+
+===== [PAGINA 2 de 52] =====
+ 2 4 de diciembre de 2025 
+ 
+23. DESGLOSE DEL REGISTRO DE FACTURACIÓN DE ALTA CUANDO SE TRATA DE 
+ENTREGAS DE BIENES O PRESTACIONES DE SERVICIOS LOCALIZADAS EN CANARIAS ............. 43 
+24. EL CRITERIO DE CAJA Y VERIFACTU ................................................................................ 45 
+25. LA LISTA L10 (CAUSAS DE EXENCIÓN) DEL SII-IGIC ........................................................ 47 
+26. CONTENIDO DE LA FACTURA: IVA, IGIC O IPSI .............................................................. 47 
+27. FACTURAS EXPEDIDAS EN SUSTITUCIÓN DE FACTURAS SIMPLIFICADAS ..................... 48 
+29. CLAVES 14 Y 15 IVA PENDIENTE DE DEVENGO .............................................................. 52 
+ 
+ 
+• Principales cambios de la versión 1.3 con respecto a la versión 1.2:  
+­ Como consecuencia de la entrada en vigor del Real Decreto-ley 15/2025, de 2 
+de diciembre , se cambian aquellas respuestas que incluyeran las fechas de 
+obligatoriedad para tener sistemas adaptados al RRSIF aprobado por el RD 
+1007/2023 (pasan de 1/1/2026 a 1/1/2027 y de 1/7/2026 a 1/7/2027). 
+­ Se hace un resumen de las principales consideraciones a tener en cuenta en  las 
+arquitecturas con varios CF en la aclaración/FAQ nº 5. 
+­ Se ajusta la respuesta a la aclaración/FAQ nº 22 (se trata como gasto suplido). 
+• Principales cambios de la versión 1.2 con respecto a la versión 1.1:  
+­ Cambio en la respuesta del apartado 2) de la aclaración/FAQ nº 27, donde se 
+sustituye la antigua y breve redacción (que ha generado dudas) en favor de 
+otra explicación mucho más amplia y con ejemplos. 
+­ Se añade, mediante una nota,  una explicación adicional sobre el Id.SIF dentro 
+del tercer párrafo de la aclaración/FAQ nº 4. 
+• Principales cambios de la versión 1.1 con respecto a la versión 1.0:  
+­ Actualización de la forma en la que se mencionan  en varios sitios los plazos de 
+entrada en vigor, una vez modificado el RD 1007/2023, de 5 de diciembre, por 
+el RD 254/2025, de 1 de abril , así como la fecha de puesta en producción, el 
+23/04/2025, de los servicios relacionados con VERI*FACTU de la AEAT. 
+­ Se explican adicionalmente en una nota ciertos términos en la aclaración/FAQ 
+nº 3. 
+­ Se elimina el caso 4 de la aclaración/FAQ nº 23, que se refunde con el caso 2. 
+­ Se corrigen enlace y terminología de la aclaración/FAQ nº 26. 
+­ Se elimina la aclaración/FAQ nº 28, que se refunde con la nº 17. 
+­ Corrección general de erratas. 
+  
+
+===== [PAGINA 3 de 52] =====
+ 3 4 de diciembre de 2025 
+ 
+1. PERIODO TRANSITORIO.  
+Se detalla a continuación c ómo conviene proceder a los fabricantes y 
+desarrolladores en los periodos transitorios antes de la definitiva entrada en vigor de 
+las obligaciones del Real Decreto 1007/2023, de 5 de diciembre y normativa de 
+desarrollo. 
+La norma original (Real Decreto 1007/2023) establecía como fecha límite del 
+plazo de adaptación de los SIF de empresarios y profesionales el 1 de julio de 2025 . No 
+obstante, como consecuencia del retraso en la aprobación de la orden ministerial (OM) 
+HAC/1177/2024, de 17 de octubre,  que fue publicada el 28 de octubre de 2024, ha 
+sido preciso retrasar la fecha de efectos de la normativa del RRSIF (Reglamento de 
+requisitos de los sistemas informáticos de facturación, aprobado por el Real Decreto 
+1007/2023). En este sentido, el Real Decreto 254/2025, de 1 de abril, que modifica el 
+Real Decreto (RD) 1007/2023, de 5 de diciembre, establece lo siguiente: 
+«Disposición final cuarta. Entrada en vigor y efectos. 
+(…) No obstante, los obligados tributarios a que se refiere el artículo 3.1.a) de dicho 
+Reglamento tendrán adaptados los sistemas informáticos a las características y 
+requisitos que se establecen en el citado reglamento y en su normativa de desarrollo 
+antes del 1 de enero de 2026 . El resto de obligados tributarios mencionados en el 
+artículo 3.1 deberán tener operativos los sistemas informáticos adaptados a las 
+características y requisitos que se establecen en el citado reglamento y en su normativa 
+de desarrollo antes del 1 de julio de 2026. 
+Los obligados tributarios a que se refiere el artículo 3.2 de dicho Reglamento, en 
+relación con sus actividades de producción y comercialización de los sistemas 
+informáticos, deberán ofrecer sus productos adaptados totalmente al reglamento en el 
+plazo máximo de nueve meses desde la entrada en vigor de la orden ministerial a que 
+se refiere la disposición final tercera de este real decreto. No obstante, en relación con 
+sistemas informáticos incluidos en los contratos de mantenimiento de carácter 
+plurianual contratados antes de este último plazo, deberán estar adaptados al 
+contenido del reglamento con anterioridad a las fechas indicadas en el párrafo 
+anterior. 
+En el plazo máximo de nueve meses desde la entrada en vigor de la orden ministerial a 
+que se refiere la disposición final tercera de este real decreto estará disponible en la 
+sede de la Agencia Estatal de Administración Tributaria el servicio para la recepción de 
+los registros de facturación remitidos por los Sistemas de emisión de facturas 
+verificables.» 
+Por último, la disposición final primera del Real Decreto -ley 15/2025, de 2 de 
+diciembre, modifica la disposición final cuarta del RD 1007/2023 para dejarla 
+redactada de la siguiente forma: 
+ «Disposición final cuarta. Entrada en vigor y efectos. 
+
+===== [PAGINA 4 de 52] =====
+ 4 4 de diciembre de 2025 
+ 
+El presente real decreto y el reglamento entrarán en vigor el día siguiente al desu 
+publicación en el “Boletín Oficial del Estado”. 
+No obstante, los obligados tributarios a que se refiere el artículo 3.1.a) deberán tener 
+adaptados los sistemas informáticos a las características y requisitos establecidos en 
+este reglamento y en su normativa de desarrollo antes del 1 de enero de 2027. El resto 
+de obligados tributarios mencionados en el artículo 3.1 deberán tener operativos los 
+citados sistemas informáticos antes del 1 de julio de 2027. 
+Los obligados tributarios del artículo 3.2, en relación con sus actividades de producción 
+y comercialización de los sistemas informáticos, deberán ofrecer sus productos 
+plenamente adaptados al reglamento en el plazo máximo de nueve meses desde la 
+entrada en vigor de la orden ministerial a que se refiere la disposición final tercera este 
+real decreto, sin perjuicio de la obligada adaptación de los sistemas incluidos en 
+contratos de mantenimiento plurianual conforme a las fechas señaladas 
+anteriormente. 
+En el plazo máximo de nueve meses desde la entrada en vigor de la orden ministerial a 
+que se refiere la disposición final tercera de este real decreto estará disponible en la 
+sede de la Agencia Estatal de Administración Tributaria el servicio para la recepción de 
+los registros de facturación remitidos por los Sistemas de emisión de facturas 
+verificables.» 
+Con ello, se pasa de 01/01/2026 a 01/01/2027 y de 01/07/2026 a 01/07/2027, 
+respectivamente, manteniéndose invariable el plazo de 9 meses desde la entrada en 
+vigor de la OM para que los productores de SIF ofrezcan sus productos adaptados, 
+salvo a quienes tuvieran antes un contrato de mantenimiento plurianual en vigor. 
+Así pues, se identifican tres fases hasta la definitiva entrada en vigor de las 
+obligaciones: 
+a) Desde el momento presente hasta que se pongan en producción los servicios 
+VERI*FACTU de la AEAT (remisión/recepción voluntaria de registros de facturación; 
+cotejo de QR tributario; consulta) . D ichos servicios han entrado en producción el 
+pasado 23 de abril de 2025.  
+b) Desde ese instante hasta el 29/07/2025, que es cuando los productores y 
+comercializadores de sistemas informáticos de facturación  (SIF) están obligados a 
+proporcionar solo SIF adaptados, salvo en el caso de contratos de mantenimiento 
+vigentes (y cuando la AEAT está obligada a tener en producción el servicio 
+VERI*FACTU, según la disposición final cuarta del RD 1007/2023). Esta es una fecha 
+clave para los productores y comercializadores. 
+c) Desde el momento anterior hasta las 2 fechas de obligatoriedad de tener SIF 
+adaptados a l RD 1007/2023: 01/01/202 7 para quienes declaren el Impuesto de 
+Sociedades, y 01/07/2027 para el resto. 
+
+===== [PAGINA 5 de 52] =====
+ 5 4 de diciembre de 2025 
+ 
+A continuación, se incluye una tabla que trata de aclarar aspectos relacionados con 
+la distribución, comercialización y despliegue de los productos por parte de los 
+productores y comercializadores; y con el uso por parte de usuarios (personas física s, 
+personas jurídicas, afectados por RRSIF, no afectados, etc .) en dichos periodos de los 
+distintos tipos de SIF (adaptado, tanto a VERI*FACTU como a NO VERI*FACTU; no 
+adaptados, etc.). Así mismo se explica cómo proceder en distintas situaciones 
+contractuales (en concreto si hay o no hay un contrato previo de mantenimiento en 
+vigor). 
+  
+
+===== [PAGINA 6 de 52] =====
+ 6 4 de diciembre de 2025 
+ 
+  Antes de 29/7/2025 
+A partir de 29/7/2025 hasta 
+la entrada en vigor que le 
+aplique del RD 1007/2023 
+A partir de la 
+entrada en 
+vigor del RD 
+1007/2023 
+(1/1/2027 ó 
+1/7/2027) 
+Nuevo 
+cliente(*) del 
+fabricante de 
+SIF 
+Puede decidir entre:  
+ 
+a) Contratar y usar 
+un SIF no adaptado 
+(si el fabricante lo 
+oferta). 
+ 
+b) Contratar y usar 
+un SIF adaptado (si 
+el fabricante lo 
+oferta). 
+Solo puede contratar un SIF 
+adaptado (el fabricante está 
+obligado a ofertar 
+únicamente productos 
+adaptados). 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Obligatorio 
+comercializar y 
+usar 
+exclusivamente 
+SIF adaptados 
+(según la fecha 
+que aplique al 
+tipo de obligado 
+que sea: 
+declarante de IS 
+o resto). Cliente(*) 
+"antiguo" con 
+contrato de 
+mantenimiento  
+-previo y en 
+vigor- con el 
+fabricante del 
+SIF. 
+Puede decidir entre:  
+ 
+a)  Seguir usando un 
+SIF no adaptado que 
+tuviera, sin 
+actualizarlo, o 
+contratar otro SIF 
+no adaptado (si el 
+fabricante dispone 
+de esta posibilidad). 
+ 
+b) Contratar un SIF 
+adaptado (si el 
+fabricante lo 
+oferta). 
+Puede decidir entre:  
+ 
+a) Seguir usando el SIF no 
+adaptado que tuviera 
+anteriormente, sin 
+actualizarlo (si el fabricante 
+ofrece esta posibilidad) 
+hasta que le toque cumplir 
+con el RD 1007/2023 
+(1/1/2027 o 1/7/2027). 
+ 
+b) Actualizar el SIF no 
+adaptado que tuviera a una 
+versión adaptada, o 
+contratar y usar un nuevo 
+SIF adaptado (el fabricante 
+está obligado a ofertar solo 
+"nuevo/s" producto/s 
+adaptado/s ).  
+(*) Por cliente se entiende un obligado a expedir facturas (OEF) usuario de sistema/s 
+informático/s de facturación (SIF) al que le aplica el Real Decreto 1007/2023, de 5 de 
+diciembre. 
+ 
+  
+
+===== [PAGINA 7 de 52] =====
+ 7 4 de diciembre de 2025 
+ 
+2. CUÁNDO SE PUEDE EMPEZAR A USAR SISTEMAS INFORMÁTICOS DE 
+FACTURACION ADAPTADOS AL RD 1007/2023. 
+Cualquier sistema que se comercialice adaptado al RD 1007/2023 podrá ser utilizado, 
+con plena validez fiscal y sin consecuencias negativas de ninguna índole , desde ya 
+mismo, incluso meses antes de que llegue la fecha límite de adaptación de todos los 
+empresarios y de que sea obligatorio su uso para los OEF a los que les aplique. Esta 
+adopción temprana se recomienda vivamente desde la Agencia Tributaria, para 
+comenzar a familiarizarse con la nueva situación y evitar apuros de tiempo y 
+problemas de última hora (cuando ya sea obligatorio).  
+Por lo tanto, la expedición de facturas con código QR tributario incluido (tal y como 
+establece en el RD 1007/2023) y generando los correspondientes registros de 
+facturación (RF) encadenados (bien sea en modalidad VERI*FACTU o "NO 
+VERI*FACTU") es perfectamente válida. 
+Desde el pasado 23 de abril de 2025 se encuentran en producción y disponibles todos 
+los servicios VERI*FACTU de la AEAT, tanto para la remisión/recepción voluntaria de 
+registros de facturación (RF), como para el cotejo del código QR tributario y la consulta 
+de datos. Por lo tanto, a partir de esa fecha, incluso los SIF VERI*FACTU obtendrían 
+respuesta ante la remisión de los RF remitidos a la AEAT. Pero aún antes de esa fecha 
+(fines de abril de 2025), los RF quedarían “encolados”, pendientes de remisión, con 
+reintentos periódicos, como si se tratara de una incidencia, sin que ello suponga 
+ningún problema. 
+Los sistemas adaptados a la normativa, son perfectamente válidos en la actualidad, si 
+bien su uso obligatorio comenzará para quienes declaren el Impuesto de Sociedades el 
+1 de enero de 2027, y para el resto el 1 de julio de 2027. 
+ 
+3. CONSIDERACIÓN SOBRE FABRICACIÓN Y COMERCIALIZACIÓN DE UN ÚNICO 
+PRODUCTO SIF VS. UN “CONJUNTO, PAQUETE O FAMILIA” DE PRODUCTOS SIF, EN 
+LO QUE CONCIERNE A CUMPLIR O NO CON EL RD 1007/2023. 
+Debe recordarse que un SIF adaptado al RD 1007/2023 (tanto actuando en la 
+modalidad VERI*FACTU como en la NO VERI*FACTU) SOLO puede usarse cumpliendo 
+con todos los requisitos de dicho RD 1007/2023 que le aplican a él (para lo que, entre 
+otras cosas, es necesario tener instalado un certificado electrónico cualificado válido). 
+Cuando un productor o fabricante –mientras se den las circunstancias que permitan 
+esto– ofrece al cliente un sistema de facturación para que pueda ser usado de forma 
+adaptada al RRSIF o sin adaptar a dicha normativa, o bien para que cumpla con 
+diferentes normativas, tales como TicketBAI, RD 1007/2023 y la normativa que regula 
+el Suministro Inmediato de Información “SII”, realmente está ofreciendo “un paquete 
+o familia” de varios productos SIF diferentes (aunque puede que compartan gran parte 
+
+===== [PAGINA 8 de 52] =====
+ 8 4 de diciembre de 2025 
+ 
+de su programación), a fin de que el cliente pueda elegir específicamente uno para 
+instalar y usar, bajo la responsabilidad del usuario.  
+En cualquier caso, este ofrecimiento debe implementarse de tal forma que el 
+usuario no pueda cambiar dinámicamente de un “producto” a otro con cada factura ni 
+con cada sesión o arranque del producto, sino que el usuario deberá elegir 
+previamente qué tipo de SIF quiere utilizar y lo instalará –o actualizará – para que 
+cumpla con esas características, que ya permanecerán así en adelante (a menos que se 
+desinstale: ver más abajo la correspondiente NOTA ACLARATORIA). 
+También cabe recordar que la declaración responsable del productor/fabricante 
+solo debe incorporarse a un producto SIF instalado que cumpla con el RD 1007/2023 
+(es decir, adaptado) y no a otros SIF que no lo cumplan (aunque cumplan con otras 
+normativas o sirvan de base a las mismas, como TicketBAI o SII), ya que esto último (es 
+decir, certificar un SIF como cumplidor del RD 1007/2023, mediante una declaración 
+responsable, cuando no lo es) sería sancionable. 
+Todo e sto también aplica a los casos de SIF en la nube, tipo SaaS ( Software as a 
+Service), que se ofrecen a muchos usuarios : no puede haber un único SIF que deje ser 
+utilizado para cumplir o no con el RD 1007/2023 , sino que deberá haber varios SIF y el 
+usuario deberá elegir el que aplique a la facturación a llevar con él (el adaptado al RD 
+1007/2023, el adaptado a TicketBAI…). 
+NOTA ACLARATORIA:  
+Resulta casi imposible saber a priori cómo van a materializar los distintos fabricantes 
+sus diversos productos de facturación, ya que hay numerosos aspectos a tener en 
+cuenta. Esto es muy significativo a la hora de determinar qué se debe entender 
+"genéricamente" por instalación/reinstalación/desinstalación o sus equivalentes. 
+Cuando exista un “programa” que sea capaz de cumplir con las obligaciones de varias 
+normativas (TicketBAI, SII, RD 1007/2023… ), realmente existe un “conjunto de 
+programas” o “paquete de programas”, aunque tengan una programación subyacente 
+que sea, en parte, común. Ello significa que, según se produzca la instalación 
+"efectiva"(*) de una u otra forma se cumplirán unas especificaciones u otras, siendo así 
+que, al menos en una parte, las citadas especificaciones resultan divergentes. 
+(*) Es decir, la elección de requisitos normativos a cumplir por el SIF que, bajo su 
+responsabilidad, haga el usuario obligado a expedir facturas (OEF), que es lo que 
+constituirá el SIF (que podría denominarse "virtual") para ese OEF. A este respecto se 
+recuerda que un SIF "multiOT" debe cumplir los requisitos individualmente para cada 
+obligado tributario (OT/OEF) que gestione dentro de él. 
+En cualquier caso, lo que debe interpretarse es que NO debe resultar posible una 
+utilización dinámica del SIF. Entendemos por dinámica que se pueda cambiar en cada 
+sesión, en cada arranque diario o en cada factura emitida... Se pretende así evitar que 
+el cumplimiento de los requisitos de la normativa sea intermitente o a voluntad del 
+usuario obligado a emitir facturas. 
+
+===== [PAGINA 9 de 52] =====
+ 9 4 de diciembre de 2025 
+ 
+Naturalmente, la limitación anterior corresponde con el producto configurado para 
+cada uno de los usuarios. Si un producto puede instalarse para varios 
+usuarios/obligados, se entenderá que las condiciones deben cumplirse respecto de 
+cada uno de ellos por separado. 
+No obstante, lo anterior no significa que no se pueda configurar el paquete de 
+software con arreglo a las especificidades del cliente en cuanto a sus obligaciones de 
+facturación. Tampoco significa que los cambios (obligatorios o voluntarios) que estén 
+normativamente aceptados (como, por ejemplo, pasar de cumplir el RD 1007/2023 a 
+cumplir el SII) no deban poder realizarse, observando plazos y condiciones preceptivos. 
+El sistema debe velar porque se cumplan las mencionadas condiciones, impidiendo los 
+cambios “dinámicos” y asegurando que los que se produzcan se encuentren en el 
+marco de la normativa. 
+En cuanto a la expresión "a menos que se desinstale" (habitualmente referida a SIF on 
+premise), debe entenderse en general como "a menos que se cambie con carácter 
+«permanente»". Es decir, cuando se produce un cambio de la implementación de la 
+forma de facturar del SIF, realmente se ha cambiado de SIF, porque se ha cambiado el 
+producto a utilizar (por ejemplo, un SIF que funcione bajo los requisitos del RD 
+1007/2023, con una determinada identificación, si se cambia a uno que funcione bajo 
+los requisitos del SII, dejará de ser el SIF con aquella identificación y será otro SIF). 
+4. CÓMO IDENTIFICAR UN SIF. QUÉ SE CONSIDERA SIF Y NÚMERO DE INSTALACIÓN, 
+Y CÓMO IDENTIFICARLOS. SIF QUE GESTIONAN MÁS DE UNA FACTURACIÓN. 
+Un SIF responde a la definición dada en el artículo 1.2 del reglamento de requisitos 
+de los sistemas informáticos de facturación (RRSIF), aprobado por el RD 1007/2023 y, 
+básicamente, viene determinado por el funcionamiento y comportamiento que realice 
+y su posible interrelación con otros sistemas (dentro de una determinada arquitectura 
+informática empleada).  
+Resumidamente, un SIF expide (o gestiona/dirige/controla la expedición de) 
+facturas –con su QR tributario incluido – de forma autónoma e independiente (aunque 
+se puede apoyar en servicios externos que invoque), a la vez que “simultáneamente” 
+genera (o gestiona/dirige/controla la generación) y remite o conserva (o 
+gestiona/dirige/controla la remisión o conservación) sus correspondientes registros de 
+facturación (RF).  
+Un SIF se identifica universalmente por la “concatenación” de tres campos: Id.OEF 
+(NIF) + Id.SIF ( *) + NºInstalación(**). Otro dato importante que caracteriza al SIF es su 
+versión, pero un cambio en dicha versión (cuando se actualiza, por ejemplo) no 
+significa que el SIF pase a ser otro SIF con Id. distinto, cosa que sí ocurre con los otros 3 
+campos mencionados. 
+(*) Código de 2 posiciones dado por cada fabricante a su producto SIF , motivo por 
+el cual, la unicidad "global" de dicho Id.SIF del producto SIF se consigue considerando 
+
+===== [PAGINA 10 de 52] =====
+ 10 4 de diciembre de 2025 
+ 
+también de forma vinculada a él (como si formara parte de él) la identificación de su 
+fabricante: NIF o IdOtro de la agrupación/bloque ‘SistemaInformatico’. 
+(**) El Nº de instalación es una forma de completar una identificación unívoca de 
+cada SIF -por si tuviera varios- de un mismo OEF, y así distinguirse de cualquier otro SIF 
+de ese OEF en cualquier momento del tiempo (pasado, presente o futuro). Como dice 
+su definición en el anexo de la Orden HAC/1177/2024, de 17 de octubre, y en el 
+documento de diseños de registros que está publicado en la web de desarrolladores de 
+la Agencia Tributaria, no puede repetirse nunca: por ejemplo, incluso si se formatea el 
+ordenador donde estaba instalado un SIF y se reinstala el mismo software de nuevo en 
+ese mismo ordenador, el nuevo SIF así constituido debe llevar otro nº de instalación 
+diferente al anterior que tenía, y que no coincida con la de ningún otro SIF de ese OEF 
+(pasado, presente o futuro). 
+Por ello, como valores recomendados de número de instalación, se propone alguno de 
+los dos siguientes, ya que, en principio, ambos garantizarían que no haya coincidencias 
+con ninguna otra instalación (pasada, presente o futura) de SIF de ese OEF: 
+- “Timestamp” (al menos fecha+hora+minuto+segundo) en que se efectuó la 
+instalación del producto de facturación (momento en el cual se constituye como SIF).  
+- Asignar un nº secuencial (por ejemplo, el típico “autonumérico” generado dentro de 
+la organización del OEF) que no se repita nunca entre las distintas instalaciones de los 
+diferentes SIF para ese OEF: 1, 2, 3... n. 
+Ha de tenerse en cuenta que si se utiliza un SIF que permite llevar distintas 
+facturaciones, como contempla el artículo 7.a) del RRSIF, cada una de esas 
+facturaciones distintas (sean de distintos OEF o del mismo OEF pero de distintos 
+centros de facturación independientes, como tiendas) debe tener un nº de instalación 
+propio y distinto al resto (pasado, presente o futuro) porque se consideran SIF 
+independientes, como si fueran “SIF virtuales”, dentro de un producto SIF más 
+completo que los gestiona y administra. 
+También relacionado con este asunto de SIF que permiten gestionar distintas 
+facturaciones, en el caso de SIF en la nube, tipo SaaS (Software as a Service ), que se 
+ofrecen a muchos usuarios, los cuales, a su vez, pueden gestionar distintas 
+facturaciones, sean del mismo OEF (por ejemplo, tiendas distintas) o de distintos OEF 
+(por ejemplo, una gestoría que lleva la facturación de distintos OEF), se aclara  a 
+continuación cuándo poner el valor “S” en el campo ‘IndicadorMultiplesOT’ del bloque 
+‘SistemaInformatico’ de los registros de facturación y de evento : este valor deberá 
+calcularse de forma independiente por cada usuario del SIF SaaS  (no a nivel global del 
+SIF SaaS) y se informará con “S” en todos los registros de facturación (y, en su caso, de 
+evento) de aquellos usuarios que tengan creadas más de una facturación en el SIF 
+SaaS, independientemente del estado de dichas facturaciones (alta, baja…) y de si son 
+de igual o de distinto OEF. En caso contrario, o sea, cuando el usuario solo tiene una 
+facturación en el SIF SaaS, se informará con “N”. 
+
+===== [PAGINA 11 de 52] =====
+ 11 4 de diciembre de 2025 
+ 
+5. ARQUITECTURAS DE LOS SIF. 
+→POSIBILIDAD DE UN SIF INTEGRADO POR VARIOS COMPONENTES. 
+→POSIBILIDAD DE DISPONER DE COMPONE NTES DIFERENTES PARA INTRODUCCIÓ N 
+DE DATOS Y GENERACIÓN DE REGISTRO DE FACTURACIÓN  (RF), EXPEDICIÓN DE 
+FACTURA CON QR Y REMISIÓN DE LOS RF A LA SEDE ELECTRÓNICA  DE LA AEAT . 
+→DECLARACIÓN/ES RESPONSABLE/S. 
+→CERTIFICADOS ELECTRÓNICOS CUALIFICADOS VÁLIDOS ADMITIDOS. 
+En el mundo de los sistemas informáticos de facturación (SIF), existen diversas 
+y variadas arquitecturas. En la implementación o aplicación de las obligaciones 
+emanadas de la LGT art 29.2.j) , del RD 1007/23 que aprueba el Reglamento SIF 
+Veri*factu y de la OMHAC 1177/2024, es del mayor interés permitir que todas esas 
+arquitecturas hoy existentes  (e incluso otras novedosas) , puedan opera r con 
+normalidad, si bien deben cumplir los requisitos de seguridad, inalterabilidad … y 
+certificación que la normativa impone. Por ese motivo las arquitecturas “mixtas”, que 
+son aquellas en las que intervienen varios programas, componentes o sistemas, incluso 
+de fabricantes distintos, no son contrarias a la normativa y pueden utilizarse.  
+Una de esas arquitecturas, muy común,  es aquella basada en un sistema en el 
+que existen terminales que sirven de TPV , pero que están conectadas en tiempo real 
+con un sistema o servidor de backoffice centralizado.  
+ 
+I.- En este sentido y PARA LA MODALIDAD VERI*FACTU resulta admitido que:  
+a) Una vez introducidos los datos de facturación a través de la terminal TPV, 
+estos se consoliden en tiempo real en el backoffice centralizado y desde allí se genere 
+y se devuelva a las TPVs un “Registro de alta de factura”, tal y como lo describe el Real 
+decreto 1007/23 y la Orden Ministerial para su desarrollo. Recibido por las TPVs el 
+“Registro de alta de factura”, estas procederían a imprimir la factura y entregarla al 
+cliente con el preceptivo QR.  
+b) Como quiera que la conexión es en tiempo real (o cercano al tiempo real), en 
+ese momento (es decir, después de impresa y entregada la factura) la propia TPV 
+puede lanzar un mensaje al servidor backoffice central, de modo que desde este 
+último se produzca inmediatamente su envío a la sede electrónica en la modalidad 
+VERI*FACTU. Se hace notar que el conjunto formado por los módulos que intervienen 
+en la funcionalidad del SIF deberá prever y gestionar adecuadamente, en su caso, las 
+situaciones que pudieran hacer necesario generar RF de alta de subsanación o RF de 
+anulación. Para ello, ambos componentes deberán estar preparados y correctamente 
+integrados y coordinados para atender posibles respuestas con error o avisos en la 
+remisión a la AEAT. 
+Alternativamente, a todo lo anterior (letras a) y b)), igualmente sería válida una 
+arquitectura en la que sea la propia TPV la que genere el “ Registro de alta de factura” 
+directamente, procediendo también a su impresión con el código QR  y entrega al 
+
+===== [PAGINA 12 de 52] =====
+ 12 4 de diciembre de 2025 
+ 
+cliente, y en tiempo real traslade todo ello al backoffice central, para que este último 
+sistema proceda a su envío a la sede electrónica en la modalidad VER*FACTU. Ese 
+backoffice haría de instrumento para la remisión del fichero sin más (y sin perjuicio de 
+su conservación, si bien en la modalidad veri*factu esta última no se regula). 
+ 
+II.- Por lo que se refiere A LA MODALIDAD NO VERI*FACTU:  
+Es preciso señalar, en primer lugar, que los requisitos de seguridad tanto en la 
+producción, como especialmente la conservación de los Registros de facturación y el 
+chequeo permanente del funcionamiento del sistema, a través del Registro de 
+eventos, hacen mucho más exigente técnicamente a esta modalidad que la de 
+VERI*FACTU. En esta última se dan por cumplidos los requisitos de seguridad, 
+simplemente con el envío de los Registros de alta de factura a la sede electrónica de la 
+AEAT. Por ello, si se dispone de la capacidad de remisión y conexión a la red, contando 
+con que la norma exige la inmutabilidad de los registros (y otra cosa sería ilegal y 
+sancionable), se entiende como preferible el envío de estos, por resultar más sencillo y 
+seguro de gestionar, por sencillez y seguridad tanto para la empresa desarrolladora de 
+software, como para la propia Agencia Tributaria, evitando los problemas técnicos que 
+derivan de la conservación segura de los registros una vez producidos.  
+Por lo demás, la arquitectura mixta a la que se refiere esta FAQ  es 
+perfectamente compatible con la normativa, siempre que cumplan ciertos requisitos: 
+⁃ Que ambos sistemas (TPVs y backoffice) estén certificados, cada uno por la 
+parte del proceso de facturación de la que se encarguen. 
+⁃ Que en ninguno de los sistemas ni en la transmisión e ntre ambos (TPVs y 
+backoffice) se produzca alteración alguna del registro de facturación. De modo que los 
+registros conservados o transmitidos sean exactamente los mismos que se generaron, 
+dieron lugar a la factura y generaron el QR. 
+⁃ Que la conexión entre los sistemas sea indefectible y necesaria, es decir que 
+no quede a decisión del usuario sino que se produzca de forma automática y necesaria. 
+De esta manera, no pueden quedar “huérfanos” ni facturas expedidas ni registros de 
+facturación (RF)  generados, es decir, no puede haber facturas expedidas sin sus RF 
+generados, ni RF generados sin sus correspondientes facturas expedidas . Y en el caso 
+de SIF VERI*FACTU, esto se amplía a los RF remitidos, o sea, no pueden quedar RF 
+generados sin remitir a la AEAT. 
+⁃ Que el registro de facturación, en general, esté íntegramente producido en el 
+momento de generar la factura y el código QR y entregarla al cliente  o de forma 
+simultánea e inmediata . Sería válido que se carguen datos en la TPV, se genere el 
+registro de facturación en el Back Office, desde el que se envíe y se devuelva una vez 
+generado a la TPV para que sea esta la que lo imprima y entregue al cliente con el QR.  
+Este requisito de inmediatez en general aplica a los 3 grandes procesos involucrados: 
+
+===== [PAGINA 13 de 52] =====
+ 13 4 de diciembre de 2025 
+ 
+emisión de la factura con QR, generación del RF y, en su caso, remisión  del RF  a la 
+AEAT. 
+ ⁃ Que s e respeten los elementos de seguridad, que para la modalidad NO 
+VERI*FACTU, incluyen (además del hash  encadenado) la firma del registro por parte 
+del sistema emisor. A este respecto, se recuerda que cuando se utiliza un SIF que actúa 
+bajo la modalidad NO VERI*FACTU, quien expide la factura (con su QR tributario) 
+también debe generar "simultáneamente" el RF debidamente firmado. Es decir, no se 
+puede disociar la autoría del proceso de expedir y generar RF (porque en NO 
+VERI*FACTU, el RF solo se considera generado cuando está firmado). 
+⁃ Que se respeten, las condiciones de conservación inalterable de los registros 
+y, particularmente, en el caso de NO VERI*FACTU, la llevanza del “registro de eventos” 
+del sistema que, en este sentido, dependiendo del tipo de implementación y siempre 
+que la conexión sea en tiempo real, podría limitarse al BackOffice central. 
+En cualquier caso, debe hacerse notar que no sería acorde a la normativa, la 
+producción de los registros de facturación por parte de la TPV y un reproceso posterior 
+de los mismos  (que los altere)  desde el servidor Back Office central para su 
+conservación u otro fin, como tampoco lo sería la emisión de las facturas desde la TPV, 
+sin que de forma simultánea  existiera el registro de facturación de alta (se recuerda 
+que es obligatorio que la factura que se entregue al cliente contenga el código QR con 
+los datos requeridos). Estas últimas consideraciones, naturalmente, son válidas para 
+ambas modalidades.  
+Se recuerda también que lo s SIF que estén formados por dos, o más 
+componentes, ya sean desarrollados por el mismo fabricante, y a especialmente si son 
+desarrollados por distintos fabricantes, deberán contar todos ellos con la preceptiva 
+Certificación mediante Declaración Responsable  (DR). En ella, los fabricantes de cada 
+componente se responsabilizarán del cumplimiento de las obligaciones definidas en la 
+norma en relación con las funcionalidades que presten al conjunto. Por excepción , no 
+será preciso certificar aquellos componentes que presten funcionalidades que sean 
+irrelevantes para el cumplimiento de los requisitos y obligaciones de la normativa SIF 
+(esto es, fundamentalmente, las que no afecten a la generación del RF, a su 
+encadenamiento, a la impresión de facturas, a la generación del QR, al envío a sede 
+electrónica, al enlace indefectible entre componentes, a la conservación inalterada ni 
+al registro de eventos, estos últimos en modalidad no VERI*FACTU).  
+Siguiendo con la certificación en el caso de utilización de varios módulos en 
+diversas arquitecturas, también debe tenerse en cuenta que, al estar compuesto el SIF 
+por varios módulos "componentes de facturación"  (CF), de acuerdo con las 
+definiciones dadas en el art. 1.2 de la OM  HAC/1177/2024, uno de ellos será el 
+componente principal de facturación o CPF, que “integraría” de alguna forma  dentro 
+de él a algún componente de facturación (típicamente invocado desde el CPF mediante 
+una API). En función de la arquitectura empleada , de la vinculación en el desarrollo 
+
+===== [PAGINA 14 de 52] =====
+ 14 4 de diciembre de 2025 
+ 
+entre módulos y de si el productor de los módulos es el mismo o distinto, se pueden 
+dar diversas formas de certificación: 
+a) Si el CF fuera producido por un tercero (que, como se ha dicho, también 
+debería certificarlo con su propia DR, por sus funcionalidades de facturación 
+que implementen requisitos del RRSIF), evidentemente, se trata de un 
+producto con un ciclo (de desarrollo) evolutivo propio, dependiente del 
+tercero, y distinto al del CPF. Dado que es importante conocer cómo 
+funciona la totalidad del SIF y cómo cumple con la normativa, en la DR del 
+CPF debería indicarse que invoca indefectiblemente dichos CF (con mención 
+expresa a la versión concreta usada de esos CF), y también cómo lo hace, 
+cuándo y para qué (es decir, la parte de requisitos que implementan los CF).  
+b) El caso anterior también puede darse aunque los módulos sean del mismo 
+fabricante, cuando estos tengan un ciclo evolutivo propio, independiente 
+del CPF. Podría ser el caso de módulos que son considerados productos 
+separados, que pueden dar servicio a múltiples CPF (y que incluso podrían 
+comercializarse de forma independiente). 
+c) Si los módulos fueran un desarrollo del mismo fabricante que el CPF  y sus 
+ciclos evolutivos estuvieran vinculados, podría considerarse que no es 
+necesaria una DR específica para los CF pero, en este caso, en la DR del CPF 
+se debería explicar la integración con los CF y su uso indefectible como 
+parte del funcionamiento del sistema, indicando qué parte implementa n los 
+CF. Así, un cambio en los CF (en su desarrollo ó “ versión”), supondría un 
+cambio en la versión del CPF que l os integra (porque realmente significa un 
+cambio del CPF).  
+Por último, en este tipo de situaciones  en que participan diversos 
+componentes, debe asegurarse que el certificado electrónico cualificado válido que se 
+emplee por parte de cualquier componente para firmar RF y/o remitir RF a la AEAT sea 
+alguno admitido  (respetando normativas de seguridad , como las del R eglamento UE  
+910/2014, del Parlamento y del Consejo , y, en su caso, contando con el otorgamiento 
+de las facultades necesarias).  
+A continuación, se hace un resumen de lo expuesto sobre arquitecturas con 
+varios componentes de facturación: 
+La participación en el sistema informático de facturación (SIF) de varios 
+componentes de facturación (CF: ver en la orden ministerial "OM" HAC/1177/2024 su 
+artículo 1.2.b) para implementar las tres principales funcionalidades necesarias para 
+expedir facturas (cargar datos de facturación, conservar esos datos y procesar los 
+mismos) y cumplir con los requisitos exigidos por el RRSIF (reglamento de los requisitos 
+de los SIF, aprobado por el Real Decreto 1007/2023) y la OM, es una arquitectura 
+admisible. 
+ 
+
+===== [PAGINA 15 de 52] =====
+ 15 4 de diciembre de 2025 
+ 
+Para que todo el proceso se lleve a cabo de acuerdo con lo especificado por el 
+RRSIF y la OM, ha de tenerse en cuenta que debe garantizarse la indefectibilidad de la 
+conexión(1) entre los componentes (es decir, que esta conexión siempre se produce y, 
+por tanto, no es posible que no se produzca), así como la inmediatez(2) de la misma y 
+la no alteración  de la información intercambiada, además de estar debidamente 
+coordinados(3). Una forma -auditable- de garantizar esto es mediante la INVOCACIÓN 
+por programa desde un componente (el componente principal de facturación o CPF: 
+ver en la OM su artículo 1.2.c) a los CF "especializados" en la implementación de 
+ciertos requisitos. Además, todos ellos (CPF y CF) deberán estar certificados(4) por su 
+fabricante con su correspondiente declaración responsable (DR) que se referirá a las 
+funcionalidades que implementen requisitos exigidos. 
+(1) El componente principal de facturación o CPF (ver en la OM su artículo 1.2.c) 
+se integrará de algún modo indefectible con otro/s componente/s de facturación o CF 
+y NO deberá poder ocurrir que queden facturas ni registros de facturación (RF) 
+huérfanos, es decir, facturas emitidas sin su correspondiente RF generado (y remitido), 
+ni RFs generados (y remitidos) sin su correspondiente factura emitida. 
+(2) De acuerdo con el RRSIF y la OM, debe asegurarse que la generación del RF 
+se produzca de forma "simultánea" (entiéndase inmediata o sin demora apreciable) a 
+la expedición de la factura para su instantáneo almacenamiento o remisión a la AEAT. 
+(3) Los componentes de facturación "CF" que intervienen en el proceso 
+completo a realizar para cada factura, deberán estar debidamente coordinados para 
+gestionar posibles acciones necesarias posteriores y resolverlas adecuadamente (por 
+ejemplo, como consecuencia de las posibles respuestas dadas por el servicio 
+VERI*FACTU de la AEAT, tales como los rechazos y errores que requieran -o no - 
+subsanación, sin perder de vista las posibles rectificaciones, anulaciones, etc.). 
+(4) Ver la parte anteriormente expuesta en esta aclaración nº 5 sobre las DR.  
+  
+
+===== [PAGINA 16 de 52] =====
+ 16 4 de diciembre de 2025 
+ 
+6. PROHIBICIÓN DE NUMERACIÓN DUPLICADA DE UN REGISTRO 
+Hasta ahora era frecuente  crear una factura y a continuación borrarla  o 
+eliminarla. Luego, cuando se hac ía la siguiente, se le da ba el mismo número  de la 
+borrada, para mantener el orden consecutivo. Esto sucedía con facturas irreales, de 
+pruebas, o también cuando el operador se daba cuenta tras facturar que esas facturas 
+se habían emitido indebidamente o por error . En ese caso se  “borraban” las facturas 
+generadas y se repetía  el procedimiento cambiando las condiciones, con lo cual, el 
+número de facturas quedaba muy reducido.  
+El sistema VERI*FACTU no acepta estas operaciones porque, una vez que se 
+comunica un registro de anulación, cuando se intenta subir el subsiguiente registro de 
+alta con el mismo número provoca un error "Registro de facturación duplicado." 
+¿Cómo debería proceder en estos casos? 
+En primer lugar, hay que señalar que la elaboración de pre -facturas, borradores 
+de factura, etc. resulta ser una operación ordinaria en el contexto de la actividad 
+mercantil. De hecho, tiene que existir un momento en el que, una vez completado el 
+contenido de una factura, este se valide a los efectos de elaborar el RF (registro de 
+facturación) e, inmediatamente, su remisión a la sede electrónica (cuando se trate de 
+la modalidad Veri*factu). Solo en ese momento podremos afirmar que existe el RF 
+porque de hecho se ha expedido una factura. De la misma forma, hasta ese momento, 
+cualquier alteración que se produzca en ese registro, previo al RF, sería perfectamente 
+lícita. A lo anterior hay que añadir , no obstante,  la exigencia de conservación de los 
+registros preparatorios  siempre que estos no acaben siendo finalmente validados  en 
+forma de factura (por ejemplo , resulta obligado conservar los registros de facturas 
+proformas emitidos). 
+ 
+Por otro lado, cada RF básicamente se considera que se "identifica" por el mismo 
+identificador de la factura a la que hace referencia 
+(Emisor+SerieYNúmeroFactura+FechaExped.). 
+ 
+Cuando el servicio de la AEAT devuelve un mensaje diciendo que el RF está 
+duplicado, quiere decir que ya hay un RF en la AEAT para ese ID. de factura. Eso se 
+produce debido a la forma de proceder de reutilizar la "serie -numeración" de las 
+facturas expedidas "de prueba", que ante riormente se podían considerar como "no 
+generadas" (oficialmente) y sus numeraciones se volvían a utilizar en las facturas reales 
+oficialmente expedidas y así tener una secuencia de numeración "real" sin saltos 
+(debidos a las facturas de prueba) , con la nueva normativa NO es posible . Al hacer eso 
+ahora, el RF de la factura "de prueba" y el RF de la factura "real" (que ha reutilizado la 
+numeración de la factura "de prueba") apuntarían, en teoría, al mismo identificador de 
+factura, y eso es lo que detecta el servicio de la AEAT: que ya se remitió un RF de una 
+
+===== [PAGINA 17 de 52] =====
+ 17 4 de diciembre de 2025 
+ 
+factura (la "de prueba") y ahora se intenta volver a remitir un RF de factura (de la 
+"real") cuyo ID. ya consta en la AEAT, por lo que no lo permite y avisa de ello. 
+Por eso, a partir de ahora, esta práctica no resulta válida, ya que precisamente el 
+RD 1007/2023 persigue que todo lo que pasa en la facturación quede registrado e 
+inalterable, con lo que ya NO es posible reutilizar la numeración de ninguna factura 
+expedida, aunque sean facturas expedidas "de prueba". De hecho, las facturas "de 
+prueba" serán facturas "reales" (puesto que se expiden por un SIF en producción) que 
+después, en su caso, deberán ser anuladas para que quede constancia de que no eran 
+facturas de una venta o prestación de servicio real (todo ello al margen de que , en sus 
+conceptos, descripciones, etc. pueda indicarse algún texto de que son de prueba). Ver 
+otra aclaración donde se explica más detalladamente este aspecto. 
+ 
+7. SIF PARA MÚLTIPLES USUARIOS: VISUALIZACIÓN DE USUARIOS. 
+ 
+En la OMHAC se indica lo siguiente:  Art. 2.d) Deberá visualizar, claramente y en todo 
+momento, la información identificativa del obligado tributario al que corresponde la 
+operativa que se está realizando en cada instante. Además, en el caso de que 
+efectivamente esté soportando la facturación de más de un obligado tributario, 
+independientemente del estado operativo en que se encuentren, bien sea de alta, de 
+baja o cualquier otro, deberá indicarlo con algún mensaje explicativo que pueda ser 
+consultado de forma rápida, fácil e intuitiva. 
+¿Se cumple con esa norma con mostrar el nombre del obligado tributario o hay que 
+incluir algún otro dato, como NIF, etc? 
+Bastará visualizar cualquier dato que lo identifique unívocamente y lo distinga del 
+resto de O bligados Tributarios (facturaciones distintas) que se gestionen en el SIF. 
+Podría valer el nombre / razón social, el NIF o algún otro código o dato identificativo  
+inteligible, admitiéndose también que aparezca la combinación de varios de los 
+anteriores. 
+  
+
+===== [PAGINA 18 de 52] =====
+ 18 4 de diciembre de 2025 
+ 
+8. SIF ÚNICO COMPUESTO DE FUNCIONALIDAD DE INTRODUCCION + SERVICIO DE 
+ENVÍO. FORMA DE HACER LA CERTIFICACIÓN. 
+En nuestra empresa desarrollamos y comercializamos tres sistemas de facturación 
+(SIF) (cada uno es un producto distinto comercialmente), en los cuales se incluye: 
+a.  la funcionalidad para la definición de información e introducción de las 
+facturas, pero 
+b.  la acción de envío  se realiza a través de la publicación de un servicio residente 
+(también desarrollado por nuestra empresa). Este servicio es utilizado por 
+cualquiera de los tres productos. 
+La declaración responsable ¿se hará por cada uno de los tres productos o 
+habría que hacer alguna declaración responsable por el servicio? 
+Si se trata de un servicio en la nube invocado indefectiblemente  por los tres 
+productos, se puede considerar que este servicio forma parte indisociable de dichos 
+tres productos (interactuando bajo una determinada arquitectura) y, por tanto, no 
+sería necesario certificarlo particularmente , sin perjuicio de incluir ese servicio en el 
+ámbito general de la Certificación mediante Declaración Responsable que se emita.  
+Otra segunda posibilidad , cuando su uso no sea necesario e indefectible,  sería 
+considerar que el servicio es un componente de facturación "independiente", aunque 
+sea realizado por el mismo fabricante . En este segundo caso debería certificarse por el 
+fabricante de forma separada incluyendo en ese Certificado el cumplimiento de  la 
+normativa por las funcionalidades que esa  parte implementa ( en general por la 
+remisión de RF a la AEAT). 
+En ambos supuestos, la Certificación mediante Declaración Responsable de cada uno 
+de los tres productos que utilizan ese “servicio” deberá mencionar esta circunstancia (y 
+la versión utilizada del mismo, porque es necesaria para saber cómo cumple) , para que 
+conste que se trata de un componente de facturación utilizado por dichos productos. 
+ 
+¿El control de la versión se haría también por el producto o habría que llevar también 
+un control de versiones del servicio? 
+El control de la versión se realiza para cada producto, por lo que para todo cambio en 
+él debe quedar amparado por un certificado de que cumple la normativa aplicable.  
+En el primer supuesto de la respuesta a la pregunta anterior, dado que el servicio de 
+remisión de RF a la AEAT sería un componente de facturación pero que forma parte de 
+los tres productos, un cambio en dicho servicio supondría de facto un cambio en los 3 
+productos que lo utilizan, por lo que los 3 productos deberían también actualizar su 
+versión para reflejar este hecho.  
+
+===== [PAGINA 19 de 52] =====
+ 19 4 de diciembre de 2025 
+ 
+En el segundo supuesto  (SIF de dos componentes diferentes) , no cambiaría la versión 
+de los productos, solo del servicio, ya que se consideraría un componente de 
+facturación "independiente". 
+Por lo tanto en el primer supuesto cambiaría la versión del producto entero, mientras 
+que en el segundo supuesto solo cambiaría la versión del servicio (componente 2). 
+ 
+9. PERSONALIZACIÓN DE SOFTWARE. 
+Una empresa comercializa productos SIF adaptados a la norma, pero da la posibilidad 
+a sus clientes d e personalizarles el producto ( a partir de sus peticiones referidas a los 
+procesos de facturación).  En ese caso ¿ ese producto que ha quedado personalizado a 
+un cliente (que contiene la base de l software con determinados ajustes o cambios) 
+necesita una declaración responsable independiente y control de versiones, o es v álida 
+con declaración y control de versiones que ya lleva el propio producto estándar? 
+Siempre que las personalizaciones NO alteren la implementación de los requisitos o 
+condiciones exigidos por el RD 1007/2023, no se considera rán "componente/s de 
+facturación" del SIF (OM HAC/1177/2024: art. 1.2.b) y, por tanto, no será necesario 
+realizar respecto de ellas ninguna Certificación por Declaración responsable específica 
+ni un control de versiones, valiendo con la del producto estándar. Por el contrario, si 
+esa personalización afectara o cambiara la implementación de dichos requisitos  
+haciéndola distinta de la del producto estándar , entonces sí debería realizarse una 
+declaración responsable, ya que en tal caso sí se habría alterado el funcionamiento de 
+componente/s de facturación del SIF. 
+En cuanto a las versiones, se supone que, siguiendo las buenas prácticas en la 
+industria, cualquier cambio en el producto que se pone en producción (sea estándar o 
+particularizado) siempre va asociado de alguna manera a la correspondiente 
+identificación de la versión (o parche, ampliación, variación, etc.) en la que se llevó a 
+cabo, para controlar qué se ha hecho y saber qué se tiene funcionando en todo 
+momento. 
+Se recuerda en cualquier caso que la personalización de los SIF, cuando no sea 
+realizado con control del fabricante y pueda alterar el funcionamiento del producto en 
+los requisitos que señala la normativa, no resulta rá ajustada a la norma. Así, por 
+ejemplo, el usuario puede decidir en qué parte superior de la factura ubica 
+exactamente el código QR y esto es una personalización legítima, pero no lo sería si el 
+SIF le permitiera decidir que las facturas que emita NO van a llevar impreso el QR 
+obligatorio.  
+ 
+
+===== [PAGINA 20 de 52] =====
+ 20 4 de diciembre de 2025 
+ 
+10. IMPORTACION DE FACTURAS DESDE OTRO SISTEMA. 
+Cuando en un SIF se emitan facturas con todo el tratamiento Veri*Factu, y 
+también se importen facturas emitidas por otros sistemas (ajenas al propio SIF), que ya 
+habrán emitido las facturas y enviadas , esas facturas van a quedar registradas por 
+nuestro SIF junto con las emitidas por él . ¿Tenemos que hacer algún tratamiento con 
+esas facturas externas?  
+Pero ante una posible inspección al cliente en el sistema existirían estos dos tipos de 
+facturas. ¿Habría que hacer algo para diferenciarlas? 
+El tema de importación de facturas es habitual en la práctica de la gestión de facturas. 
+Para centrar la solución a esta cuestión es preciso diferenciar un SIF a los efectos de la 
+norma, de lo que sería el sistema de gestión y proceso general de las facturas de la 
+empresa. En el primero solo se generan y, en su caso se conservan, las facturas del 
+propio SIF, pero en el segundo, más amplio se pueden mezclar facturas de  distinta 
+procedencia. Empezaremos por afirmar que la responsabilidad del fabricante de un SIF 
+alcanza a l os RFs de las  facturas emitidas por el  SIF que haya certificado,  pero no 
+alcanza en modo alguno a los RFs correspondientes a facturas emitidas con otro SIF. 
+La cuestión se plantea especialmente cuando se trata de facturas propias , pero que 
+han sido emitidas por delegación, de acuerdo con el artículo 6 del RRSIF (aprobado por 
+RD 1007/2023) en relación con el art 5 del ROF (RD 1619/2012) , por el cliente 
+(autofacturas) o por un tercero. En estos casos el respeto a las obligaciones que señala 
+la normativa  deberá realizarlo el SIF del empresario que materialmente emite las 
+facturas, el cual remitirá luego al empresario que entrega el bien o presta el servicio  
+esas facturas , para que las incorpore , no a su SIF, sino más bien a sus sistemas para 
+gestión y proceso general de las facturas . Por lo tanto, en los sistemas del empresario, 
+efectivamente, este tendrá facturas  de dos clases: las  producidas con su SIF y las 
+producidas con el SIF del empresario al que delegue esa facturación. Esas otras 
+facturas, naturalmente no se tienen ni que volver a imprimir con QR, ni mucho menos 
+volver a enviarlas a la Sede Electrónica de la AEAT. Ambas funcionalidades las habrá 
+realizado el SIF de la empresa que materialmente las haya emitido. 
+Ambos conjuntos de Registros de Facturación (RFs), si son adaptados al RRSIF pueden 
+diferenciarse sencillamente porque la mención del software emisor y la constancia de 
+que se ha producido emisión en nombre de tercero o por el destinatario, deben estar 
+correctamente informadas en el XML del RF. 
+Por lo que se refiere a los requerimientos  de la Agencia Tributaria, en el caso de que el 
+SIF del emisor material, no sea de tipo VERI*FACTU, es posible que se requiera al 
+empresario que entregó los bienes o prestó los servicios esos Registros de Facturación, 
+ya que, aunque materialmente sean emitidas por otro, que será quien deba custodiar 
+dichos RFs, sin embargo , el consultante también dispondrá de dichos registros (que le 
+deben ser remitidos, junto con toda la factura, por su emisor material).  
+
+===== [PAGINA 21 de 52] =====
+ 21 4 de diciembre de 2025 
+ 
+Independientemente de todo lo anterior, sea cual sea el caso, una forma clara de 
+poder distinguir  las facturas propias de las ajenas  es importando las facturas ajenas 
+junto con sus correspondientes registros de facturación: 
+Cada factura tiene un Registro de Facturación (RF). En la configuración de dicho RF se 
+incluye la identidad del SIF emisor. Por lo tanto , las facturas, mejor dicho los Registros 
+de Facturación, que se encuentren soportados en un sistema de Gestión, pero que no 
+hayan sido producidos por el SIF del empresario, son fácilmente identificables como 
+RFs importados para dicha gestión. 
+Tales RFs importados podrán también ser auditados en caso de Inspección del 
+empresario al que correspondan, dado que , según la normativa, el empresario que 
+entregó los bienes o prestó los servicios (es decir el empresario que está obligado a 
+facturar) responderá, en última instancia, de la facturación que sea producida en su 
+nombre y por su cuenta por el SIF un tercero o por el SIF de su cliente (autofacturas). 
+Por el contrario, y por lo que se refiere a la responsabilidad del fabricante del SIF de un 
+empresario, este solo responderá de dicho SIF comercializado por él (que deberá 
+haber certificado), pero no de los RFs producidos por otros SIFs ajenos. Por ello, las 
+irregularidades que, en su caso, se produjeran en esos otros RFs nunca le serían 
+imputables al fabricante del SIF instalado en la sede del Empresario. 
+ 
+11. BORRADORES DE FACTURA, “PRE -FACTURAS”, FACTURAS PROFORMA, 
+ALBARANES, FACTURAS DE PRUEBA… 
+ 
+¿Es posible de acuerdo con la normativa RRSIF (RD 1007/2023 y OMHAC 
+1177/2024) la realización de borradores de factura, facturas proforma o sin validez 
+fiscal?  ¿Y las  facturas de prueba o para formación? ¿Cómo se pueden realizar 
+cumpliendo con la normativa?  
+ 
+En primer lugar, hay que señalar que la elaboración de pre -facturas, proformas, 
+borradores de factura o facturas sin validez fiscal  (términos que entendemos análogos 
+al de facturas presupuestarias) resulta ser una operación ordinaria en el contexto de la 
+actividad mercantil. De hecho, tiene que existir un momento en el que, una vez 
+completado internamente el contenido de una factura, este se valide a los efectos de 
+elaborar un RF ( Registro de F acturación encadenado), expedir la correspondiente 
+factura con su numeración e, inmediatamente, remitir el RF a la sede electrónica AEAT 
+(cuando se trate de la modalidad Veri*factu) , ese paso final, supone la generación del 
+registro que deberá conservarse o remitirse.  
+ 
+No obstante, l a idea de preservar todas las transacciones que se producen en 
+un sistema informático empresarial es una obligación novedosa que se desprende 
+directamente del art 29.2.j) de la Ley 58/2003, General Tributaria (LGT), al establecer la 
+
+===== [PAGINA 22 de 52] =====
+ 22 4 de diciembre de 2025 
+ 
+obligación tributaria formal para los “productores, comercializadores y usuarios, de que 
+los sistemas y programas informáticos o electrónicos que soporten los procesos 
+contables, de facturación o de gestión de quienes desarrollen actividades económicas 
+garanticen la integridad, conservación, accesibilidad, legibilidad, trazabilidad e 
+inalterabilidad de los registros, sin interpolaciones, omisiones o alteraciones de las que 
+no quede la debida anotación en los sistemas mismos " . La mención a los registros se 
+hace de forma genérica de modo que, sin perjuicio de que en materia de facturación 
+rija lo establecido en el desarrollo reglamentario del artículo 29.2.j) LGT a través del 
+RRSIF VERI*FACTU, esa disposición legal despliega efectos directos desde su entrada 
+en vigor en octubre de 2021 respecto de cualquier otros sistema informático . Lo 
+anterior significa que cuando los albaranes, proformas, prefacturas o facturas sin 
+validez fiscal se expidan, sus registros deberán conservarse de forma inalterable (salvo 
+que la alteración se produzca por medio de un registro posterior, que también deberá 
+quedar anotado en el sistema). 
+ 
+Por lo que se refiere a las facturas de prueba o para formación o de test, si bien 
+se entiende su utilidad, no está aceptado en la normativa  que un SIF operativo que 
+factura "en real", ya sea VERI*FACTU (en cuyo caso apuntaría al entorno de 
+producción) o NO  VERI*FACTU, pueda producir “facturas ficticias” o facturas que no 
+son tales. Por consiguiente, las facturas de prueba o facturas de formación, elaboradas 
+con un SIF adaptado, siempre que lleguen a ser facturas propiamente hablando (es 
+decir que se generen de forma real, y que no sean simples borradores o prefacturas no 
+confirmadas), deben ser tratadas como si de facturas reales se tratara a los efectos del 
+RD 1007/23 y resto de normativa de desarrollo. 
+ 
+A este respecto, y aunque puede implementarse de diversas formas, si se desea 
+poder probar el SIF, deberá ser con el certificado electrónico cualificado válido y 
+admitido instalado (porque, si no es así, el SIF no puede estar operativo y ser usado). 
+Desde ese momento, el usuario puede ya expedir facturas con él, que siempre serán 
+"reales" (con su QR tributario, y cuyos RF de alta son remitidos a la AEAT) pero, en este 
+caso, al ser expedidas con la intención de hacer pruebas (y no corresponderse con 
+bienes entregados o servicios prestados), la normativa contempla que para las facturas 
+expedidas que no sean tales , siempre y cuando no diga otra cosa el reglamento de 
+obligaciones de facturación, aprobado por el Real Decreto 1619/2012,  deberá 
+procederse a la inmediata posterior anulación de ellas (para que no cuenten como 
+facturas reales), por lo que luego deberían siempre ser anuladas por el usuario, 
+remitiéndose entonces automáticamente a la AEAT el debido RF de anulación (sin 
+perjuicio de que, además, el usuario "describa" esas facturas con algún texto que las 
+califique "de pruebas"). 
+ 
+Para facilitar esta operativa "de pruebas (o de formación) del SIF" y hacer más 
+cómoda, tranquila y segura su realización por parte del usuario (evitando descuidos u 
+olvidos), el SIF podría ofrecer una funcionalidad de "facturar en pruebas (o formación)" 
+ya preparada para que haga todo esto automáticamente: dejar al usuario expedir 
+
+===== [PAGINA 23 de 52] =====
+ 23 4 de diciembre de 2025 
+ 
+facturas "reales" (con QR y remitido su RF de alta a la AEAT) pero "para 
+pruebas/formación" (que deberá poder distinguir, por ejemplo, con numeración en 
+una serie especial de tipo PRU 25 XXXX), describirlas visible y claramente como "de 
+pruebas" y asegurarse de que siempre serán anuladas (con remisión de RF de 
+anulación a la AEAT) una vez terminadas dichas pruebas o formación. De esta manera, 
+el usuario se despreocupa, lográndose así el objetivo de poder probar el SIF (o enseñar 
+su funcionamiento), ya que después se "arregla" oficialmente todo lo hecho en 
+pruebas/formación, a la vez que se actúa cumpliendo con el RD 1007/2023, y siempre 
+de forma transparente, ya que se deja el rastro que explica toda la operativa llevada a 
+cabo. 
+ 
+Debemos recordar que el objetivo y finalidad de la norma es registrar todo lo 
+que pasa en el SIF, por lo que debe señalarse que aún en estos casos de pruebas, la 
+conservación de los registros resulta obligatoria, incluso en el caso de que se utilice 
+una modalidad preparatoria como pre -facturas, proformas, borradores de pruebas, 
+etc. que no lleguen a integrar una factura completa. 
+ 
+  
+12. MAQUINAS DE VENDING Y RRSIF 
+1. Régimen aplicable a maquinas vending de productos (bebidas, snacks, cafés, etc.) 
+o de servicios (conectada a una báscula de camiones que permite a camioneros 
+consultar el peso que llevan mediante el pago de una tarifa puntual). 
+Este tipo de máquinas ¿también están sujetas a la legislación Veri*Factu, a la 
+emisión de facturas simplificadas y la remisión instantánea de los registros de 
+facturación? 
+ 
+La forma en la que se realice la facturación, no ex ime del cumplimiento de las 
+obligaciones del RD 1619/2012 (ROF) ni, consiguientemente, de cumplir las 
+obligaciones de RD 1007/23 (RRSIF). Por lo tanto , dichas máquinas automáticas de 
+vending en la medida que están obligadas a emitir facturas simplificadas , también lo 
+están a  cumplir el RRSIF (en la modalidad VERI*FACTU o NO VERI*FACTU).  
+No obstante, la Disp. Adicional primera del citado Real Decreto establece que 
+seguirán vigentes las autorizaciones que puedan haberse cursado (o ser cursadas 
+posteriormente) por parte del Departamento de gestión de la Agencia Tributaria en 
+materia de facturación excluyendo parte de la información de las facturas. 
+  
+
+===== [PAGINA 24 de 52] =====
+ 24 4 de diciembre de 2025 
+ 
+2. En caso de una empresa  que tiene máquinas de vending , cuy o suministro de 
+información de facturas  a la AEAT es a través del SII, ¿las ventas realizadas de 
+manera autónoma por la m áquina cómo deben ser tratadas? Los tiques (facturas 
+simplificadas) emitidos por esta máquina, ¿tienen que cumplir con las 
+especificaciones del sistema Veri*Factu? 
+Todos los empresarios (personas jurídicas o físicas) que se encuentren adscritos 
+al SII, están excluidos del cumplimiento de la normativa del RD 1007/2023 (RRSIF). Por 
+lo tanto, las máquinas de vending de las que estos sean titulares NO se sujetan a la 
+normativa RRSIF, si bien sus operaciones deberán ser declaradas al SII en los términos 
+establecidos para la normativa correspondiente. 
+ 
+3. En máquinas de vending, en caso de que tengan que estar sometidas a las 
+especificaciones del Veri*Factu, que no tienen la posibilidad de emitir una factura 
+simplificada en forma física al no disponer de una impresora integrada, como se 
+puede solventar el problema? 
+Actualmente, las máquinas de vending emiten justificantes de pago y, muy a 
+menudo, justificantes de la operación. Tras la entrada en vigor de  la normativa 
+emanada del sistema dichos justificantes de la operación deberán emitirse con las 
+características que se indican para la facturación y facturación simplificada en la 
+normativa de Sistemas Informáticos de Facturación, es decir, produciendo un registro 
+de factura  XML con una sintaxis definida, generando sobre ese registro un algoritmo 
+hash encadenado con la factura anterior e imprimiendo una factura con QR, además 
+de conservar todo ello firmado e inalterado o remitirlo a sede electrónica. 
+ 
+13. CONSERVACIÓN DE REGISTROS EN VERI*FACTU Y LIBROS REGISTROS 
+ 
+1. En cuanto a la conservación de los registros de facturación . Cuando  según las 
+especificaciones Veri*Factu se proceda a la remisión inmediata de estos registros, 
+¿qué tipo de obligación tienen el desarrollador de software de facturación en la 
+conservación de los registros? 
+Cuando se utilicen sistemas VERI*FACTU, las obligaciones de conservación de 
+los registros NO aparecen reguladas en la normativa, por cuanto dichos registros serán 
+conservados de forma inalterable y segura en Sede Electrónica por la AEAT , quedando 
+a disposición de los empresarios que los hayan remitido.  
+No obstante, por razones de funcionalidad del sistema (no por obligación 
+reglamentaria), parece lógico que dichos sistemas también conserven esos mismos 
+registros. Por lo que se refiere a las Facturas Completas, estas deben conservarse  en la 
+
+===== [PAGINA 25 de 52] =====
+ 25 4 de diciembre de 2025 
+ 
+medida en que el Registro no contiene la totalidad de l detalle de las facturas (por 
+ejemplo las líneas de facturación).   
+ 
+2. ¿Cómo se combina el envío inmediato de registros de facturación (RFs) según las 
+especificaciones Veri*Factu, con la llevanza de los libros de registros del IVA? 
+El envío inmediato supone la conservación de esos Registros en la Sede 
+electrónica y, consiguientemente, la posibilidad de su uso para configurar el Libro 
+Registro de Facturas Emitidas. Gracias a los servicios de asistencia que la AEAT 
+proporcionará a partir de las facturas completas o simplificadas remitidas, podrán 
+elaborarse los Libros de facturas emitidas de forma más sencilla.  
+Por otro lado y en relación con las facturas recibidas, los usuarios podrán 
+también recuperar los Registros  de facturas recibidas que se hayan remitido a la AEAT 
+en modalidad VERI*FACTU, lo cual contribuirá también a la confección del Libro 
+Registro de Facturas recibidas.  
+ 
+14. RESPONSABILIDAD DEL FABRICANTE EN LA COMERCIALIZACIÓN DE 
+PRODUCTOS DE SOFTWARE ADAPTADOS AL RRSIF 
+ 
+1. En los casos en los que el cliente no quiera actualizar el software y contin úe 
+haciendo uso de un software anterior no adaptado ¿es posible mantener un 
+contrato de asistencia con dicho cliente en relación con el resto de módulos de 
+gestión que no impliquen la parte de facturación? 
+Los con tratos de mantenimiento de los SIF  que no estén adaptados, en 
+principio, no deberían seguir vigentes después de que sea obligatorio el uso de 
+programas adaptados. Sin embargo, no hay inconveniente en el mantenimiento de las 
+partes de los programas distintas del sistema informático de facturación (SIF) , 
+pudiendo el OT seguir recibiendo asistencia con normalidad. 
+Aunque no es parte de las obligaciones legales, conviene a los fabricantes y 
+desarrolladores de programas informar a sus clientes de que, a partir de las fechas 
+límite, deberán disponer de sistemas informáticos de facturación adaptados. 
+  
+
+===== [PAGINA 26 de 52] =====
+ 26 4 de diciembre de 2025 
+ 
+2. En el caso de que el cliente no tenga mantenimiento , ni cuota de asistencia activa 
+y solicite una asistencia puntual (ejemplos: incidencia en obtener un modelo 347, 
+cambiar un formato, cierre contable o cualquier incidencia que no tenga relación 
+con facturación) ¿Se podrías dar soporte al cliente y facturarlo? 
+Nos remitimos a la contestación dada a la pregunta anterior. Toda la asistencia 
+informática que se refiera a programas de gestión, contabilidad, etc. distintos del 
+Sistema Informático De Facturación, puede seguirse prestando con normalidad. 
+ 
+3. En los casos en los que el cliente tenga activo un contrato de mantenimiento, pero 
+no quiera actualizar el software ¿Qué se consideraría una comunicación válida 
+para quedar exentos de responsabilidad? (Comunicación en redes, carta de 
+comunicación al cliente, banner en factura, etc.) 
+Cualquiera de los medios mencionados, que permita al cliente conocer la nueva 
+situación, sumados a la actividad inequívoca de la propia empresa fabricante o 
+comercializadora, que deje de prestar los servicios que correspondan a sistemas de 
+facturación no adaptados, es suficiente. 
+ 
+4. ¿La decisión de no actualizar por parte del cliente debe ser comunicada por algún 
+medio en concreto, o simplemente con el hecho de no actualizar se da como 
+válido? 
+No está previsto en la normativa ningún medio concreto para que el cliente 
+comunique a su proveedor de software de facturación que no desea actualizar el 
+programa. Por lo tanto, el mero hecho de no proceder a esa actualización, supondrá 
+para el usuario situarse al margen de la obligación, sin que haya responsabilidad por 
+ello en el fabricante o distribuidor. 
+ 
+5. En los casos de renovación de mantenimiento anual cuya fecha exceda de la 
+entrada en vigor para dicho cliente (ejemplo: vigencia del 01/03/2025 al 
+28/02/2027) y finalmente no quiera actualizar la aplicación, durante febrero y 
+marzo ¿seríamos responsables como fabricantes? 
+La decisión de adaptación de los sistemas informáticos de facturación no le 
+corresponde al fabricante de software, sino al usuario. Por lo tanto, en el caso de que 
+un usuario en los plazos marcados por la norma no contacte con sus proveedores  de 
+software para disponer , en su debido momento de SIF adaptados, no cabe entender 
+responsabilidad en dichos proveedores fabricantes, recayendo la que pudiera existir 
+sobre los usuarios mismos. 
+ 
+
+===== [PAGINA 27 de 52] =====
+ 27 4 de diciembre de 2025 
+ 
+6. Para los clientes que tienen actualmente un software de gestión, facturación y 
+contabilidad con múltiples modificaciones técnicas de su actividad (empresas de 
+marquetería, carpintería metálica, etc.) , y no es susceptible de adaptación a la 
+nueva normativa de facturación ¿cabe la posibilidad de limitar dicho software para 
+la parte técnica, realizando la facturación desde otro software? ¿y mantener la 
+relación comercial de esta aplicación? 
+La integración de distintos sistemas en un único sistema de gestión empresarial 
+es siempre una posibilidad. Dicha integración puede producirse entre programas 
+fabricados por la misma empresa o, incluso, entre programas y sistemas fabricados por 
+múltiples empresas. En lo que se refiere al sistema informático de facturación, en el 
+caso de que dicho sistema (adaptado a la normativa "SIF VERI*FACTU") reciba toda o 
+parte de la información de facturas desde otros sistemas distintos, debe asegurarse la 
+indefectibilidad de la conexión entre sistemas, es decir, que el Sistema Informático De 
+Facturación deberá estar directa e indefectiblemente conectado con aquel otro 
+sistema del que reciba la información de facturación. 
+Por lo tanto, la relación comercial en relación con otros sistemas, por supuesto, puede 
+mantenerse. 
+Debe tenerse en consideración que el artículo 29.2. j) de la ley General tributaria, 
+establece un conjunto de requisitos y obligaciones genéricos para cualquier sistema de 
+gestión empresarial (diferente del SIF), que también deberán ser cumplidas, sin 
+perjuicio de que dicho cumplimiento no está sometido a un desarrollo reglamentario 
+concreto, tal y como sí sucede con el SIF. 
+  
+
+===== [PAGINA 28 de 52] =====
+ 28 4 de diciembre de 2025 
+ 
+15. CHEQUEO AUTOMÁTICO DEL CORRECTO ENCADENAMIENTO . 
+COMPROBACIONES AUTOMÁTICAS A REALIZAR POR LOS SIF 
+1. En el desarrollo de  la implementación del sistema VERI*FACTU en nuestros 
+dispositivos, vemos que según la OMHAC 1177/24 u no de los puntos que hay que 
+cumplir es el 7.i 
+7.i) Salvo cuando se trate del primer registro de facturación, cada vez que el sistema informático 
+vaya a generar un nuevo registro de facturación, de alta o de anulación, antes deberá comprobar 
+que se cumplen los siguientes requisitos: 
+1.º El último registro de facturación generado está correctamente encadenado.  
+2.º La fecha y hora de generación del último registro de facturación generado no es superior en más 
+de un minuto a la fecha y hora actuales que se utilizarán para fechar el registro de facturación a 
+generar. 
+ ¿Qué se debe comprobar exactamente del registro anterior? ¿Solo la huella?  
+  
+El encadenamiento del último registro es el sistema de seguridad en orden a la 
+trazabilidad que debe comprobar el sistema cada vez que lanza un nuevo Registro de 
+Facturación (RF).  
+En este sentido, debe verificarse que el campo "Huella" que figura dentro de las 
+agrupaciones "Encadenamiento" - "RegistroAnterior" del último registro de facturación 
+(RF) generado (RF n -1, es decir, el inmediatamente anterior al que se va a generar, RF 
+n) se corresponde con el campo "Huella" del RF n -2, cuya "identificación" también se 
+aporta en las mencionadas agrupaciones del RF n -1. De esta forma se comprueba que 
+el RF n-1 está bien encadenado con el RF n -2 y, a continuación, se encadena el RF n -1 
+con el RF n que se va a generar (anotando en el RF n la identificación de la factura y la 
+huella del RF n-1). 
+ 
+2. ¿Qué debe comprobar el SIF? ¿ si el registro anterior , por ejemplo, tiene la huella 
+incorrecta el SIF n o debe permitir generar el siguiente ?,¿debe guardar el error y 
+permitir generar el siguiente?  
+Si es un sistema informático de facturación (SIF) de modalidad NO VERI*FACTU, es 
+preciso guardar un evento de ello -según los artículos 7.j) y 9.1.d) de la Orden 
+ministerial (OM) HAC/1177/2024 - y advertir del error (visualizándolo de alguna 
+manera: OM art. 7.j) . Pero será preciso generar el siguiente  RF, ya que la facturación 
+por este motivo NUNCA debe interrumpirse. 
+ 
+3. 2.1 No acabo de entender bien el pto 2 : La fecha y hora de generación del último 
+registro de facturación generado no es superior en más de un minuto a la fecha y 
+hora actuales que se utilizarán para fechar el registro de facturación a generar. 
+
+===== [PAGINA 29 de 52] =====
+ 29 4 de diciembre de 2025 
+ 
+¿Si cuando voy a generar un registro ha pasado más de un minuto desde la 
+generación del registro anterior, que será lo habitual, como debemos actuar? 
+Según la redacción la respuesta es la contraria de la apuntada en la pregunta. Lo 
+natural es que el Registro de Facturación (RF) que se genera sea posterior en más de 
+un minuto al RF anteriormente generado y esto NO es ningún problema. Lo que no se 
+admite en dicho apartado es que el RF que se está generando tenga fecha y hora 
+(sistema) más de un minuto anterior al RF anteriormente generado. 
+La generación del RF llevará siempre, como parte de los datos, la fecha, hora, 
+minuto y segundo de generación, de acuerdo con el art 10.1.p) del reglamento de 
+requisitos de los sistemas informáticos de facturación, RRSIF, aprobado por el Real 
+Decreto 1007/2023. La hora de expedición e impresión material de la factura no forma 
+parte del RF, si bien resulta obligado que dicha expedición, como es lógico, debe 
+hacerse simultáneamente (o con mínimo lapso ) a la generación del RF, de acuerdo con 
+el art. 9 del RRSIF. Adicionalmente, en los SIF NO VERI*FACTU es cierto que se debe 
+garantizar que la fecha y hora "del sistema" usada por el SIF es la correcta y que no 
+difiere en más de un minuto de la hora oficial: arts. 7.e) y 7.f) de la OM, pero esto nada 
+tiene que ver con la cuestión planteada que se refiere al art. 7.i).2.º. 
+ 
+4. Todas estas comprobaciones antes de vender pueden generar retardos en la 
+venta.  
+La comprobación del encadenamiento es un algoritmo que puede calcularse de 
+forma instantánea y  que no debería tener impacto perceptible en el tiempo del 
+proceso de la venta. En cuanto al tema temporal basta con que el sistema SOLO admita 
+la generación de los RFs por el orden cronológico en que se encolen, o sea, que la 
+generación de los RF se produzca por la misma secuencia cronológica de facturación 
+(es decir, que se vayan generando por el mismo orden cronológico en el que se 
+expiden las facturas). 
+ 
+5. El pto 9 “Registros de eventos” contempla que los fabricantes deben desarrollar  
+un sistema automático de detección de errores tanto en los Registros de 
+Facturación como en los Registros d e Eventos . Esta tarea se estará ejecutando 
+constantemente. Pero si se implementa este “sistema automático de detección de 
+errores”, que parece ser obligatorio, carece de sentido hacer la comprobación 
+antes de facturar, ya que la comprobación se hace constantemente, ¿Es correcto? 
+ 
+No. Solo en el caso de SIF actuando en la modalidad de NO VERI*FACTU (ver 
+NOTA 1 a continuación), deberá tener implementado y funcionando el Registro de 
+Eventos, así como ofrecer las diversas funcionalidades de comprobación de anomalías 
+(referentes a los requisitos exigidos por el RRSIF y la OM: integridad/inalterabilidad, 
+
+===== [PAGINA 30 de 52] =====
+ 30 4 de diciembre de 2025 
+ 
+trazabilidad...) en los RF y registros de evento. Sin embargo, no es obligado que dichas 
+funcionalidades estén constantemente ejecutándose (aunque voluntariamente podría 
+adoptarse esta medida por parte del fabricante y, en su caso, del usuario): basta con 
+que estén disponibles para ser lanzadas cuando el usuario del SIF estime oportuno, 
+cosa que se recomienda hacer con cierta frecuencia (por ejemplo en un momento que 
+no haya -mucha- actividad de facturación).  
+Por lo tanto, la comprobación del correcto encadenamiento del RF anterior (RF 
+n-1) previa a la generación de uno nuevo RF n, es SIEMPRE OBLIGATORIA para los SIF 
+que actúan bajo la modalidad "NO VERI*FACTU" aunque lleven Registro de Eventos.  
+ 
+NOTA 1:  
+El productor de un SIF que solo puede actuar exclusivamente en modo VERI*FACTU 
+("SOLO VERI*FACTU"), no está obligado a implementar en él un registro de eventos, 
+pero puede hacerlo voluntariamente, si así lo desea. Sin embargo, si el SIF puede ser 
+utilizado para actuar en modo VERI*FACTU o "NO VERI*FACTU" (SIF "DUAL"), deberá 
+obligatoriamente implementar en dicho SIF un registro de eventos para que este 
+funcione al menos cuando el SIF sea utilizado en la modalidad "NO VERI*FACTU" (no 
+siendo necesario que el registro de eventos esté en funcionamiento cuando actúe en la 
+modalidad VERI*FACTU, aunque también podría hacerlo voluntariamente). 
+Lo mismo cabe decir de las funcionalidades de comprobación/detección de anomalías 
+en cuanto a la obligatoriedad de implementarlas (SIF "DUAL") o no (SIF "SOLO 
+VERI*FACTU") y, cuando hay obligación de implementarlos (SIF "DUAL"), según la 
+modalidad en que se usen, ponerlas operativas (obligatorio si se usa en modo "NO 
+VERI*FACTU") o no (si se usa en modo "VERI*FACTU", aunque voluntariamente se 
+permite).  
+ 
+Adicionalmente, en ambos casos de SIF ("DUAL" y "SOLO VERI*FACTU"), si así lo 
+deseara voluntariamente el fabricante (a modo de posible ventaja para sus clientes), 
+podría optar por incorporar funcionalidades más potentes y flexibles que las exigidas a 
+la hora de permitir seleccionar y visualizar / comprobar los registros de facturación 
+generados y su encadenamiento: por ejemplo, ofreciendo procesos automáticos y/o 
+masivos de comprobación (vs. -o además de - manuales e individuales) con sus 
+correspondientes informes de resultados, programación del lanzamiento de los 
+mismos, o cualquier otra mejora o funcionalidad más avanzada o sofisticada. 
+  
+
+===== [PAGINA 31 de 52] =====
+ 31 4 de diciembre de 2025 
+ 
+16. REPRESENTACIÓN DE LOS OBLIGADOS A EMITIR FACTURAS (OEF) POR PARTE 
+DE LAS EMPRESAS DE SOFTWARE. CONVENIO DE COLABORACIÓN 17 
+ 
+1. ¿Es posible remitir los ficheros que contienen registros de facturación generados 
+por sistemas informáticos de facturación en nombre de terceros? 
+Sí, a través de la figura de  la colaboración social (artículos 79 a 81 RD 
+1065/2007 y Orden HAC/1398/2003, de 27 de mayo) o del apoderamiento. Pueden ser 
+colaboradores sociales a este respecto tanto las empresas suministradoras de software 
+que hayan suscrito el correspondiente Convenio de colaboración social como los 
+profesionales de la gestión tributaria. 
+ 
+2. ¿Qué documentación deberá remitir una empresa desarrolladora de software que 
+desee suscribir un acuerdo de colaboración social con la Agencia Tributaria para 
+para la remisión en su Sede electrónica de ficheros que contienen registros de 
+facturación generados por sistemas informáticos de facturación? 
+La entidad deberá remitir a la Delegación de la Agencia Tributaria 
+correspondiente a su domicilio fiscal , o a la dirección de  correo 
+comunicacion.sepri@correo.aeat.es, los siguientes datos y la documentación 
+correspondiente: 
+- Escrito en el que se solicita formalmente, por quien tenga representación para 
+ello, la firma de un acuerdo de colaboración social en la aplicación de los 
+tributos al amparo de lo establecido en el artículo 92 de la Ley 58/2003, de 17 
+de diciembre, General Tributaria. 
+- Nombre completo y NIF de la entidad (formato pdf). 
+- Copia del artículo de los estatutos de la entidad en el que se haga referencia al 
+objeto social (formato pdf). 
+- Nombre y NIF de quien firmará el acuerdo en representación de la entidad 
+(formato pdf). Si es el representante por estatutos, certificado (en formato pdf) 
+expedido por el secretario de la entidad acerca del nombramiento del 
+representante, y en otro caso, escritura de apoderamiento suficiente (en 
+formato pdf). 
+- Nombre y NIF de una persona de contacto. 
+- Teléfono de contacto.  
+- Domicilio de la entidad.  
+- Dirección de correo electrónico.  
+Una vez, quede catalogada la empresa como entidad firmante y asociad a al 
+correspondiente convenio (recordamos que para los trámites de VERIFACTU 
+pueden trabajar con 001, 002 (si son intermediarios) y 017  (tanto para 
+
+===== [PAGINA 32 de 52] =====
+ 32 4 de diciembre de 2025 
+ 
+intermediarios como para empresas software) , pueden realizar la gestión de 
+colaboración social a través de los servicios de Sede Electrónica:  
+https://sede.agenciatributaria.gob.es/Sede/colaborar-agencia-tributaria/colaboracion-social-
+presentacion-declaraciones/gestiones-colaboracion-social.html 
+ 
+3. ¿Puede el Obligado a Emitir Facturas (OEF)  autorizar a un profesional tributario 
+para que remita, o autorice a una empresa de software a remitir,  en su nombre  
+sus registros de facturación? 
+Sí, puede hacerlo utilizando el correspondiente modelo no obligatorio  (Anexo II), 
+aprobado en la Resolución de la Dirección General de la Agencia Tributaria de 18 de 
+diciembre de 2024, por la que se aprueban los documentos normalizados para 
+acreditar la representación de terceros en el procedimiento para el envío de los 
+ficheros que contienen registros de facturación generados por sistemas de emisión de 
+facturas, a través de la Sede electrónica de la Agencia Tributaria, como anexo II (BOE, 
+31-diciembre-2024): Modelo de otorgamiento de la representación a profesionales 
+tributarios para la remisión de ficheros que contienen registros de facturación 
+generados por sistemas de emisión de facturas, en la Sede electrónica de la Agencia 
+Estatal de Administración Tributaria. 
+https://sede.agenciatributaria.gob.es/Sede/colaborar-agencia-tributaria/colaboracion-social-
+presentacion-declaraciones/modelos-autorizacion-tramites-colaboradores-sociales.html  
+ 
+Este Convenio puede ser suscrito por aquellas empresas tecnológicas que quieran 
+acceder a su consideración como colaboradores sociales en el ámbito VERI*FACTU 
+para la remisión de los Registros de Facturación (RF) en nombre de sus clientes, ya sea 
+mediando una relación directa con el empresario que emita las facturas, ya sea 
+mediando una relación con este a través de otro colaborador social (intermediario 
+asesor o gestor) que utiliza los servicios de software de esa empresa. Por ello se debe 
+entender que tanto el colaborador social 1 (autorizado por el empresario para 
+gestionar sus facturas), como el colaborador social 2 (empresa software que va a 
+remitir con su identidad los RFs) deberían tener suscrito un Convenio de Colaboración 
+social, siendo el Convenio 17 el que corresponde a las empresas de software, y 
+disponer de los correspondientes documentos normalizados firmados en los términos 
+que indica dicho Convenio 17. 
+ 
+Como información adicional, disponen de los nuevos modelos de representación 
+específicos para VERI*FACTU, que se han puesto a disposición dentro de la sección de 
+“Modelos de autorización de trámites para colaboradores sociales ” en la S ede 
+Electrónica de la Agencia Tributaria. 
+
+===== [PAGINA 33 de 52] =====
+ 33 4 de diciembre de 2025 
+ 
+4. Nuestra empresa comercializa y distribuye un API para Veri*Factu (un software) 
+que se conecta como un “componente” a diversos softwares de facturación de 
+multitud de empresas y envía los ficheros a Veri*Factu. En este sentido la firma del 
+modelo de otorgamiento de la representación  con cada cliente es costoso . ¿qué 
+alternativas existen para cumplir ese requisito?  
+ 
+El manejo de datos es una materia sensible que aparece contemplada tanto en la 
+regulación tributaria como en la reglamentación europea de protección de datos. Por 
+esta razón , para manejar los datos de terceros , debe mediar una autorización de la 
+persona titular de los datos e informaciones transmitidas a la persona que maneja esos 
+datos y, en este caso, los remite electrónicamente.  
+La Agencia Tributaria no solo en relación con este suministro de información, sino 
+en relación con cualquier otro, ha implementado diversas formas para identificar y 
+autenticar a la persona remitente como el titular, su representante, su apoderado y, 
+en los supuestos correspondientes, su representante por colaboración social. El nuevo 
+Convenio de colaboraci ón 17 contempla dos posibilidades de representación por 
+“colaboración social” en el envío de registros de facturación. La primera es la que 
+podríamos llamar directa, que corresponde al supuesto en el que el OEF (obligado a 
+emitir facturas) otorga la “representación por colaboración social” directamente a una 
+empresa de software signataria del Convenio 17, para que realice en su nombre  el 
+envío de los RFs. La segunda , a la que podríamos llamar indirecta, es aquella en la que 
+se cuenta con un colaborador social primario (un consultor, asesor fiscal o 
+intermediario fiscal), el cual , a su vez,  contrata los servicios de una empresa de 
+software (colaborador social secundario) para realizar el envío de registros de 
+facturación a la sede electrónica  de la Agencia Tributaria . Aunque se han aprobado 
+formularios estandarizados, pueden realizarse en muy diversas formas, siempre y 
+cuando se realicen las necesarias menciones de autorización y quede constancia 
+fidedigna del otorgamiento.  
+En cuanto  a la forma en la que debe otorgarse por el cliente esa autorización o 
+apoderamiento a la empresa de software, la naturaleza, eminentemente tecnológica, 
+de los desarrollos exigidos por el RRSIF, aprobado por RD 1007/2023, de 5 de 
+diciembre, y su declarada intención de avanzar en la digitalización del mundo 
+empresarial, exige plantearse posibilidades tecnológicas para que este otorgamiento 
+privado se produzca por medios electrónicos, siempre que no dejen duda de ese 
+especifico apoderamiento o representación, y que a la vez resulten eficientes. Para ello 
+la utilización auxiliar de formularios web, pop -ups al iniciar la relación o cualquier otro 
+sistema informático que asegure que el uso del API de remisión solo se produce tras el 
+otorgamiento y aceptación de la representación es perfectamente válida. Estos 
+sistemas, siempre deberán exigir la cumplimentación y firma (incluyendo electrónica) 
+del otorgamiento.  
+
+===== [PAGINA 34 de 52] =====
+ 34 4 de diciembre de 2025 
+ 
+Debe tenerse en cuenta que el marco en el que se desenvuelve la colaboración 
+social se basa en la confianza dada a  los colectivos signatarios del correspondiente 
+Convenio, en el sentido de  que ningún colaborador social realice envíos sin estar 
+previamente autorizado para los mismos. Por ello, solo en aquellos supuestos en los 
+que se detecte una irregularidad, o se rechace o repudie el contenido de los registros 
+remitidos, y ello tenga impacto para la gestión material de los tributos, puede , 
+excepcionalmente, ser preciso acceder a los documentos originales de representación 
+en orden a verificar si el envío recibido fue o no legítimo. 
+ 
+17. FORMA DE PROCEDER ANTE ERRORES COMETIDOS AL FACTURAR : 
+RECTIFICACIONES, ANULACIONES, SUBSANACIONES. 
+Desde el punto de vista de la operativa del usuario, si el producto de facturación ofrece 
+todas las funcionalidades necesarias y las cumple como se señala en la normativa , 
+debería actuar de la siguiente manera según el tipo de error cometido y/o el momento 
+en el que este se produce: 
+1.- ANTES DE EXPEDIR DE LA FACTURA (en fase de “edición”). 
+Si los errores se detectan "mientras se está confeccionando la factura", es decir, 
+cuando se está editando pero aún no se ha emitido, se corrigen  sin más  antes de 
+emitirla. Posteriormente, cuando se emita, se supone que estará correcta. 
+2.- DESPUÉS DE EXPEDIR LA FACTURA. 
+a) Si los errores detecta dos tras la emisión  están previstos en el reglamento de 
+obligaciones de facturación (ROF), aprobado por el Real Decreto 1619/2012,  
+deberá efectuarse su rectificación de acuerdo con el procedimiento que 
+indique el ROF según el tipo de error de que se trate , lo que implica expedir 
+nueva/s factura/s rectificativas de la factura original errónea, en la/s que se 
+pondrán los códigos de los campos de RF qué le/s corresponda/n de entre los 
+que se detallan en la OM HAC/1177/2024. 
+b) Si los errores detectados tras la emisión NO  están contemplados en el ROF, 
+pero afectan a campos del registro de facturación (RF) generado al emitir la 
+factura (que, digamos, “no se ven” en la factura impresa, es decir, son campos 
+“internos”, como ciertas codificaciones tributarias ), se debe corregir la factura 
+original (esos datos “internos” de la misma) y se debe generar un RF de alta de 
+subsanación de esa factura donde conste ya la nueva información que proceda. 
+Estos casos deberían ser MUY POCO FRECUENTES. 
+Por lo que se refiere al concepto de subsanación, este se produce cuando se 
+detecta un error en algún dato del RF cuyo "arreglo" no suponga tener que 
+emplear el procedimiento de rectificación de la factura según el ROF. En este 
+caso, cuando no sea precisa la rectificación de la factura, bastará con la 
+
+===== [PAGINA 35 de 52] =====
+ 35 4 de diciembre de 2025 
+ 
+"reparación o subsanación" de los datos erróneos que había en del registro 
+original mediante la generación de un nuevo registro de alta de subsanación 
+(que tendrá ya los datos correctos) y, en su caso, realizando una nueva remisión 
+del mismo a la Sede Electrónica de la AEAT. 
+c) Si los errores detectados tras la emisión NO están contemplados en el ROF ni 
+afectan a campos del registro de facturación (RF) generado al emitir la factura , 
+se corrige la factura original sin que sea preciso generar un nuevo RF de ningún 
+tipo. 
+d) Si se considera que "toda la factura" en sí misma está mal o no debería haberse 
+emitido, siempre que para solucionarlo no deba emplearse algún 
+procedimiento (de rectificativa u otro) previsto en el ROF, se podrá "anular" 
+generando para ello un RF de anulación . Estos casos deberían ser MUY POCO 
+FRECUENTES. 
+Con carácter general, todas las facturas emitidas, en la medida en que 
+respondan a operaciones realmente efectuadas (como es el caso habitual) no 
+pueden anularse. En el caso de que exista alguna diferencia entre lo facturado y 
+la realidad, por ejemplo, que por un defecto de cantidades o de calidades, o por 
+otras razones, y se deba modificar su importe, procederá la emisión de una 
+factura rectificativa, en los términos que establece el ROF (Reglamento de 
+Obligaciones de Facturación, aprobado por el Real Decreto 1619/2012) y la Ley 
+y Reglamento del IVA. Esa rectificación, con carácter general, puede realizarse 
+por medio de la sustitución de la factura inicial por una nueva factura o bien 
+por la modificación de la factura inicial. Existe al respecto una amplia 
+explicación que puede hallarse en las preguntas frecuentes del SII, que pueden 
+ser aplicadas en general al reglamento de requisitos de los sistemas 
+informáticos de facturación (RRSIF), aprobado por el Real Decreto 1007/2023, 
+de 5 de diciembre. En estos casos los RFs generados serán siempre "RF de alta", 
+que se regula en el artículo 10 del RRSIF. 
+La anulación no es, por lo tanto, un concepto jurídico, razón por la que no se 
+pueden encontrar artículos que se refieran a la misma. Se trata más bien, de 
+una un concepto fáctico que se aplica, como establece el artículo 11.1 del RRSIF 
+"cuando se haya emitido erróneamente una factura", por ejemplo, cuando se 
+llega a emitir con el SIF una factura por un servicio o una entrega que no 
+existen y que, por tanto, no se han realizado. Aunque hay varios supuestos, uno 
+de ellos podría ser la emisión de facturas de prueba, o de formación que no 
+responden a una realidad o transacción real. 
+Con la anulación se trata, pues, de "deshacer" tanto la expedición de la factura 
+erróneamente emitida como el correspondiente registro de facturación 
+generado. La consecuencia de ello es que dicha factura no tendrá ningún efecto 
+fiscal ni en libros registros, ni en autoliquidaciones a presentar. Sin embargo, de 
+acuerdo con la normativa SIF, tanto los registros erróneamente producidos, 
+
+===== [PAGINA 36 de 52] =====
+ 36 4 de diciembre de 2025 
+ 
+como los registros por medio de los cuales se anulen los anteriores, deberán 
+conservarse o, alternativamente, remitirse a la sede electrónica cuando la 
+modalidad utilizada sea VERI*FACTU. En este caso el Registro de Anulación es 
+un "RF de anulación" que se regula en el artículo 11 del RRSIF. 
+ 
+Como se puede ver, el uso de los RF de anulación y de alta de subsanación deben 
+ser casos muy excepcionales, siempre a valorar y utilizar con prudencia. 
+La operativa descrita debería ofrecerla el SIF (a poder ser, de la forma más 
+transparente e intuitiva, para facilitar la operativa al usuario) y gestionarl a 
+automáticamente según lo que el usuario necesite, con "impacto" mínimo para él. 
+Se recuerda que la forma correcta de facturar es universal (aplica a todos los sectores) 
+y lleva e n vigor muchos años. E l RD 1007/2023 no cambia la forma de facturar, sino 
+que, básicamente, solo exige a los SIF unos requisitos adicionales que deben cumplir 
+para garantizar la seguridad y el control de lo facturado. 
+ACLARACIONES ADICIONALES RELACIONADAS CON LOS CASOS INDICADOS: 
+• Sobre el caso 2.a), cuando se trate de un SIF VERI*FACTU:  
+­ En el probable caso de que el RF generado de la “factura errónea ” fuera 
+rechazado por la AEAT (lo que podría servir para que el usuario se percatara del 
+error cometido), ese RF rechazado no figuraría jamás en los sistemas de la AEAT 
+(aunque constaría un rechazo).  
+­ Si el RF generado de la “factura errónea” fuera aceptado con errores  por la 
+AEAT (lo que podría servir para que el usuario se percatara del error cometido) , 
+ese RF quedaría para siempre con esos errores en la AEAT. 
+­ Si el RF generado de la “factura errónea” fuera aceptado por la AEAT porque, 
+aunque contiene algún dato erróneo (detectado posteriormente: por ejemplo, 
+el tipo impositivo, en el que se ha puesto un 10% cuando debería haberse 
+puesto un 21%), como formalmente ha pasado todas las validaciones, ese RF 
+quedaría para siempre con esos errores en la AEAT. 
+Todas estas situaciones quedan tal y como se ha indicado porque en este caso se 
+ha asumido que, para solucionar el error , el ROF exige utilizar el procedimiento de 
+rectificación (lo que supone generar factura/s nueva/s)  y, por tanto, no habría que 
+hacer nada más en cuanto a la factura errónea original ni a su/s RF. No obstante, 
+dichas situaciones de error se dan por solucionada s en este caso cuando se 
+reciba/n correctamente RF de la/s nueva/s factura/s rectificativa /s de la factura 
+errónea original (que indicará/n a qué factura está/n rectificando).  
+• Sobre el caso 2.b), cuando se trate de un SIF VERI*FACTU:  
+­ Si el RF generado de la “factura errónea” fuera rechazado por la AEAT (lo que 
+podría servir para que el usuario se percatara del error cometido), habría que 
+
+===== [PAGINA 37 de 52] =====
+ 37 4 de diciembre de 2025 
+ 
+corregir la factura original y generar un RF de alta de subsanación , sin registro 
+previo en la AEAT (ya que el RF “original” fue rechazado y no existe en la AEAT). 
+Por lo tanto, este RF de alta de subsanación deberá llevar una codificación 
+especial en ciertos campos ('Subsanacion' = "S" y 'RechazoPrevio'="X"), de 
+manera que se distingan adecuadamente este tipo de casos. Están indicados en 
+la pestaña "A)Cuadro Operativa Alta" (Operación: 'Alta por rechazo') del Excel 
+de diseños de registros en la web de desarrolladores de la AEAT. 
+­ Tanto si el RF generado de la “factura errónea” fuera aceptado con errores por 
+la AEAT (lo que podría servir para que el usuario se percatara del error 
+cometido) como si fuera aceptado (pero se detectara un error posteriormente) , 
+habría que corregir la factura original y generar un RF de alta de subsanación  
+(en este caso, se recuerda que el RF “original” fue aceptado y existe en la 
+AEAT). 
+• Sobre los casos 2.b) y 2.d): en principio, tanto un RF de alta de subsanación como 
+un RF de anulación se podrían generar y conservar o remitir a la AEAT desde un SIF 
+distinto al que expidió la factura original (aunque probablemente, lo más habitual 
+es que todo se haga en el mismo SIF). 
+• Sobre el caso 2.d): siempre y cuando el ROF no obligue a actuar de otra forma, 
+mediante facturas rectificativas, la generación de un RF de anulación está pensada 
+como una forma ágil de dejar constancia de que una factura expedida por error no 
+debería haberse expedido y, por tanto, que dicha factura no tiene validez y no ha 
+de tenerse en cuenta. Esta forma de actuar (cuando sea posible) no implica la 
+expedición de nuevas facturas que "contrarresten o compensen" la factura 
+expedida por error (que son mecanismos contemplados en los procedimientos 
+admitidos de rectificación de facturas y que, si se utilizaran, no procedería hacer un 
+RF de anulación de la factura expedida por error). Otra cosa es que, 
+adicionalmente, sea necesario realizar otras operaciones (asientos contables, 
+actualización de  stock de mercancí as...) para "deshacer" (mediante 
+"contraasientos" y operaciones de signo contrario) otras posibles acciones 
+efectuadas en el sistema de información empresarial como consecuencia de la 
+expedición por error de la factura. 
+• Sobre el caso 2.d): un aspecto que puede influir en el uso de este mecanismo es si 
+la factura expedida (con errores) ya se ha entregado o no al cliente. Si NO se 
+hubiera entregado, este hecho favorecería la consideración  de que se trata de una 
+factura defectuosa e incorrecta que no debería existir ni llegar al cliente (una 
+expedición "fallida") y, por lo tanto, que fuera susceptible de anularse y, después, 
+si procede, expedir una nueva factura "original" (no rectificativa) correcta que se 
+entregaría al cliente. 
+• Cuando haya que generar (y, en su caso, remitir) un RF de alta de subsanación o un 
+RF de anulación, esto deberá hacerse en cuanto sea posible tras realizar las 
+acciones que procedan -según el caso - para solucionar el error, no existiendo, en 
+principio, un plazo máximo fijado para ello. 
+
+===== [PAGINA 38 de 52] =====
+ 38 4 de diciembre de 2025 
+ 
+18. SOBRE RESPUESTA A REQUERIMIENTOS DE REGISTROS DE FACTURACIÓN  DE 
+SIF NO VERI*FACTU. 
+Cuando la AEAT efectúe un requerimiento de registros de facturación (RF) de SIF NO 
+VERI*FACTU (no se realizarán requerimientos de RF de SIF VERI*FACTU , por haberse 
+remitido en el momento de su generación a la AEAT y estar ya, por tanto, en su poder) 
+y el obligado tributario (OT) conteste a este a través del correspondiente servicio web 
+disponible para ello en la AEAT, los RF generados en su momento durante el periodo 
+requerido serán remitidos tal cual fueron generados, sin ninguna alteración.  
+En principio, el servicio web de la AEAT , con validaciones mínimas en este caso,  no 
+rechazará dichos RF (a menos que  incumplan el esquema XML o no exista –si se 
+hubiera rellenado– el NIF destinatario de la factura en el censo de obligados tributarios 
+de la AEAT), por lo que , si se remitieron exactamente los XML con los que fueron 
+generados, en ningún caso es preciso realizar sobre ellos ninguna actuación de ningún 
+tipo por el mero hecho de remitirlos  (incluso aunque fueran rechazados) . Es decir, la 
+contestación al requerimiento y la respuesta obtenida del servicio web de la AEAT no 
+tienen por qué afectar al proceso de facturación que haya hecho o deba hacer el OT  (o 
+sea, como si no hubiera recibido ningún requerimiento) , que será siempre el que le 
+corresponda según la normativa de facturación.  
+Se recuerda que la facturación se rige por su propia normativa (reglamento de 
+obligaciones facturación “ROF”, aprobado por el Real Decreto 1619/2012, y la Ley y el 
+Reglamento del IVA, principalmente) y que el Real Decreto 1007/2023 no cambia la 
+forma de facturar  (tan solo impone el cumplimiento de unos requisitos a los SIF para 
+garantizar la seguridad y el control de lo facturado ), como tampoco lo hace la 
+recepción de un requerimiento de RF pasados y su contestación (que reflejará 
+exactamente lo que se hizo en el periodo requerido). 
+ 
+19. RAPPELS Y RECTIFICACIÓN. 
+1. Las facturas de rappels ¿son facturas rectificativas? 
+Sí, se aplica lo dispuesto en el apartado 4 del artículo 15 del reglamento de 
+obligaciones facturación “ROF”, aprobado por el Real Decreto 1619/2012 : “La 
+rectificación se realizará mediante la emisión de una nueva factura en la que se haga 
+constar los datos identificativos de la factura rectificada. Se podrá efectuar la 
+rectificación de varias facturas en un único documento de rectificación, siempre que se 
+identifiquen todas las facturas rectificadas. No obstante, cuando la modificación de la 
+base imponible tenga su origen en la concesión de descuentos o bonificaciones por 
+volumen de operaciones, así como en los demás casos en que así se autorice por el 
+Departamento de Gestión Tributaria de la Agencia Estatal de Administración 
+Tributaria, no será necesaria la identificación de las facturas, bastando la 
+determinación del período a que se refieren. 
+
+===== [PAGINA 39 de 52] =====
+ 39 4 de diciembre de 2025 
+ 
+El Departamento de Gestión Tributaria de la Agencia Estatal de Administración 
+Tributaria podrá autorizar otros procedimientos de rectificación de facturas, previa 
+solicitud de los interesados, cuando quede justificado por las prácticas comerciales o 
+administrativas del sector de actividad de que se trate”. 
+De lo anterior se extraen dos consecuencias:  
+ 1. Los rappels se documentan en facturas rectificativas.  
+ 2. No es necesario identificar  en la factura rectificativa las facturas rectificadas, 
+basta con indicar el periodo al que refieren. 
+ 
+20. CONCEPTO “IMPORTE TOTAL” EN EL REGISTRO DE FACTURACIÓN 
+El Importe Total Factura se calcula por el total de Base Imponible (deducidos los 
+descuentos en factura) más cuota repercutida del Impuesto indirecto (normalmente 
+IVA). La forma en que se materialice el pago, incluyendo pagos anticipados que no 
+hayan devengado una factura anterior, no forma parte de la factura misma, sino de los 
+aspectos financieros de su solvencia. 
+No obstante y con carácter sustantivo debe señalarse que, en general, el devengo del 
+IVA y consiguientemente la obligación de facturación nace cuando se entrega el bien o 
+se presta el servicio en el que consiste la operación. Cuando se produce un pago 
+anticipado, en el régimen sustantivo del IVA dicho pago devenga el Impuesto y por 
+consiguiente obliga a repercutir el impuesto por la parte pagada correspondiente. 
+En el documento de validaciones de la web de desarrolladores de la AEAT figura la 
+forma de calcular el campo "ImporteTotal" de la factura: 
+ImporteTotal - Se validará que sea igual a Ʃ (BaseImponibleOimporteNoSujeto + 
+CuotaRepercutida + CuotaRecargoEquivalencia) de todas las líneas de detalle de 
+desglose. En caso contrario se devolverá un aviso de error (no generará rechazo), 
+admitiéndose un margen  de error de +/ - 10,00 euros. Esta validación no se aplicará 
+cuando ClaveRegimen sea “03”, “05”, “06” o “09”. 
+Por otro lado, e n las facturas, a menudo se incluyen menciones, detracciones, 
+adiciones o cantidades que no forman parte de la información fiscalmente obligatoria 
+de una factura. A título de ejemplo, podemos mencionar: el recargo financiero (al igual 
+que ocurre con los importes suplidos), la retención por garantía decenal, los suplidos o, 
+en este caso la retención obligatoria. Todos estos importes, aunque se incluyen en la 
+factura por su evidente importancia, no son importes "propios" de la factura, razón 
+por la que no afectan a la base ni a la cuota de IVA, ni al "Importe Total". Se trata de 
+cantidades que alteran el "total a pagar" añadiendo o restando cantidades, pero no el 
+"Importe total factura" según lo define el RRSIF (reglamento de requisitos de los 
+sistemas informáticos de facturación, aprobado por el Real Decreto 1007/2023) y la 
+orden ministerial (OM) HAC/1177/2024 siguiendo el Reglamento de Obligaciones de 
+
+===== [PAGINA 40 de 52] =====
+ 40 4 de diciembre de 2025 
+ 
+Facturación (aprobado por el RD 1619/2012). Por ello cuando sea preciso incluirlos en 
+la factura, esa parte NO integrará el registro de facturación, cuya estructura viene 
+diseñada en el artículo 10.1 del RRSIF y detallada en su contenido técnico en la OM 
+HAC/1177/2024. 
+ 
+A este respecto, a modo de "consejo o recomendación", para facilitar la comprensión 
+de este matiz al cliente que reciba la factura, el sistema informático de facturación 
+(SIF) podría incluir en la factura ambos importes, "Importe total factura" (que es el que 
+aparece en el QR tributario) y "Total a pagar", debidamente diferenciados, 
+"etiquetándolos" (incluso explicándolos) de manera que figuren ambos y se distingan 
+claramente, como por ejemplo: 
+ 
+Total factura: 
+<retenciones> 
+suplidos 
+... 
+Total a pagar: 
+ 
+Por último, cabe reseñar que en el caso de facturas verificables expedidas por SIF 
+actuando en modo VERI*FACTU, estas explicaciones anteriores ya se le proporcionan a 
+todo cliente que coteje el QR tributario de su factura en el servicio que tendrá la AEAT 
+preparado a tal efecto, mediante un texto en la respuesta obtenida de dicho servicio 
+cuando se encuentra la factura en la AEAT y coinciden los datos. Como ilustración, se 
+incluye a continuación el ejemplo aportado en el documento "Características del QR y 
+especificaciones del servicio de cotejo o remisión de información por parte del 
+receptor de la factura", disponible en la sede electrónica de la AEAT: 
+ 
+ 
+
+
+===== [PAGINA 41 de 52] =====
+ 41 4 de diciembre de 2025 
+ 
+En conclusión la retención a cuenta del IRPF o IS que vaya en factura, no se incluirá  en 
+el registro de facturación, ya que no es uno de los elementos constitutivos de la 
+factura de acuerdo con la Directiva UE y el art 6 del Reglamento de Obligaciones de 
+Facturación aprobado por RD 1619/2012. 
+ 
+21. EQUIVALENCIA CLAVE L13 CAUSA DE NO SUJECIÓN EN TICKETBAI 
+Las claves L13 Causa de no sujeción en TicketBAI son las siguientes: 
+ 
+ 
+En primer lugar, deben tener en consideración que las normativas de régimen Común 
+(es decir las que se aplican como consecuencia del reglamento de requisitos de los 
+sistemas informáticos de facturación, RRSIF, aprobado por Real Decreto 1007/2023, de 
+5 de diciembre) y las vigentes en los territorios históricos forales NO son coincidentes, 
+dado que se refieren a dos ámbitos territoriales diferentes dentro de España. Por lo 
+tanto, la normativa Común en la regulación de los Sistemas Informáticos de 
+Facturación (SIF) de su ámbito subjetivo se encuentra exclusivamente en el RD 
+1007/2023 y en la OMHAC 1177/2024. 
+Las equivalencias son las siguientes: 
+"OT" en TicketBAI, se corresponde con "N1" en VERI*FACTU. 
+"RL" e "IE" en TicketBAI, se corresponden con "N2" en VERI*FACTU. 
+"VT" en TicketBAI NO se corresponde con "N1" en VERI*FACTU. Los gastos suplidos(*), 
+aunque puedan indicarse en la factura, NO se reflejan (es decir, no son objeto de 
+codificación ni tratamiento separado) en el registro de facturación a generar con 
+motivo de la "normativa VERI*FACTU" y, evidentemente, tampoco suman para el 
+"total factura". 
+(*) Una factura desde la perspectiva fiscal, que es a la que se refiere especialmente la 
+Directiva, la LIVA y la normativa de facturación (incluyendo el RD 1007/2023), es el 
+documento mercantil en el que se documenta la entrega de un bien o la prestación de 
+un servicio realizada por un empresario en el contexto de una actividad económica 
+empresarial. 
+
+
+===== [PAGINA 42 de 52] =====
+ 42 4 de diciembre de 2025 
+ 
+Los suplidos son las sumas que un empresario o profesional, actuando como mero 
+intermediario, satisface en nombre y por cuenta del cliente y por mandato expreso de 
+éste y que luego recupera de él. No es un gasto del empresario o profesional que 
+intermedia, sino que es un gasto del cliente. El intermediario no podrá deducir el IVA 
+repercutido en factura por los servicios que son repercutidos al cliente, siendo éste en 
+cuyo nombre y por cuya cuenta se contrataron estos servicios, quien en su caso, podrá 
+ejercitar el derecho a la deducción. Los suplidos no se deben incluir en la base 
+imponible correspondiente a la operación realizada por el intermediario y, por tanto, 
+no se registran en la información del registro de facturación de alta. A la hora de 
+indicar el importe total de una factura que contiene un suplido, este no será tenido en 
+cuenta y solo se consignará la suma de base imponible y cuota repercutida. 
+ 
+22. ¿CÓMO SE REFLEJA LA VENTA DE UN BOLETO DE LOTERÍA EN UN REGISTRO 
+DE FACTURACIÓN? 
+El supuesto concreto es un supermercado que además de vender los diferentes 
+artículos con su IVA correspondiente también vende boletos de lotería. 
+A efectos del IVA, la venta de un boleto de lotería sin sobreprecio es una operación 
+exenta. Existen en este sentido varias consultas de la Dirección General de Tributos:  
+V3658-20, V3622-16 y V0939-15. 
+Por otro lado , el a rtículo 3 del Real Decreto 1619/2012 regula las excepciones a la 
+obligación de expedir factura, y establece: 
+“1. No existirá obligación de expedir factura, salvo en los supuestos contenidos en el 
+apartado 2 del artículo 2 de este Reglamento, por las operaciones siguientes: 
+a) Las operaciones exentas del Impuesto sobre el Valor Añadido, en virtud de lo 
+establecido en el artículo 20 de su ley reguladora, con excepción de las operaciones a 
+que se refiere el apartado 2 siguiente. No obstante, la expedición de factura será 
+obligatoria en las operaciones exentas de este Impuesto de acuerdo con el artículo 
+20.Uno.2.º, 3.º, 4.º, 5.º, 15.º, 20.º, 22.º, 24.º, 25.º y 28.º de la Ley del Impuesto”. 
+Recordemos que la venta de Lotería (sin sobreprecio) se regula como exenta en el 
+artículo 20.Uno.19, es decir NO se tiene que facturar. La excepción serían los 
+supuestos contenidos en el apartado 2 del artículo 2 RD 1619/2012 (ventas a 
+empresarios que soliciten factura, entregas intracomunitarias u operaciones c on 
+Inversión del Sujeto Pasivo) 
+Así pues, con carácter general, la entrega de décimos o participaciones de Loterías por 
+su valor facial (es decir, sin sobreprecio) son operaciones exentas que no hay que 
+facturar. No obstante , si se incluyeran en la factura (o factura simplificada) junto con 
+otros productos debería hacerse constar esa entrega de lotería "como si se pagara" un 
+suplido. En ese caso esos importes NO forman parte del RFAlta (es decir no se rellena 
+
+===== [PAGINA 43 de 52] =====
+ 43 4 de diciembre de 2025 
+ 
+ningún dato de los mismos). Los importes que pagaría el cliente no forman parte de la 
+factura, propiamente hablando, y esos pagos (por Lotería) no alterarían el "total 
+factura", sino el "total a pagar".  Se recuerda que, de acuerdo con la normativa, NO 
+procede hacer una factura que solo contenga gastos suplidos, porque eso NO sería una 
+factura, así que nunca debería existir como tal. 
+ 
+23. DESGLOSE DEL REGISTRO DE FACTURACIÓN DE ALTA CUANDO SE TRATA DE 
+ENTREGAS DE BIENES O PRESTACIONES DE SERVICIOS LOCALIZADAS EN 
+CANARIAS 
+1. Desde el punto de vista de una empresa con tributación IVA, que realiza ventas por 
+ejemplo desde un establecimiento permanente situado en Canarias (La factur a emitida 
+estará sujeta a IGIC) 
+En este caso el apartado desglose del registro de alta sería:  
+Impuesto:   03 
+Clave de régimen:  01 ( u otra de la lista L8B) 
+Calificación de la operación: S1 
+Tipo:    el tipo IGIC que corresponda 
+BI:    sin ninguna especialidad 
+Cuota:    la que corresponda aplicando el tipo IGIC a la BI 
+ 
+2. Operación realizada por empresa estatal, relativa a un servicio prestado y localizado 
+en Canarias (por lo tanto, sujeta a IGIC).  
+En estos casos solo se generará un registro de alta. En este caso el desglose del registro 
+de alta sería:  
+Impuesto: 01 
+Para empresarios residentes en territorio peninsular (excepto País Vasco y 
+Navarra) y Baleares la obligación tributaria que les correspond e es el IVA por lo 
+que toda su facturación debe venir referida al IVA. De este mo do, la operación 
+puede estar no sujeta o exenta (caso de exportación o entregas 
+intracomunitarias o a Canarias, Ceuta o Melilla) y ya sea de bienes o de 
+servicios, pero lo estará  respecto del IVA. Por ello, el valor a consignar en el 
+caso planteado es L1: 01=IVA con independencia de que no deba repercutirse el 
+impuesto. 
+Clave de régimen: 08  
+
+===== [PAGINA 44 de 52] =====
+ 44 4 de diciembre de 2025 
+ 
+Calificación de la operación: N2 
+Tipo: en blanco 
+BI: sin ninguna especialidad 
+Cuota: en blanco 
+ 
+3. En el caso de que el obligado tributario, por su volumen de ventas en Canarias esté 
+obligado al SII IGIC pero no esté en SII Estatal (y por lo tanto esté  obligado a cumplir el 
+reglamento SIF), ¿debe  igualmente registrar la factura con clave 08? ¿O por estar 
+obligado a SII en Canarias no debe contemplarse? 
+La interpretación literal de los artículo s 1.3 y 3.3 del RSIF implica que "la referencia al 
+artículo 62.6 del RIVA debe entenderse realizada también al artículo 49.5 del Decreto 
+268/2011, de 4 de agosto" y por lo tanto, de la literalidad podría llegar a entenderse 
+que el RSIF no se aplicaría a los contribuyentes en SII canario. 
+ 
+  
+
+===== [PAGINA 45 de 52] =====
+ 45 4 de diciembre de 2025 
+ 
+24. EL CRITERIO DE CAJA Y VERIFACTU 
+El criterio de caja se regula en el Art 163 duodecies de la LIVA: 
+"Uno. El régimen especial del criterio de caja podrá aplicarse por los sujetos pasivos a 
+que se refiere el artículo 163 decies a las operaciones que se entiendan realizadas en el 
+territorio de aplicación del Impuesto. 
+Dos. Quedan excluidas del régimen especial del criterio de caja las siguientes 
+operaciones: 
+d) Aquellas en las que el sujeto pasivo del Impuesto sea el empresario o profesional 
+para quien se realiza la operación de conformidad con los números 2.º, 3.º y 4.º del 
+apartado uno del artículo 84 …”. 
+El impuesto a informar se establece en función del lugar de establecimiento del 
+obligado a generar el registro de alta.   
+https://sede.agenciatributaria.gob.es/Sede/iva/regimenes-tributacion-iva/criterio-
+caja.html 
+Situaciones que pueden encontrarse: 
+Primera. Si el emisor tiene su establecimiento en la península o Baleares, está en 
+criterio de caja (ClaveRegimen=[07]) y factura a un empresario con domicilio fiscal en 
+Canarias, Ceuta o Melilla por una prestación de servicios, ¿cómo debe completarse el 
+campo CalificacionOperacion? 
+De acuerdo con el artículo de la LIVA 163 duodecies uno y partiendo de la premisa de 
+que el servicio prestado por el empresario establecido en el TAI a un empresario en 
+Canarias se localiza fuera del TAI, esta operación queda excluida del régimen  especial 
+del criterio de caja. 
+Por tanto, al generar el registro de alta correspondiente a  esta factura deberá 
+indicarse: 
+Impuesto:01 
+Clave de régimen: 08. 
+Calificación de la operación N2. 
+ 
+Segunda. Si el emisor tiene su establecimiento en Canarias, está en criterio de caja 
+(ClaveRegimen=[07]) y factura a un empresario con domicilio fiscal en la península, 
+Baleares, Ceuta o Melilla por una prestación de servicios, ¿cómo debe completarse el 
+campo CalificacionOperacion? 
+Sin perjuicio de lo que pueda determinar al respecto la Administración tributaria de 
+Canarias, en principio se entiende que de acuerdo con el artículo 163 duodecies.dos d) 
+
+===== [PAGINA 46 de 52] =====
+ 46 4 de diciembre de 2025 
+ 
+esta operación queda excluida del criterio de caja. (el servicio se localiza en TAI con 
+inversión del sujeto pasivo) 
+Al estar en Canarias el obligado a generar el registro entendemos que indicará: 
+Impuesto:03 
+Clave de régimen: 08. 
+Calificación de la operación N2. 
+ 
+Tercera. Si el emisor está en criterio de caja (ClaveRegimen=[07]) y factura a un 
+empresario con domicilio fiscal fuera de la UE por una prestación de servicios, ¿cómo 
+debe completarse el campo CalificacionOperacion? 
+De acuerdo con el artículo de la LIVA 163 duodecies uno y teniendo en cuenta que el 
+servicio prestado por el empresario establecido en el TAI a un empresario establecido 
+fuera de la UE se localiza fuera del TAI, esta operación queda excluida del régimen  
+especial del criterio de caja. 
+Por tanto, al generar el registro de alta correspondiente a esta factura deberá 
+indicarse: 
+Impuesto:01 
+Clave de régimen: 01. 
+Calificación de la operación N2. 
+ 
+Cuarta. Si el emisor está en criterio de caja (ClaveRegimen=[07]) y factura a un 
+empresario de la UE con VIES válido por una prestación de servicios, ¿cómo debe 
+completarse el campo CalificacionOperacion? 
+De acuerdo con el artículo de la LIVA 163 duodecies uno y partiendo de la premisa de 
+que el servicio prestado por el empresario establecido en el TAI a un empresario 
+establecido en la  UE se localice fuera del TAI, esta operación queda excluida del 
+régimen especial del criterio de caja. 
+Por tanto, al generar el registro de alta correspondiente a esta factura deberá 
+indicarse: 
+Id type: 02 
+Id: el NIVA del destinatario 
+Impuesto:01 
+Clave de régimen: 01. 
+Calificación de la operación N2. 
+
+===== [PAGINA 47 de 52] =====
+ 47 4 de diciembre de 2025 
+ 
+ 
+25. LA LISTA L10 (CAUSAS DE EXENCIÓN) DEL SII-IGIC 
+Equivalencia de la lista L10  (Causas de exención) del SII-IGIC: 
+Las dos entradas ('CódigoValor - Descripción') mencionadas de la tabla de causas de 
+exención del IGIC: 'E6 - Zona Especial Canaria' y 'E7 - REPEP' (así como la 'E8 - Exenta 
+otros'), se corresponden con la entrada 'E6 - Exenta por otros' de la tabla (o lista) de 
+causas de exención L10 del anexo de la OM HAC/1177/2024, de 17 de octubre. 
+ 
+ 
+26. CONTENIDO DE LA FACTURA: IVA, IGIC O IPSI 
+¿En qué caso una factura puede tener IVA y a la vez IPSI de Ceuta y Melilla o IGIC? 
+Podemos tener incluidas en una misma factura operaciones a las que le resulte de 
+aplicación reglas de localización distintas, algunas en TAI(*) y otras en Canarias, Ceuta 
+o Melilla, y el E/P(**) que las realice radique en los dos territorios y las haga 
+respectivamente desde cada uno de ellos (y no se apliquen las reglas de operaciones 
+accesorias).  Ejemplo: cesión de una licencia desde el TAI, que sea B2C ( Business To 
+Consumer), se localiza en el TAI. Y en la misma factura incluyo un servicio de 
+mantenimiento o de clases que lo presto con mis medios humanos en Can arias, se 
+localiza en Canarias. 
+El Suministro Inmediato de Información (SII) también prevé esa posibilidad; se puede 
+ver en la siguiente pregunta frecuente (3.20) donde se recogen las distintas 
+combinaciones posibles:  Inicio > Todas las gestiones > Impuestos, tasas y prestaciones 
+patrimoniales > IVA > IVA. Libros registro de IVA. SII. > Agencia Tributaria: Preguntas 
+frecuentes. Cuestiones generales > 3.20. ¿Cómo se registra una factura que 
+comprende operaciones con distinta clave de régimen especial?  
+(*) TAI (TERRITORIO DE APLICACIÓN DEL IVA): Península, Baleares, aguas 
+jurisdiccionales hasta 12 millas náuticas y espacio aéreo. 
+(**) Empresario o profesional 
+ 
+El campo de impuesto (de la tabla L1) a indicar es el que corresponda a la operación (o 
+al servicio prestado o bien entregado de la operación, como se ha visto en los ejemplos 
+de la pregunta anterior), es decir, ni al emisor ni al receptor: un mismo emisor, 
+dependiendo de las operaciones que haga y desde dónde las haga, puede estar sujeto 
+al IVA o al IGIC... 
+ 
+
+===== [PAGINA 48 de 52] =====
+ 48 4 de diciembre de 2025 
+ 
+Si en el Impuesto (lista L1) se indica IVA, los valores introducidos en ClaveRegimen 
+serán los de la lista L8A y si en Impuesto se indica IGIC, los valores introducidos en 
+ClaveRegimen corresponderán con los de la lista L8B. 
+Pero, si en Impuesto se indica IPSI, el campo ClaveRegimen no ha de rellenarse, tal y 
+como se indica en el documento de validaciones publicado en la web de la AEAT: 
+15.6 ClaveRegimen 
+- Solo podrá incluirse este campo si Impuesto = “01” (IVA), “03” (IGIC) o no se 
+cumplimenta (considerándose “01” - IVA) y será obligatorio. 
+- Si Impuesto = “01” (IVA) o no se cumplimenta (considerándose “01” - IVA), el valor de 
+ClaveRegimen deberá estar cumplimentado y contenido en lista L8A. 
+- Si Impuesto = “03” (IGIC), el valor de ClaveRegimen deberá estar cumplimentado y 
+contenido en lista L8B. 
+De esta manera , si Impuesto = “02” (IPSI), no se tiene que informar la clave de 
+régimen). 
+ 
+27. FACTURAS EXPEDIDAS EN SUSTITUCIÓN DE FACTURAS SIMPLIFICADAS 
+1) Si un cliente al que previamente se le han emitido, por ejemplo, 10 facturas 
+simplificadas, y solicita una factura completa, se emite  una factura emitida en 
+sustitución de simplificadas (tipo F3).  En el caso de que una de las facturas 
+simplificadas tenga un contenido incorrecto y haya que rectificarla, después de 
+rectificar la factura simplificada incorrecta, ¿qué procedimiento debemos seguir con la 
+factura completa? 
+Una vez rectificada la F2, hay que emitir una F3 por la rectificativa simplificada. La 
+rectificación de la simplificada puede hacerse por diferencias o por sustitución, y en 
+caso de sustitución podría hacerse mediante una o dos facturas. 
+Ejemplo con tres facturas simplificadas. 
+F2.1 - BI 1.000, cuota 210 
+F2.2 - BI 2.000, cuota 420 
+F2.3 - BI 3.000, cuota 630 
+Emite F3: BI 6.000 , cuota 1.260 
+ 
+Supongamos que la primera F2 se emitió incorrectamente al 21  cuando le 
+correspondía el 10%. 
+  
+
+===== [PAGINA 49 de 52] =====
+ 49 4 de diciembre de 2025 
+ 
+En la rectificativa de la primera F2 (por diferencias), tendríamos: 
+R5 - BI 0, cuota -110. 
+Si no se emitiera nueva F3 por la rectificativa simplificada, el destinatario tendría en su 
+poder una factura completa con un  IVA soportado deducible de 1.26 0 cuando solo  
+tiene derecho a deducir 1.150. 
+Para evitarlo debe emitirse una F3 de la R5. 
+ 
+2) En caso de que las facturas simplificadas estén correctas pero la factura completa 
+no, por ejemplo que el cliente o la fecha de operación no sean los correctos, ¿Qué 
+procedimiento debemos seguir con la factura completa, si es que es distinto al 
+anterior? 
+El procedimiento previsto para "rectificar/corregir" facturas de canje (tipo "F3") es 
+mediante el alta de otras dos facturas tipo "F3": una "F3" de importe negativo (es 
+decir, con la misma cifra que venía en el importe de la factura "F3" original errónea 
+pero ahora con signo opuesto para "contrarrestar" dicha "F3" original errónea) y una 
+nueva "F3" con los datos correctos. 
+Para ilustrar este tipo de actuaciones, se ofrecen algunos ejemplos relacionados (en 
+especial, el primero): 
+• En todos los casos planteados el criterio que debe aplicarse es el siguiente: hay que 
+emitir una F3 en todo caso; si además el error está en una F2, hay que rectificar 
+primero la F2. 
+• Como comentario general a todos los casos planteados, para el modelo 303 se 
+tienen en cuenta  todas las facturas identificadas con clave de factura rectificativa 
+(R1, R2, R3, R4 y R5)  pero, por el contrario, ninguna factura identificada con la 
+clave F3. 
+• Los datos de partida de todos los supuestos son los siguientes: 
+­ Se realiza la venta y se emite una factura simplificada: 
+             IDFactura : NumSerieFactura : S-0001 
+             TipoFactura : F2 
+             ImporteTotal : 10 
+­ El cliente solicita factura ordinaria con sus datos y se emite una factura de canje 
+F3: 
+             IDFactura : NumSerieFactura : F-0001 
+             TipoFactura : F3 
+             IDFacturaSustituida : NumSerieFactura : S-0001 
+             ImporteTotal : 10 
+
+===== [PAGINA 50 de 52] =====
+ 50 4 de diciembre de 2025 
+ 
+• Caso 1. Error en datos de cliente. Después de entregar la factura el cliente se da 
+cuenta de un error en los datos facilitados. 
+El criterio que debe aplicarse es el siguiente: 
+­ Al no haber error en la F2 esta no debe rectificarse. 
+­ Por la F3 errónea hay que emitir una F3 con los mismos importes en negativo. 
+­ Finalmente hay que emitir una F3 con los datos correctos. 
+Solución: 
+             IDFactura : NumSerieFactura : F-0002 
+             TipoFactura : F3 
+             IDFacturaSustituida : NumSerieFactura: S-0001 
+             ImporteTotal : -10 
+A continuación se emite otra factura F3 con los datos correctos: 
+             IDFactura : NumSerieFactura : F-0003 
+             TipoFactura : F3 
+             IDFacturaSustituida : NumSerieFactura : S-0001 
+             ImporteTotal : 10 
+• Caso 2 . Devolución parcial o total mediante abono. El cliente realiza una 
+devolución parcial. 
+El criterio que debe seguirse es el siguiente: 
+­ En primer lugar , debe emitirse una rectificativa de la simplificada original 
+identificada con la clave R5. 
+­ A continuación, debe emitirse nueva F3 con los mismos datos de R5. 
+Solución: 
+             IDFactura : NumSerieFactura: R0001 
+             TipoFactura : R5 
+             TipoRectificativa : I 
+             IdFactura rectificada: S-0001   
+             ImporteTotal : -3 
+A continuación, se emite una F3 con los datos de cliente: 
+             IDFactura : NumSerieFactura: F0002 
+             TipoFactura : F3 
+             IDFactura sustituida: R0001 
+             ImporteTotal : -3 
+• Caso 3. Devolución parcial o total mediante rectificativa. 
+Igual que en el caso 2, el criterio que debe seguirse es el siguiente: 
+ 
+
+===== [PAGINA 51 de 52] =====
+ 51 4 de diciembre de 2025 
+ 
+­ En primer lugar , debe emitirse una rectificativa de la simplificada original 
+identificada con la clave R5. 
+­ A continuación, debe emitirse nueva F3 con los mismos datos de R5. 
+Solución: 
+El cliente realiza una devolución parcial y se emite una rectificativa de la 
+simplificada: 
+             IDFactura : NumSerieFactura : RS-0001 
+             TipoFactura : R5 
+             TipoRectificativa : I 
+             IDFacturaRectificada : NumSerieFactura : S-0001 
+             ImporteTotal : -3 
+A continuación, como en el caso anterior, se emite una F3 con los datos de 
+cliente: 
+             IDFactura : NumSerieFactura : F0002 
+             TipoFactura : F3 
+             IDFactura sustituida: RS-0001 
+             ImporteTotal : -3 
+ 
+Como complemento a todo lo anterior, se proporciona información general sobre este 
+tipo de factura "F3": 
+• La factura de tipo "F3" es una factura expedida "en sustitución o canje" de facturas 
+simplificadas que, entre otras particularidades: 
+­ No tiene la consideración de rectificativa (2º párrafo del artículo 15.6 del 
+reglamento de obligaciones de facturación, "ROF", aprobado por el Real 
+Decreto 1619/2012, de 30 de noviembre), por lo que no estamos ante un caso 
+de rectificación (no procede rectificar las facturas simplificadas canjeadas por el 
+mero hecho de canjearlas con una factura tipo F3). 
+­ Siempre debe llevar el destinatario de la misma. 
+• Estaríamos ante el siguiente caso, cuyo tratamiento se indica a continuación: 
+­ Cliente que solicita el canje de la/s factura/s simplificada/s emitida/s durante 
+un determinado periodo por una única factura: este caso está permitido por el 
+ROF y la "nueva" factura de canje a expedir deberá utilizar la clave de factura 
+"F3" de acuerdo con la consulta vinculante V2543-06 de la Dirección General de 
+Tributos. 
+­ Por otro lado, NO hay que anular la/s factura/s simplificada/s expedida/s a la/s 
+que "canjea" esta nueva factura de canje de tipo "F3": al calificarse con este 
+valor F3 ya se puede "evitar" la duplicidad de los importes, es decir, el importe 
+
+===== [PAGINA 52 de 52] =====
+ 52 4 de diciembre de 2025 
+ 
+total (que es la suma de bases imponibles y cuotas) de una factura de canje F3 
+NO se volverá a tener en cuenta a efectos tributarios porque ya se declaró a 
+medida que se fueron expidiendo las facturas simplificadas a las que canjea. 
+Asimismo, no se debe confundir el importe total de la/s factura/s expedida/s, 
+dependiendo del tipo que sean, con la gestión del cobro de la/s misma/s, que 
+es algo independiente y complementario a la facturación, y que se puede 
+realizar de muchas formas (y, en este caso de facturas F3 de canje, deberá 
+tenerse cuidado de no cobrar dos veces el importe, se haga con cargo a los 
+tiques o a la factura de canje de los mismos). Es decir, lo mismo que la AEAT no 
+tiene en cuenta dos veces el importe total facturado implicado en este caso, es 
+decir, el de las facturas simplificadas canjeadas y el de la factura de canje de las 
+anteriores, los sistemas de cobro y contables vinculados a la facturación 
+deberían hacer lo mismo. 
+­ Por último, en el registro de facturación generado de la factura de canje F3 
+debe incorporarse la identificación de la/s factura/s simplificada/s a la/s que 
+canjea (en el bloque / agrupación "FacturasSustituidas"). 
+ 
+29. CLAVES 14 Y 15 IVA PENDIENTE DE DEVENGO 
+1. ¿Qué se debe hacer s i hay retraso en el pago de una fac tura registrada con la 
+clave 15? 
+No se tiene que hacer nada puesto que no hay nueva factura y además no se 
+modifica el devengo.  
+2. ¿Qué se debe hacer si hay pago anticipado a la fecha de devengo de una 
+factura registrada con la clave 15? 
+Hay una nueva factura que genera registro de alta y que se corresponde con el pago 
+anticipado.  
+Y en cuanto al registro de alta de la primera factura, se debe hacer una modificación de 
+la factura inicial para modificar la BI y la cuota (si el anticipo fuera por la totalidad los 
+dejaría a cero). 
+ 

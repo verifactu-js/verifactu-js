@@ -1,0 +1,488 @@
+
+
+===== [PAGINA 1 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 1/13 
+ 
+Detalle de las especificaciones técnicas para 
+generación de la huella o hash de los registros 
+de facturación 
+Autor: AEAT Fecha: 27/08/2024 Versión: 0.1.2 
+ 
+Revisiones: 
+Edic. Rev. Fecha Descripción A (*) Páginas 
+ 0.1.0 27/05/2024 Versión inicial  12 
+ 0.1.1 10/06/2024 Corrección campos ejemplos hash anulación   
+ 0.1.2 27/08/2024 Aclaración tratamiento de valores numéricos 
+en el hash (ImporteTotal y/o CuotaTotal). 
+Recodificación ejemplo generación huella. 
+  
+(*) Acción: A = Añadir R = Reemplazar 
+  
+
+===== [PAGINA 2 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 2/13 
+ 
+Índice 
+1. INTRODUCCIÓN ................................ ................................ ................................ ...... 3 
+2. ALGORITMO A UTILIZAR ................................ ................................ .........................  4 
+3. DATOS DE ENTRADA ................................ ................................ ...............................  5 
+4. EJEMPLO TRATAMIENTO DE DATOS DE ENTRADA EN LENGUAJE JAVA ................... 8 
+5. DATOS DE SALIDA ................................ ................................ ................................ ... 9 
+6. EJEMPLOS ................................ ................................ ................................ ............. 10 
+6.1. Caso 1: primer registro de facturación –en este caso, de alta– en un Sistema Informático de 
+Facturación (SIF) .................................................................................................................................. 10 
+6.2. Caso 2: registro de facturación –en este caso de alta– con registro de facturación anterior 
+existente en el SIF (siendo, por tanto, el segundo registro o sucesivo)................................................. 11 
+6.3. Caso 3: registro de facturación –en este caso, de anulación– con registro de facturación 
+anterior existente en el SIF (siendo, por tanto, el segundo registro o sucesivo)  ................................... 12 
+7. VALIDACIÓN ................................ ................................ ................................ ......... 13 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== [PAGINA 3 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 3/13 
+ 
+1. Introducción 
+ 
+En este documento se proporcionan los detalles técnicos necesarios para 
+completar y hacer posible la implementación y cumplimiento de las 
+especificaciones del artículo 13  “Huella o «hash» de los registros de 
+facturación” de la Orden XXXXXXX que desarrolla las especificaciones 
+técnicas, funcionales y de contenido referidas en  el reglamento que establece 
+los requisitos que deben adoptar los sistemas y programas informáticos o 
+electrónicos que soporten los procesos de facturación de empresarios  y 
+profesionales, y la estandarización de formatos de los registros de facturación, 
+aprobado por el Real Decreto 1007/2023, de 5 de diciembre, y en el artículo 6.5 
+del reglamento por el que se regulan las obligaciones de facturación, aprobado 
+por el Real Decreto 1619/2012, de 30 de noviembre. 
+ 
+  
+
+===== [PAGINA 4 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 4/13 
+ 
+2. Algoritmo a utilizar 
+ 
+El algoritmo a utilizar se detalla en la Lista L12 del apartado 6 del anexo de la 
+orden.  
+En la fecha de publicación de este documento el único algoritmo permitido es 
+SHA-256. 
+ 
+  
+
+===== [PAGINA 5 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 5/13 
+ 
+3. Datos de entrada 
+ 
+La información sobre la que se realizará la huella o «hash» será  la de  los 
+siguientes campos contenidos en el fichero XML de  los registros de facturación 
+o de evento, en el orden enunciado, que coincide con su aparición en los 
+correspondientes diseños de registros publicados en el anexo de la orden. 
+Debido a las diferencias en dichos diseños de registros, dependiendo del tipo de 
+registro de que se trate, se distinguen tres subconjuntos de campos:  
+a) Datos de campos a utilizar en el caso de registros de facturación de alta 
+(y la “ruta” de su localización dentro del registro): 
+ 
+1. IDEmisorFactura (RegistroAlta/IDFactura/IDEmisorFactura) 
+2. NumSerieFactura (RegistroAlta/IDFactura/NumSerieFactura) 
+3. FechaExpedicionFactura  
+(RegistroAlta/IDFactura/FechaExpedicionFactura) 
+4. TipoFactura (RegistroAlta/TipoFactura) 
+5. CuotaTotal (RegistroAlta/CuotaTotal) 
+6. ImporteTotal (RegistroAlta/ImporteTotal) 
+7. Huella (RegistroAlta/Encadenamiento/RegistroAnterior/Huella) 
+8. FechaHoraHusoGenRegistro  
+(RegistroAlta/FechaHoraHusoGenRegistro) 
+ 
+b) Datos de campos a utilizar  en el caso de registros de facturación de 
+anulación (y la “ruta” de su localización dentro del registro): 
+ 
+1. IDEmisorFacturaAnulada 
+(RegistroAnulacion/IDFactura/IDEmisorFacturaAnulada) 
+2. NumSerieFacturaAnulada  
+(RegistroAnulacion/IDFactura/NumSerieFacturaAnulada) 
+3. FechaExpedicionFacturaAnulada  
+(RegistroAnulacion/IDFactura/FechaExpedicionFacturaAnulada) 
+4. Huella  
+(RegistroAnulacion/Encadenamiento/RegistroAnterior/Huella) 
+5. FechaHoraHusoGenRegistro  
+(RegistroAnulacion/FechaHoraHusoGenRegistro) 
+ 
+c) Datos de campos a utilizar en el caso de registros de evento (y la “ruta” 
+de su localización dentro del registro): 
+ 
+
+===== [PAGINA 6 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 6/13 
+ 
+1. NIF (RegistroEvento/Evento/SistemaInformatico/NIF) 
+2. ID (RegistroEvento/Evento/SistemaInformatico/IDOtro/ID) 
+3. IdSistemaInformatico 
+(RegistroEvento/Evento/SistemaInformatico/IdSistemaInformatico) 
+4. Version (RegistroEvento/Evento/SistemaInformatico/Version) 
+5. NumeroInstalacion 
+(RegistroEvento/Evento/SistemaInformatico/NumeroInstalacion) 
+6. NIF (RegistroEvento/Evento/ObligadoEmision/NIF) 
+7. TipoEvento (RegistroEvento/Evento/TipoEvento) 
+8. HuellaEvento 
+(RegistroEvento/Evento/Encadenamiento/EventoAnterior/HuellaEvento) 
+9. FechaHoraHusoGenEvento 
+(RegistroEvento/Evento/FechaHoraHusoGenEvento) 
+ 
+Independientemente del tipo de registro, los datos se concatenarán –en el orden 
+descrito para cada caso – en una única cadena de texto con formato String, 
+siguiendo la estructura descrita a continuación:  
+nombreCampo1=valorCampo1&nombreCampo2=valorCampo2&nombreC
+ampoN=valorCampoN 
+El nombre del campo será un valor constante tal y como se describe en el XML 
+del diseño de registro.  
+Los valores de los campos deberán tener la misma información contenida en 
+el campo correspondiente del fichero XML, pero eliminando los espacios al inicio 
+y al final de cada valor y en los campos numéricos se tratarán indistintamente 
+los valores con una o dos posiciones en los decimales, sin tener relevancia los 
+ceros a la derecha, considerándose todos igualmente válidos para la generación 
+de la huella o hash.  
+ Por ejemplo, s i el campo NumSerieFactura  contiene la siguiente 
+información: <NumSerieFactura>    12345678 / G33  </NumSerieFactura> 
+se obtendrá el valor “12345678 / G33”.  
+ Por ejemplo, si el campo ImporteTotal contiene la siguiente información: 
+<ImporteTotal>123.1</ImporteTotal> se tratar á correctamente, de la 
+misma forma que si se informara <ImporteTotal>123.10</ImporteTotal>. 
+Si el campo no aparece en el registro (o aparece, pero sin valor), en la cadena 
+de caracteres solo se deberá poner el nombre del campo y el carácter “=” (sin 
+valor a continuación), como en los siguientes ejemplos: 
+
+===== [PAGINA 7 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 7/13 
+ 
+ Primer registro de facturación, donde no hay una huella “anterior”:  
+…ImporteTotal=123.45&Huella=&FechaHoraHusoGenRegistro=… 
+ 
+ Se informa NIF, pero no ID, en un registro de evento, al ser obligatorio 
+informar, de forma excluyente, uno u otro:  
+NIF=89890001K&ID=&IdSistemaInformatico=… 
+Dicha cadena de caracteres será codificada en un array de bytes en formato 
+UTF-8 para generar la entrada del algoritmo (o función) de huella o «hash». 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== [PAGINA 8 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 8/13 
+ 
+ 
+ 
+ 
+4. Ejemplo tratamiento de datos de entrada en 
+lenguaje Java 
+ 
+Se describe un ejemplo de tratamiento de datos de entrada para un  registro de 
+facturación de alta en lenguaje de programación Java.  
+ 
+ 
+ 
+
+
+===== [PAGINA 9 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 9/13 
+ 
+5. Datos de salida 
+ 
+Se aplicará el algoritmo de huella o «hash» a la cadena generada a partir de los 
+datos anteriormente indicados del XML del registro de que se trate.  
+El formato de salida será: 
+ En sistema hexadecimal.  
+ En mayúsculas.  
+El tamaño será de 64 caracteres alfanuméricos.  
+El resultado obtenido de dicho algoritmo de huella o «hash» se informará en el 
+siguiente campo del registro de facturación o de evento, dependiendo del tipo de 
+registro que se esté generando:  
+a) Campo donde se informará el valor de la huella o «hash» en los registros 
+de facturación de alta (y la “ruta” de su localización dentro del registro): 
+ Huella (RegistroAlta/Huella) 
+ 
+b) Campo donde se informará el valor de la huella o «hash» en los registros 
+de facturación  de anulación  (y la “ruta” de su localización dentro del 
+registro): 
+ Huella (RegistroAnulacion/Huella) 
+ 
+c) Campo donde se informará el valor de la huella o «hash» en los registros 
+de evento (y la “ruta” de su localización dentro del registro): 
+ HuellaEvento (RegistroEvento/Evento/HuellaEvento) 
+ 
+El dato de la huella –así calculada– del registro al que se refiera siempre ha de 
+ir informado en el correspondiente campo de dicho registro. Es decir, incluso en 
+el caso de que sea el primer registro de facturación o de evento (en cuyo caso 
+se deberá indicar en el campo “PrimerRegistro” o “PrimerEvento” el valor a “S” 
+y n o será necesario informar los campos de los bloques “RegistroAnterior” o 
+“EventoAnterior”, respectivamente), también será necesario generar el contenido 
+de los campos Huella o HuellaEvento detallados anteriormente e incluirlos en 
+el correspondiente registr o. En el punto 6. Ejemplos de datos de salida, se 
+adjunta esta casuística.  
+ 
+  
+
+===== [PAGINA 10 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 10/13 
+ 
+6. Ejemplos 
+Se adjuntan tres ejemplos de registros de facturación. 
+6.1. Caso 1: primer registro de facturación –en este caso, de 
+alta– en un Sistema Informático de Facturación (SIF) 
+Se parte de los siguientes datos de entrada en el XML:  
+1. IDEmisorFactura: 89890001K 
+2. NumSerieFactura: 12345678/G33 
+3. FechaExpedicionFactura:  01-01-2024 
+4. TipoFactura: F1 
+5. CuotaTotal: 12.35 
+6. ImporteTotal: 123.45 
+7. Huella (*): 
+8. FechaHoraHusoGenRegistro:  2024-01-01T19:20:30+01:00 
+(*) Sin contenido, al tratarse del primer registro de ese SIF y, por tanto, no haber 
+registro de facturación anterior. 
+Se obtendría la siguiente cadena de caracteres sobre la que aplicar el algoritmo 
+de huella o «hash»:  
+IDEmisorFactura=89890001K&NumSerieFactura=12345678/G33&FechaExped
+icionFactura=01-01-
+2024&TipoFactura=F1&CuotaTotal=12.35&ImporteTotal=123.45&Huella=&Fec
+haHoraHusoGenRegistro=2024-01-01T19:20:30+01:00 
+ 
+Aplicando el algoritmo de huella o «hash» para los siguientes datos de entrada:  
+calcularHuella("IDEmisorFactura=89890001K&NumSerieFactura=12345678/G3
+3&FechaExpedicionFactura=01-01-
+2024&TipoFactura=F1&CuotaTotal=12.35&ImporteTotal=123.45&Huella=&Fec
+haHoraHusoGenRegistro=2024-01-01T19:20:30+01:00”); 
+Debería devolver el siguiente dato de salida como valor de la huella o «hash»:  
+3C464DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058073F3
+8F12F60 
+ 
+ 
+
+===== [PAGINA 11 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 11/13 
+ 
+6.2. Caso 2: registro de facturación –en este caso de alta– 
+con registro de facturación anterior existente en el SIF 
+(siendo, por tanto, el segundo registro o sucesivo) 
+Partiendo de los siguientes datos de entrada en el XML:  
+1. IDEmisorFactura: 89890001K 
+2. NumSerieFactura: 12345679/G34 
+3. FechaExpedicionFactura:  01-01-2024 
+4. TipoFactura: F1 
+5. CuotaTotal: 12.35 
+6. ImporteTotal: 123.45 
+7. Huella: 
+3C464DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058
+073F38F12F60 
+8. FechaHoraHusoGenRegistro:  2024-01-01T19:20:35+01:00 
+ 
+Se obtendría la siguiente cadena de caracteres sobre la que aplicar el algoritmo 
+de huella o «hash»:  
+IDEmisorFactura=89890001K&NumSerieFactura=12345679/G34&FechaExped
+icionFactura=01-01-
+2024&TipoFactura=F1&CuotaTotal=12.35&ImporteTotal=123.45&Huella=3C46
+4DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058073F38F12
+F60&FechaHoraHusoGenRegistro=2024-01-01T19:20:35+01:00 
+ 
+Aplicando el algoritmo de huella o «hash» para los siguientes datos de entrada:  
+calcularHuella("IDEmisorFactura=89890001K&NumSerieFactura=12345679/G3
+4&FechaExpedicionFactura=01-01-
+2024&TipoFactura=F1&CuotaTotal=12.35&ImporteTotal=123.45&Huella=3C46
+4DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058073F38F12F
+60&FechaHoraHusoGenRegistro=2024-01-01T19:20:35+01:00”); 
+Debería devolver el siguiente dato de salida como valor de la huella o «hash»:  
+F7B94CFD8924EDFF273501B01EE5153E4CE8F259766F88CF6ACB8935802
+A2B97 
+ 
+
+===== [PAGINA 12 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 12/13 
+ 
+6.3. Caso 3: registro de facturación –en este caso, de 
+anulación– con registro de facturación anterior 
+existente en el SIF (siendo, por tanto, el segundo 
+registro o sucesivo) 
+ 
+Partiendo de los siguientes datos de entrada en el XML:  
+1. IDEmisorFacturaAnulada: 89890001K 
+2. NumSerieFacturaAnulada: 12345679/G34 
+3. FechaExpedicionFacturaAnulada:  01-01-2024 
+4. Huella: 
+F7B94CFD8924EDFF273501B01EE5153E4CE8F259766F88CF6ACB8
+935802A2B97 
+5. FechaHoraHusoGenRegistro:  2024-01-01T19:20:40+01:00 
+ 
+Se obtendría la siguiente cadena de caracteres sobre la que aplicar el algoritmo 
+de huella o «hash»:  
+IDEmisorFacturaAnulada=89890001K&NumSerieFacturaAnulada=12345679/G
+34&FechaExpedicionFacturaAnulada=01-01-
+2024&Huella=F7B94CFD8924EDFF273501B01EE5153E4CE8F259766F88CF
+6ACB8935802A2B97&FechaHoraHusoGenRegistro=2024-01-
+01T19:20:40+01:00 
+ 
+Aplicando el algoritmo de huella o «hash» para los siguientes datos de entrada:  
+calcularHuella(“IDEmisorFacturaAnulada=89890001K&NumSerieFacturaAnula
+da=12345679/G34&FechaExpedicionFacturaAnulada=01-01-
+2024&Huella=F7B94CFD8924EDFF273501B01EE5153E4CE8F259766F88CF
+6ACB8935802A2B97&FechaHoraHusoGenRegistro=2024-01-
+01T19:20:40+01:00”); 
+ 
+Debería devolver el siguiente dato de salida como valor de la huella o «hash»:  
+177547C0D57AC74748561D054A9CEC14B4C4EA23D1BEFD6F2E69E3A388
+F90C68 
+
+===== [PAGINA 13 de 13] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: VERI*FACTU Versión: 0.1.2 
+  
+ 
+VERI*FACTU    Página: 13/13 
+ 
+7. Validación 
+El sistema informático de facturación deberá asegurar  que la huella o «hash» 
+generada sea acorde a las especificaciones y formato detallados anteriormente 
+en la generación de la información de los registros de facturación y, en su caso, 
+de evento.  
+Cuando en una remisión de un sistema «VERI*FACTU» la huella informada no 
+coincida con el cálculo realizado  por la AEAT , el registro de facturación se 
+marcará como “Aceptado con errores”. 

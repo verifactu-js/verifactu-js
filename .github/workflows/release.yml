@@ -1,0 +1,82 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '@verifactu-js/*@*'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to publish (directory under packages/)'
+        required: true
+        default: core
+      dry_run:
+        description: 'Run npm publish --dry-run only'
+        type: boolean
+        default: true
+
+# `id-token: write` is what makes npm provenance possible: npm trusts a short-lived OIDC token
+# minted by GitHub for this workflow run, so no long-lived NPM_TOKEN is stored anywhere.
+# Requires npm >= 11.5.1 and a package whose repository field matches this repo.
+#
+# Provenance is requested with the `--provenance` FLAG below, deliberately not with
+# `publishConfig.provenance: true` in package.json. That setting applies to every publish,
+# including one run from a laptop, where there is no CI provider to attest anything and npm
+# fails with `EUSAGE: Automatic provenance generation not supported for provider: null`.
+# Keeping it as a flag means local publishes work and CI publishes are attested.
+# Do not move it back into package.json.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      # Trusted publishing needs a recent npm; the one bundled with Node may lag behind.
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Verify before publishing
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test:coverage
+          pnpm build
+
+      - name: Resolve package directory
+        id: pkg
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "dir=packages/${{ inputs.package }}" >> "$GITHUB_OUTPUT"
+          else
+            # Tag shape: @verifactu-js/<name>@<version>
+            name="${GITHUB_REF_NAME#@verifactu-js/}"
+            echo "dir=packages/${name%@*}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish (dry run)
+        if: inputs.dry_run
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: npm publish --dry-run --provenance --access public
+
+      - name: Publish
+        if: '!inputs.dry_run'
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: npm publish --provenance --access public

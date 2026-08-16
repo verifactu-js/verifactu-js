@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Credentials — never commit. See VERIFACTU-BRIEF.md §10.
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+.env
+.env.*
+!.env.example

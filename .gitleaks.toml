@@ -1,0 +1,31 @@
+# gitleaks configuration.
+#
+# Extends the default ruleset and adds what matters for this project specifically: digital
+# certificates and private keys for the AEAT web service.
+
+title = "verifactu-js"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "aeat-pkcs12-certificate"
+description = "Certificado PKCS#12 (.p12/.pfx) en el árbol de trabajo"
+regex = '''(?i)-----BEGIN (ENCRYPTED )?PRIVATE KEY-----'''
+tags = ["key", "aeat"]
+
+[[rules]]
+id = "aeat-certificate-password"
+description = "Contraseña de certificado en configuración o código"
+regex = '''(?i)(cert(ificado)?[_-]?(pass|password|passphrase|clave)|p12[_-]?pass)\s*[:=]\s*['\"][^'\"]{4,}['\"]'''
+tags = ["password", "aeat"]
+
+[allowlist]
+description = "Rutas sin secretos reales"
+paths = [
+  '''docs/reference/.*''',
+  '''pnpm-lock\.yaml''',
+  '''(.*?)(png|jpg|jpeg|gif|pdf|xlsx)$''',
+]
+# The example NIF used throughout the AEAT documentation. Not a secret.
+regexes = ['''89890001K''']

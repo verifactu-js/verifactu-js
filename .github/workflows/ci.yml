@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, to notice changes in the AEAT technical documentation and services.
+    - cron: '17 6 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PNPM_VERSION: 11.1.2
+
+jobs:
+  gitleaks:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  quality:
+    name: Lint, typecheck, tests and coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint (Biome)
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Thresholds live in vitest.config.ts (95% across the board). The job fails on its own if
+      # coverage drops; there is no separate gate to forget to update.
+      - name: Tests and coverage
+        run: pnpm test:coverage
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: packages/*/coverage
+          retention-days: 7
+
+  runtimes:
+    name: core on ${{ matrix.runtime }}
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runtime: node-20
+          - runtime: node-22
+          - runtime: node-24
+          - runtime: bun
+          - runtime: deno
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The smoke test runs against the built bundle, which is what users actually consume.
+      - name: Build core
+        run: pnpm --filter @verifactu-js/core build
+
+      - name: Set up Node ${{ matrix.runtime }}
+        if: startsWith(matrix.runtime, 'node-')
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.runtime == 'node-20' && '20' || matrix.runtime == 'node-22' && '22' || '24' }}
+
+      - name: Set up Bun
+        if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Set up Deno
+        if: matrix.runtime == 'deno'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Smoke test
+        working-directory: packages/core
+        run: |
+          case "${{ matrix.runtime }}" in
+            node-*) node runtime-smoke.mjs ;;
+            bun)    bun runtime-smoke.mjs ;;
+            deno)   deno run --allow-read runtime-smoke.mjs ;;
+          esac

@@ -1,0 +1,476 @@
+
+
+########## HOJA: 0)Control de cambios ##########
+VERSIÓN | FECHA | HOJA/ PESTAÑA | AUTOR | DESCRIPCIÓN
+1.0 | 2024-10-28 00:00:00 | 0 | AEAT.DIT.SGA y  AEAT.DIFT.ONIF | Versión oficial a raíz de la publicación de la Orden Ministerial HAC-1177-2024. Sin cambios respecto a la versión 0.14.4. Asignación del mismo valor de numeración de versión, acorde al campo IdVersion (Lista L15).
+0.14.4 | 2024-10-02 00:00:00 | 2 y 3 | AEAT.DIT.SGA | Nuevo campo RefExterna.
+0.14.3 | 2024-09-24 00:00:00 | 1 y7 | AEAT.DIT.SGA | Modificación bloque "RemisionRequerimiento" y listas L8A (IVA) y L8B (IGIC) respectos a claves de régimen 8 (se añaden) y 16 (se elimina).
+0.14.2 | 2024-09-16 00:00:00 | 1 y7 | AEAT.DIT.SGA | Modificación lista L1 (Impuesto "Otros) y modificaciones de descripciones asociadas.
+0.14.1 | 2024-09-10 00:00:00 | 1, 6 y 7 | AEAT.DIFT.ONIF | 1) Cambios en las descripciones de la agrupación Representante y se "desagrupan" columnas. 6) Cambio del título de la lista L8A; se añade una nota debajo de la lista L2. 7) Se completa la leyenda.
+0.14.0 | 2024-07-19 00:00:00 | 1,2 y 6 | AEAT.DIT.SGA | Nuevo campo Representante e Impuesto. ClaveRegimen opcional. RefRequerimiento obligatorio. Nuevas listas L1, L8A y L8B (en sustitución de la L8).
+0.13.2 | 2024-06-07 00:00:00 | 6 | AEAT.DIT.SGA | Eliminada lista L1, sin uso.
+0.13.1 | 2024-04-29 00:00:00 | 0,1,2,3,4,5 y 6 | AEAT.DIFT.ONIF | Traslado de los cambios (corrección de erratas, comillas…) incluidos en el anexo del documento de la propuesta de OM a las pestañas correspondientes.
+0.13 | 2024-04-25 00:00:00 | 0,1,2,3,4,5 y 6 | AEAT.DIFT.ONIF | Corrección de erratas (coherencias singular/plural, espacios duplicados…)
+0.12.3 | 2024-04-17 00:00:00 | 0 y 5 | AEAT.DIFT.ONIF | Corrección de erratas (espacios duplicados…)
+0.12.2 | 2024-04-16 00:00:00 | 0 y 5 | AEAT.DIFT.ONIF | Pestaña 0) nueva fila 2, 5) celda D13 descrip.
+0.12.1 | 2024-04-15 00:00:00 | 0 y 2 | AEAT.DIFT.ONIF | Pestaña 0) nueva fila 2, 2) formato celda G56 ("IdAcuerdoSistemaInformatico").
+0.12.0 | 2024-04-15 00:00:00 | 0, 4, 5 y 6 | AEAT.DIFT.ONIF | Pestaña 0) nueva fila 2, 4) antiguas celdas E54 y E55 desaparecen, 4) "combinadas" celdas E37 a E39, 5)D7 descrip., 5)D8 descrip., 5)D9 descrip., 5)D10 descrip., 5)D11 descrip., 5)D12 descrip., 5)B13 nombre campo,  5)D13 descrip., 5)E13 formato, 5)A14 NOTA, 6) cambio valores y descrip. en Lista L2E.
+0.11.5 | 2024-04-03 00:00:00 | 4 | AEAT.DIT.SGA | Modificación descripción campo Signature
+0.11.4 | 2024-03-20 00:00:00 | 2 | AEAT.DIT.SGA | Modificación de campos CalificacionOperacion y OperaciónExenta a obligatorios y alternativos
+0.11.3 | 2024-03-19 00:00:00 | 0, 1, 2, 3 y 5 | AEAT.DIFT.ONIF y AEAT.DIT.SGA | Corrección de erratas y ampliación de descripciones: pestaña 0) nueva fila 2, pestaña 1) celda H5, 2)C11, 2)C14, 2)C31, 2)C37, 2)D38, 2)D39, 2)G22, G)23, 3)E3, 3)E8 y 5)D10.
+0.11.2 | 2024-03-12 00:00:00 | 0,1,2,3,4,5 (nueva), 6 (antigua 5), A y B | AEAT.DIFT.ONIF y AEAT.DIT.SGA | Revisión y cambios en Pestaña 4) DR Evento. Revisión general y cambios formales (fundamentalmente de las descripciones). Nueva pestaña 5 e inclusión de 2 últimas pestañas A y B (no irán en el anexo I de la orden, sino en la Sede-e) con operativa de alta y de anulación admitidas.
+0.9.0 | 2024-03-05 00:00:00 | 1,2,3,4, 6 (antigua 5) | AEAT.DIT.SGA | Refactorización de la operativa de remisión, alta y anulación de los registros de facturación.
+0.5.0 | 2023-12-20 00:00:00 | 1,2,3 y 6 (antigua 5) | AEAT.DIT.SGA | Inclusión de lista L14 "Macrodato"
+0.4.0 | 2023-12-19 00:00:00 | 0 | AEAT.DIFT.ONIF | Inclusión de la pestaña "0)Control.de.cambios"
+0.4.0 | 2023-12-19 00:00:00 | 1 | AEAT.DIFT.ONIF | Campo Cuota Rectificada a CuotaRectificada (sin espacio intermedio).
+0.4.0 | 2023-12-19 00:00:00 | 6 (antigua 5) | AEAT.DIFT.ONIF | - Cambio en la hoja de listas para realizar ajustes en algunos bordes de las filas/celdas. \n - Cambio en la hoja de listas para corregir errata en la L17: in(i)cial.  \n - Cambio en la hoja de listas para añadir a la L16 y a la L17 los registros que faltaban (3 y 2, respectivamente) con los valores que se utilizan en los registros de anulación.  \n - Cambio en la hoja de listas para sustituir un valor en la L15, de V0.1 a V1.0 (versión publicada).
+
+
+########## HOJA: 1)DR Remisión Alta-Anul.VF-Req. ##########
+BLOQUE | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DESCRIPCIÓN | FORMATO / (LONGITUD) / LISTA
+Cabecera1 | ObligadoEmision1 | NombreRazon1 | Nombre-razón social del obligado a expedir las facturas. | Alfanumérico (120)
+ |  | NIF1 | NIF del obligado a expedir las facturas. | FormatoNIF (9)
+ | Representante | NombreRazon1 | Nombre-razón social del representante del obligado tributario. A rellenar solo en caso de que los registros de facturación remitidos hayan sido generados por un representante/asesor del obligado tributario. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (120)
+ |  | NIF1 | NIF del representante del obligado tributario. A rellenar solo en caso de que los registros de facturación remitidos hayan sido generados por un representante/asesor del obligado tributario. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | FormatoNIF (9)
+ | RemisionVoluntaria | FechaFinVeriFactu | Última fecha en la que el sistema informático actuará como «VERI*FACTU». Después de la misma, el sistema dejará de funcionar como «VERI*FACTU». Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación actuales y futuros. A rellenar sólo en los casos de remisión voluntaria «VERI*FACTU» ante una futura renuncia a continuar con las remisiones voluntarias «VERI*FACTU». | Fecha (dd-mm-yyyy)
+ |  | Incidencia | Indicador que especifica si la remisión voluntaria de los registros de facturación se ha visto afectada por algún tipo de incidencia técnica (por ej. ausencia de corriente eléctrica, problemas de conexión a Internet, fallo del sistema informático de facturación…). Si no se informa este campo se entenderá que tiene valor “N”. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. A rellenar sólo en los casos de remisión voluntaria «VERI*FACTU» cuando haya ocurrido alguna situación de este tipo. | Alfanumérico (1) L4
+ | RemisionRequerimiento | RefRequerimiento1 | Sólo cuando el motivo de la remisión sea para dar respuesta a un requerimiento de información previo efectuado por parte de la AEAT, se deberá indicar aquí la referencia de dicho requerimiento, lo que forma parte del detalle de las circunstancias de generación del registro de facturación. Por lo tanto, NO deberá informarse este campo en el caso de una remisión voluntaria «VERI*FACTU». | Alfanumérico (18)
+ |  | FinRequerimiento | Indicador que especifica que se ha finalizado la remisión de registros de facturación tras un requerimiento, especialmente útil cuando se realice un envío o remisión múltiple y se ha de dejar constancia de que se trata del último envío. Si no se informa este campo se entenderá que tiene valor “N”. Solo puede cumplimentarse si el campo RefRequerimiento viene informado. | Alfanumérico (1) L4
+RegistroFactura (1-1000)1 | RegistroAlta1 |  | Datos del registro de facturación de alta. Ver su diseño de bloque: «RegistroAlta».
+ | RegistroAnulacion1 |  | Datos del registro de facturación de anulación. Ver su diseño de bloque: «RegistroAnulacion».
+
+
+########## HOJA: 2)D. Registro Facturación Alta ##########
+BLOQUE | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DESCRIPCIÓN | FORMATO / (LONGITUD) / LISTA
+RegistroAlta1 | IDVersion1 |  |  |  | Identificación de la versión actual del esquema o estructura de información utilizada para la generación y conservación / remisión de los registros de facturación. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (3) L15
+ | IDFactura1 | IDEmisorFactura1 |  |  | Número de identificación fiscal (NIF) del obligado a expedir la factura. | FormatoNIF (9)
+ |  | NumSerieFactura1 |  |  | Nº Serie+Nº Factura que identifica a la factura emitida. | Alfanumérico (60)
+ |  | FechaExpedicionFactura1 |  |  | Fecha de expedición de la factura. | Fecha (dd-mm-yyyy)
+ | RefExterna |  |  |  | Dato adicional de contenido libre con el objetivo de que se pueda asociar opcionalmente información interna del sistema informático de facturación al registro de facturación. Este dato puede ayudar a completar la identificación o calificación de la factura y/o su registro de facturación. | Alfanumérico (60)
+ | NombreRazonEmisor1 |  |  |  | Nombre-razón social del obligado a expedir la factura. | Alfanumérico (120)
+ | Subsanacion |  |  |  | Indicador que especifica que se trata de una subsanación de un registro de facturación de alta previamente generado, por lo que el contenido de este nuevo registro de facturación es el correcto y el que deberá tenerse en cuenta. Si no se informa este campo se entenderá que tiene valor "N" (Alta Normal-Inicial). Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (1) L4
+ | RechazoPrevio |  |  |  | Indicador que especifica que se está generando -para volverlo a remitir- un nuevo registro de facturación de alta subsanado tras haber sido rechazado en su remisión inmediatamente anterior, es decir, en el último envío que contenía ese registro de facturación de alta rechazado. Si no se informa este campo se entenderá que tiene valor "N". Solo es necesario informarlo en caso de remisión voluntaria «VERI*FACTU». Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (1) L17
+ | TipoFactura1 |  |  |  | Especificación del tipo de factura: factura completa, factura simplificada, factura emitida en sustitución de facturas simplificadas o factura rectificativa. | Alfanumérico (2) L2
+ | TipoRectificativa |  |  |  | Campo que identifica si el tipo de factura rectificativa es por sustitución o por diferencia. | Alfanumérico (1) L3
+ | FacturasRectificadas | IDFacturaRectificada (1-1000)1 | IDEmisorFactura1 |  | NIF del obligado a expedir la factura. | FormatoNIF (9)
+ |  |  | NumSerieFactura1 |  | Nº Serie+Nº Factura que identifica a la factura emitida. | Alfanumérico (60)
+ |  |  | FechaExpedicionFactura1 |  | Fecha de expedición de la factura. | Fecha (dd-mm-yyyy)
+ | FacturasSustituidas | IDFacturaSustituida (1-1000)1 | IDEmisorFactura1 |  | NIF del obligado a expedir la factura. | FormatoNIF (9)
+ |  |  | NumSerieFactura1 |  | Nº Serie+Nº Factura que identifica a la factura emitida. | Alfanumérico (60)
+ |  |  | FechaExpedicionFactura1 |  | Fecha de expedición de la factura. | Fecha (dd-mm-yyyy)
+ | ImporteRectificacion | BaseRectificada1 |  |  | Base imponible de la factura. | Decimal (12,2)
+ |  | CuotaRectificada1 |  |  | Cuota repercutida o soportada de la factura. | Decimal (12,2)
+ |  | CuotaRecargoRectificado |  |  | Cuota recargo de equivalencia de la factura. | Decimal (12,2)
+ | FechaOperacion |  |  |  | Fecha en la que se ha realizado la operación siempre que sea diferente a la fecha de expedición. | Fecha (dd-mm-yyyy)
+ | DescripcionOperacion1 |  |  |  | Descripción del objeto de la factura. | Alfanumérico (500)
+ | FacturaSimplificadaArt7273 |  |  |  | Factura simplificada Articulo 7.2 Y 7.3 RD 1619/2012. Si no se informa este campo se entenderá que tiene valor “N". | Alfanumérico (1) L4
+ | FacturaSinIdentifDestinatarioArt61d |  |  |  | Factura sin identificación destinatario artículo 6.1.d) RD 1619/2012. Si no se informa este campo se entenderá que tiene valor “N". | Alfanumérico (1) L5
+ | Macrodato |  |  |  | Identificador que especifica aquellas facturas con base o importe de la factura superior al umbral especificado. Este campo es necesario porque contribuye a completar el detalle de la tipología de la factura. Si no se informa este campo se entenderá que tiene valor “N”. | Alfanumérico (1) L14
+ | EmitidaPorTerceroODestinatario |  |  |  | Identificador que especifica si la factura ha sido expedida materialmente por un tercero o por el destinatario (contraparte). | Alfanumérico (1) L6
+ | Tercero | NombreRazon1 |  |  | Nombre-razón social del tercero que expida la factura. | Alfanumérico (120)
+ |  | NIF1 |  |  | Identificador del NIF del tercero que expida la factura. | FormatoNIF (9)
+ |  | IDOtro1 | CodigoPais |  | Código del país del tercero que expida la factura. | Alfanumérico (2) (ISO 3166-1 alpha-2 codes)
+ |  |  | IDType1 |  | Clave para establecer el tipo de identificación del tercero en el país de residencia. | Alfanumérico (2) L7
+ |  |  | ID1 |  | Número de identificación del tercero en el país de residencia. | Alfanumérico (20)
+ | Destinatarios | IDDestinatario (1-1000)1 | NombreRazon1 |  | Nombre-razón social del destinatario (a veces también denominado contraparte, es decir, el cliente) de la operación. | Alfanumérico (120)
+ |  |  | NIF1 |  | Identificador del NIF del destinatario (a veces también denominado contraparte, es decir, el cliente) de la operación. | FormatoNIF (9)
+ |  |  | IDOtro1 | CodigoPais | Código del país del destinatario (a veces también denominado contraparte, es decir, el cliente) de la operación de la factura expedida. | Alfanumérico (2) (ISO 3166-1 alpha-2 codes)
+ |  |  |  | IDType1 | Clave para establecer el tipo de identificación, en el país de residencia, del destinatario (a veces también denominado contraparte, es decir, el cliente) de la operación de la factura expedida. | Alfanumérico (2) L7
+ |  |  |  | ID1 | Número de identificación, en el país de residencia, del destinatario (a veces también denominado contraparte, es decir, el cliente) de la operación de la factura expedida. | Alfanumérico (20)
+ | Cupon |  |  |  | Identificador que especifica si tiene minoración de la base imponible por la concesión de cupones, bonificaciones o descuentos cuando solo se expide el original de la factura. Este campo es necesario porque contribuye a completar el detalle de la tipología de la factura. Si no se informa este campo se entenderá que tiene valor “N”. | Alfanumérico (1) L4
+ | Desglose1 | DetalleDesglose (1-12)1 | Impuesto |  | Impuesto de aplicación. Si no se informa este campo se entenderá que el impuesto de aplicación es el IVA. Este campo es necesario porque contribuye a completar el detalle de la tipología de la factura. | Alfanumérico (1) L1
+ |  |  | ClaveRegimen |  | Clave que identificará el tipo de régimen del impuesto o una operación con trascendencia tributaria. | Alfanumérico (2) L8A/L8B
+ |  |  | CalificacionOperacion1 |  | Clave de la operación sujeta y no exenta o de la operación no sujeta. | Alfanumérico (2) L9
+ |  |  | OperacionExenta1 |  | Campo que especifica la causa de exención. | Alfanumérico (2) L10
+ |  |  | TipoImpositivo |  | Porcentaje aplicado sobre la base imponible para calcular la cuota. | Decimal (3,2)
+ |  |  | BaseImponibleOimporteNoSujeto1 |  | Magnitud dineraria sobre la que se aplica el tipo impositivo / Importe no sujeto. | Decimal (12,2)
+ |  |  | BaseImponibleACoste |  | Magnitud dineraria sobre la que se aplica el tipo impositivo en régimen especial de grupos nivel avanzado. | Decimal (12,2)
+ |  |  | CuotaRepercutida |  | Cuota resultante de aplicar a la base imponible el tipo impositivo. | Decimal (12,2)
+ |  |  | TipoRecargoEquivalencia |  | Porcentaje asociado en función del impuesto y tipo impositivo | Decimal (3,2)
+ |  |  | CuotaRecargoEquivalencia |  | Cuota resultante de aplicar a la base imponible el tipo de recargo de equivalencia. | Decimal (12,2)
+ | CuotaTotal1 |  |  |  | Importe total de la cuota (sumatorio de la Cuota Repercutida y Cuota de Recargo de Equivalencia). | Decimal (12,2)
+ | ImporteTotal1 |  |  |  | Importe total de la factura. Se detallará la forma de calcularlo en la documentación correspondiente en la sede electrónica de la AEAT (documento de validaciones...). | Decimal (12,2)
+ | Encadenamiento1 | PrimerRegistro1 |  |  | Indicador que especifica que no existe registro de facturación anterior en este sistema informático por tratarse del primer registro de facturación generado en él. En este caso, se informará con el valor "S". Si no se informa este campo se entenderá que no es el primer registro de facturación, en cuyo caso es obligatorio informar los campos de que consta «RegistroAnterior». | Alfanumérico (1)
+ |  | RegistroAnterior1 | IDEmisorFactura1 |  | NIF del obligado a expedir la factura a que se refiere el registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación, ya que es necesario para completar la identificación de la factura contenida en el registro de facturación anterior a encadenar en casos excepcionales y puntuales en los que no coincida con el actual, como al cambiar en un momento dado el NIF tras fusiones, absorciones, etc. | FormatoNIF (9)
+ |  |  | NumSerieFactura1 |  | Nº Serie+Nº Factura que identifica a la factura a que se refiere el registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. | Alfanumérico (60)
+ |  |  | FechaExpedicionFactura1 |  | Fecha de expedición de la factura a que se refiere el registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. | Fecha (dd-mm-yyyy)
+ |  |  | Huella1 |  | Primeros 64 caracteres de la huella o «hash» del registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. | Alfanumérico (64)
+ | SistemaInformatico1 |  |  |  | Datos del sistema informático de facturación utilizado. Ver su diseño de bloque: «SistemaInformatico».
+ | FechaHoraHusoGenRegistro1 |  |  |  | Fecha, hora y huso horario de generación del registro de facturación. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del registro de facturación. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ | NumRegistroAcuerdoFacturacion |  |  |  | Número de registro obtenido al enviar la autorización en materia de facturación o de libros registro a que se refiere la disposición adicional primera del Real Decreto que aprueba el Reglamento. Este campo forma parte del detalle de las circunstancias de generación del registro de facturación. | Alfanumérico (15)
+ | IdAcuerdoSistemaInformatico |  |  |  | Identificación del acuerdo (resolución) a que se refiere el artículo 5 del Reglamento. Este campo forma parte del detalle de las circunstancias de generación del registro de facturación. | Alfanumérico (16)
+ | TipoHuella1 |  |  |  | Tipo de algoritmo aplicado a cierto contenido del registro de facturación para obtener la huella o «hash». | Alfanumérico (2) L12
+ | Huella1 |  |  |  | Huella o «hash» de cierto contenido de este registro de facturación. Dicho contenido se detallará en la documentación correspondiente en la sede electrónica de la AEAT (documento de huella...). | Alfanumérico (64)
+ | Signature |  |  |  | Firma electrónica del registro de facturación en formato Xades Enveloped | Ver formato del "schema", en http://www.w3.org/2000/09/xmldsig#
+ |  |  |  |  | Namespace=http://www.w3.org/2000/09/xmldsig#.
+ |  |  |  |  | Obligatorio para conservación y para requerimiento, pero no para remisión voluntaria («VERI*FACTU»).
+
+
+########## HOJA: 3)D. Reg. Facturación Anulación ##########
+BLOQUE | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DESCRIPCIÓN | FORMATO / (LONGITUD) / LISTA
+RegistroAnulacion1 | IDVersion1 |  |  | Identificación de la versión actual del esquema o estructura de información utilizada para la generación y conservación / remisión de los registros de facturación. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (3) L15
+ | IDFactura1 | IDEmisorFacturaAnulada1 |  | NIF del obligado a expedir la factura que se anula. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación, ya que es necesario para completar la identificación de la factura a anular en casos excepcionales y puntuales en los que no coincida con el actual, como al cambiar en un momento dado el NIF tras fusiones, absorciones, etc. | FormatoNIF (9)
+ |  | NumSerieFacturaAnulada1 |  | Nº Serie+Nº Factura que identifica a la factura que se anula. | Alfanumérico (60)
+ |  | FechaExpedicionFacturaAnulada1 |  | Fecha de expedición de la factura que se anula. | Fecha (dd-mm-yyyy)
+ | RefExterna |  |  | Dato adicional de contenido libre con el objetivo de que se pueda asociar opcionalmente información interna del sistema informático de facturación al registro de facturación. Este dato puede ayudar a completar la identificación o calificación de la factura y/o su registro de facturación. | Alfanumérico (60)
+ | SinRegistroPrevio |  |  | Indicador que especifica que se trata de la anulación de un registro de facturación de alta (o subsanación de un registro de facturación de anulación previo) cuando este no existe en la AEAT (o en el propio sistema informático, si así procede indicar). Si no se informa este campo se entenderá que tiene valor "N". Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (1) L4
+ | RechazoPrevio |  |  | Indicador que especifica que se está generando -para volverlo a remitir- un nuevo registro de facturación de anulación subsanado tras haber sido rechazado en su remisión inmediatamente anterior, es decir, en el último envío que contenía ese registro de facturación de anulación rechazado. Si no se informa este campo se entenderá que tiene valor "N". Solo es necesario informarlo en caso de remisión voluntaria «VERI*FACTU». Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación. | Alfanumérico (1) L4
+ | GeneradoPor |  |  | Indicador que especifica quién se ha encargado de generar materialmente el registro de facturación de anulación, cuyos datos identificativos deberán hacerse constar dentro del grupo de campos "Generador", en su correspondiente sitio en función de si dispone de NIF o no. Si no se informa este campo, tampoco se deberá informar "Generador", considerándose que es el mismo que el emisor material de la factura que se anula. Por otro lado, se entiende que el obligado a generar el registro de facturación de anulación siempre es el mismo que el obligado a expedir la factura que en él se anula (incluyendo los casos de sucesión). | Alfanumérico (1) L16
+ | Generador | NombreRazon1 |  | Nombre-razón social del generador material del registro de facturación de anulación. | Alfanumérico (120)
+ |  | NIF1 |  | En su caso, identificador del NIF del generador material del registro de facturación de anulación. | FormatoNIF (9)
+ |  | IDOtro1 | CodigoPais | En su caso, código del país del generador material del registro de facturación de anulación. | Alfanumérico (2) (ISO 3166-1 alpha-2 codes)
+ |  |  | IDType1 | En su caso, clave para establecer el tipo de identificación, en el país de residencia, del generador material del registro de facturación de anulación. | Alfanumérico (2) L7
+ |  |  | ID1 | En su caso, número de identificación, en el país de residencia, del generador material del registro de facturación de anulación. | Alfanumérico (20)
+ | Encadenamiento1 | PrimerRegistro1 |  | Indicador que especifica que no existe registro de facturación anterior en este sistema informático por tratarse del primer registro de facturación generado en él. En este caso, se informará con el valor "S". Si no se informa este campo se entenderá que no es el primer registro de facturación, en cuyo caso es obligatorio informar los campos de que consta «RegistroAnterior». | Alfanumérico (1)
+ |  | RegistroAnterior1 | IDEmisorFactura1 | NIF del obligado a expedir la factura a que se refiere el registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. Este campo forma parte del detalle de las circunstancias de generación de los registros de facturación, ya que es necesario para completar la identificación de la factura contenida en el registro de facturación anterior a encadenar en casos excepcionales y puntuales en los que no coincida con el actual, como al cambiar en un momento dado el NIF tras fusiones, absorciones, etc. | FormatoNIF (9)
+ |  |  | NumSerieFactura1 | Nº Serie+Nº Factura que identifica a la factura a que se refiere el registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. | Alfanumérico (60)
+ |  |  | FechaExpedicionFactura1 | Fecha de expedición de la factura a que se refiere el registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. | Fecha (dd-mm-yyyy)
+ |  |  | Huella1 | Primeros 64 caracteres de la huella o «hash» del registro de facturación anterior (sea de alta o de anulación) generado en este sistema informático. | Alfanumérico (64)
+ | SistemaInformatico1 |  |  | Datos del sistema informático de facturación utilizado. Ver su diseño de bloque: «SistemaInformatico».
+ | FechaHoraHusoGenRegistro1 |  |  | Fecha, hora y huso horario de generación del registro de facturación. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del registro de facturación. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ | TipoHuella1 |  |  | Tipo de algoritmo aplicado a cierto contenido del registro de facturación para obtener la huella o «hash». | Alfanumérico (2) L12
+ | Huella1 |  |  | Huella o «hash» de cierto contenido de este registro de facturación. Dicho contenido se detallará en la documentación correspondiente en la sede electrónica de la AEAT (documento de huella...). | Alfanumérico (64)
+ | Signature |  |  | Firma electrónica del registro de facturación en formato Xades Enveloped. | Ver formato del "schema", en http://www.w3.org/2000/09/xmldsig#
+ |  |  |  | Namespace=http://www.w3.org/2000/09/xmldsig#
+ |  |  |  | Obligatorio para conservación y para requerimiento, pero no para remisión voluntaria («VERI*FACTU»).
+
+
+########## HOJA: 4)Diseño Registro Evento ##########
+BLOQUE | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DESCRIPCIÓN | FORMATO / (LONGITUD) / LISTA
+RegistroEvento1 | IDVersion1 |  |  |  |  | Identificación de la versión actual del esquema o estructura de información utilizada para la generación y conservación de los registros de evento. | Alfanumérico (3)
+ |  |  |  |  |  |  | L15
+ | Evento1 | SistemaInformatico1 |  |  |  | Datos del sistema informático de facturación utilizado. Ver su diseño de bloque: «SistemaInformatico».
+ |  | ObligadoEmision1 | NombreRazon1 |  |  | Nombre-razón social del obligado a expedir las facturas. | Alfanumérico (120)
+ |  |  | NIF1 |  |  | NIF del obligado a expedir las facturas. | FormatoNIF (9)
+ |  | EmitidaPorTerceroODestinatario |  |  |  | Campo que especifica si las facturas son expedidas materialmente por un tercero o destinatario en nombre del obligado a expedir facturas, en cuyo caso el campo «TerceroODestinatario» es obligatorio. Si no se informa este indicador, se entiende que quien expide materialmente las facturas (y genera los correspondientes registros de facturación) es el propio obligado a expedir las facturas. | Alfanumérico (1)
+ |  |  |  |  |  |  | L4E
+ |  | TerceroODestinatario | NombreRazon1 |  |  | Nombre-razón social del tercero o destinatario que expida las facturas. | Alfanumérico (120)
+ |  |  | NIF1 |  |  | NIF del tercero o destinatario que expida las facturas. | FormatoNIF (9)
+ |  |  | IDOtro1 | CodigoPais |  | Código del país del tercero o destinatario que expida las facturas. | Alfanumérico (2) (ISO 3166-1 alpha-2 codes)
+ |  |  |  | IDType1 |  | Clave para establecer el tipo de identificación en el país de residencia. | Alfanumérico (2)
+ |  |  |  |  |  |  | L7
+ |  |  |  | ID1 |  | Número de identificación en el país de residencia. | Alfanumérico (20)
+ |  | FechaHoraHusoGenEvento1 |  |  |  | Fecha, hora y huso horario de generación del registro de evento. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  | TipoEvento1 |  |  |  | Tipo de evento que se está registrando. | Alfanumérico (2) L2E
+ |  | DatosPropiosEvento | LanzamientoProcesoDeteccionAnomaliasRegFacturacion1 | RealizadoProcesoSobreIntegridadHuellasRegFacturacion1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la integridad de las huellas de los registros de facturación. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosFacturacionProcesadosSobreIntegridadHuellas |  | Número de registros de facturación analizados por el proceso sobre la integridad de las huellas. Obligatorio si el campo anterior es igual a "S" | Numérico (7)
+ |  |  |  | RealizadoProcesoSobreIntegridadFirmasRegFacturacion1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la integridad de las firmas de los registros de facturación. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosFacturacionProcesadosSobreIntegridadFirmas |  | Número de registros de facturación analizados por el proceso sobre la integridad de la firma. Obligatorio si el campo anterior es igual a "S". | Numérico (7)
+ |  |  |  | RealizadoProcesoSobreTrazabilidadCadenaRegFacturacion1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la trazabilidad del encadenamiento de los registros de facturación. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosFacturacionProcesadosSobreTrazabilidadCadena |  | Número de registros de facturación analizados por el proceso sobre la trazabilidad del encadenamiento. Obligatorio si el campo anterior es igual a "S". | Numérico (7)
+ |  |  |  | RealizadoProcesoSobreTrazabilidadFechasRegFacturacion1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la trazabilidad de las fechas de los registros de facturación. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosFacturacionProcesadosSobreTrazabilidadFechas |  | Número de registros de facturación analizados por el proceso sobre la trazabilidad de las fechas. Obligatorio si el campo anterior es igual a "S". | Numérico (7)
+ |  |  | DeteccionAnomaliasRegFacturacion1 | TipoAnomalia1 |  | Tipo de anomalía detectado. | Alfanumérico (2) L1E
+ |  |  |  | OtrosDatosAnomalia |  | Otros datos de interés o explicación adicional que el sistema informático pueda aportar sobre la anomalía detectada. | Alfanumérico (100)
+ |  |  |  | RegistroFacturacionAnomalo | IDEmisorFactura1 | NIF del obligado a expedir la factura a que se refiere el registro de facturación anómalo. | FormatoNIF (9)
+ |  |  |  |  | NumSerieFactura1 | Nº Serie+Nº Factura a que se refiere el registro de facturación anómalo. | Alfanumérico (60)
+ |  |  |  |  | FechaExpedicionFactura1 | Fecha de expedición de la factura a que se refiere el registro de facturación anómalo. | Fecha (dd-mm-yyyy)
+ |  |  | LanzamientoProcesoDeteccionAnomaliasRegEvento1 | RealizadoProcesoSobreIntegridadHuellasRegEvento1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la integridad de las huellas de los registros de evento. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosEventoProcesadosSobreIntegridadHuellas |  | Número de registros de evento analizados por el proceso sobre la integridad de las huellas. Obligatorio si el campo anterior es igual a "S". | Numérico (5)
+ |  |  |  | RealizadoProcesoSobreIntegridadFirmasRegEvento1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la integridad de las firmas de los registros de evento. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosEventoProcesadosSobreIntegridadFirmas |  | Número de registros de evento analizados por el proceso sobre la integridad de la firma. Obligatorio si el campo anterior es igual a "S". | Numérico (5)
+ |  |  |  | RealizadoProcesoSobreTrazabilidadCadenaRegEvento1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la trazabilidad del encadenamiento de los registros de evento. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosEventoProcesadosSobreTrazabilidadCadena |  | Número de registros de evento analizados por el proceso sobre la trazabilidad del encadenamiento. Obligatorio si el campo anterior es igual a "S". | Numérico (5)
+ |  |  |  | RealizadoProcesoSobreTrazabilidadFechasRegEvento1 |  | Indica si se ha lanzado algún proceso de detección de anomalías sobre la trazabilidad de las fechas de los registros de evento. | Alfanumérico (1) L3E
+ |  |  |  | NumeroDeRegistrosEventoProcesadosSobreTrazabilidadFechas |  | Número de registros de evento analizados por el proceso sobre la trazabilidad de las fechas. Obligatorio si el campo anterior es igual a "S". | Numérico (5)
+ |  |  | DeteccionAnomaliasRegEvento1 | TipoAnomalia1 |  | Tipo de anomalía detectada. | Alfanumérico (2) L1E
+ |  |  |  | OtrosDatosAnomalia |  | Otros datos de interés o explicación adicional que el sistema informático pueda aportar sobre la anomalía detectada. | Alfanumérico (100)
+ |  |  |  | RegEventoAnomalo | TipoEvento1 | Tipo de evento detectado como anómalo. | Alfanumérico (2) L2E
+ |  |  |  |  | FechaHoraHusoEvento1 | Fecha hora y huso del evento detectado como anómalo. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  |  | HuellaEvento1 | Huella del evento detectado como anómalo. | Alfanumérico (64)
+ |  |  | ExportacionRegFacturacionPeriodo1 | FechaHoraHusoInicioPeriodoExport1 |  | Fecha, hora y huso horario inicial del período a exportar. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  | FechaHoraHusoFinPeriodoExport1 |  | Fecha, hora y huso horario final del período a exportar. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  | RegistroFacturacionInicialPeriodo1 | IDEmisorFactura1 | NIF del obligado a expedir la factura a que se refiere el primer registro de facturación del período exportado. | FormatoNIF (9)
+ |  |  |  |  | NumSerieFactura1 | Nº Serie+Nº Factura de la factura a que se refiere el primer registro de facturación del período. | Alfanumérico (60)
+ |  |  |  |  | FechaExpedicionFactura1 | Fecha de expedición de la factura a que se refiere el primer registro de facturación del período. | Fecha (dd-mm-yyyy)
+ |  |  |  |  | Huella1 | Huella del primer registro de facturación del período. | Alfanumérico (64)
+ |  |  |  | RegistroFacturacionFinalPeriodo1 | IDEmisorFactura1 | NIF del obligado a expedir la factura a que se refiere el último registro de facturación del período exportado. | FormatoNIF (9)
+ |  |  |  |  | NumSerieFactura1 | Nº Serie+Nº Factura de la factura a que se refiere el último registro de facturación del período. | Alfanumérico (60)
+ |  |  |  |  | FechaExpedicionFactura1 | Fecha de expedición de la factura correspondiente al último registro de facturación del período. | Fecha (dd-mm-yyyy)
+ |  |  |  |  | Huella1 | Huella del último registro de facturación del período. | Alfanumérico (64)
+ |  |  |  | NumeroDeRegistrosFacturacionAltaExportados1 |  | Número de registros de facturación de alta exportados para el período. | Numérico (9)
+ |  |  |  | SumaCuotaTotalAlta1 |  | Suma de la Cuota total de las facturas de todos los registros de facturación de alta exportados para el período. | Decimal (12,2)
+ |  |  |  | SumaImporteTotalAlta1 |  | Suma del Importe total de las facturas de todos los registros de facturación de alta exportados para el período. | Decimal (12,2)
+ |  |  |  | NumeroDeRegistrosFacturacionAnulacionExportados1 |  | Número de registros de facturación de anulación exportados para el período. | Numérico (9)
+ |  |  |  | RegistrosFacturacionExportadosDejanDeConservarse1 |  | Indica si los registros de facturación exportados para el período dejan (o no) de conservarse en el sistema informático. | Alfanumérico (1) L3E
+ |  |  | ExportacionRegEventoPeriodo1 | FechaHoraHusoInicioPeriodoExport1 |  | Fecha, hora y huso horario inicial del período a exportar (registros de evento). El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  | FechaHoraHusoFinPeriodoExport1 |  | Fecha, hora y huso horario final del período a exportar (registros de evento). El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  | RegistroEventoInicialPeriodo1 | TipoEvento1 | Tipo de evento del primer reg. de evento del período exportado. | Alfanumérico (2) L2E
+ |  |  |  |  | FechaHoraHusoEvento1 | Fecha, hora y huso horario del primer reg. de evento del período exportado. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  |  | HuellaEvento1 | Huella del primer registro de evento del período. | Alfanumérico (64)
+ |  |  |  | RegistroEventoFinalPeriodo1 | TipoEvento1 | Tipo de evento del último reg. de evento del período exportado. | Alfanumérico (2) L2E
+ |  |  |  |  | FechaHoraHusoEvento1 | Fecha, hora y huso horario del último reg. de evento del período exportado. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  |  | HuellaEvento1 | Huella del último registro de evento del período. | Alfanumérico (64)
+ |  |  |  | NumeroDeRegEventoExportados1 |  | Número de registros de evento exportados para el período indicado. | Numérico (7)
+ |  |  |  | RegEventoExportadosDejanDeConservarse1 |  | Indica si los registros de evento exportados para el período indicado dejan de conservarse (o no) en el sistema informático. | Alfanumérico (1) L3E
+ |  |  | ResumenEventos1 | TipoEvento (1-20)1 | TipoEvento1 | Tipo de evento al que va a referirse la información que va a inmediatamente a continuación de este campo. | Alfanumérico (2) L2E
+ |  |  |  |  | NumeroDeEventos1 | Número de eventos del tipo que indica el campo anterior que se han producido en el período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Numérico (4)
+ |  |  |  | RegistroFacturacionInicialPeriodo | IDEmisorFactura1 | NIF del obligado a expedir la factura a que se refiere el primer registro de facturación del período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | FormatoNIF (9)
+ |  |  |  |  | NumSerieFactura1 | Nº Serie+Nº Factura de la factura a que se refiere el primer registro de facturación del período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Alfanumérico (60)
+ |  |  |  |  | FechaExpedicionFactura1 | Fecha de expedición de la factura a que se refiere el primer registro de facturación del período. | Fecha (dd-mm-yyyy)
+ |  |  |  |  | Huella1 | Huella del primer registro de facturación del período. | Alfanumérico (64)
+ |  |  |  | RegistroFacturacionFinalPeriodo | IDEmisorFactura1 | NIF del obligado a expedir la factura a que se refiere el último registro de facturación del período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | FormatoNIF (9)
+ |  |  |  |  | NumSerieFactura1 | Nº Serie+Nº Factura de la factura a que se refiere el último registro de facturación del período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Alfanumérico (60)
+ |  |  |  |  | FechaExpedicionFactura1 | Fecha de expedición de la factura correspondiente al último registro de facturación del período. | Fecha (dd-mm-yyyy)
+ |  |  |  |  | Huella1 | Huella del último registro de facturación del período. | Alfanumérico (64)
+ |  |  |  | NumeroDeRegistrosFacturacionAltaGenerados1 |  | Número de registros de facturación de alta generados en el período(desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Numérico (6)
+ |  |  |  | SumaCuotaTotalAlta1 |  | Suma de la Cuota total de las facturas de todos los registros de facturación de alta del período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Decimal (12,2)
+ |  |  |  | SumaImporteTotalAlta1 |  | Suma del Importe total de las facturas de todos los registros de facturación de alta del período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Decimal (12,2)
+ |  |  |  | NumeroDeRegistrosFacturacionAnulacionGenerados1 |  | Número de registros de facturación de anulación generados en el período (desde que se generó el último registro de resumen de eventos hasta el actual registro de resumen de eventos que se está generando). | Numérico (6)
+ |  | OtrosDatosEvento |  |  |  | Cualquier dato o conjunto de datos adicionales que el sistema informático considere de interés sobre el evento registrado. | Alfanumérico (100)
+ |  | Encadenamiento1 | PrimerEvento1 |  |  | Indicador que especifica que no existe registro de evento anterior en este sistema informático por tratarse del primer registro de evento generado en él. En este caso, se informará con el valor "S". Si no se informa este campo se entenderá que no es el primer registro de evento, en cuyo caso es obligatorio informar los campos de que consta «EventoAnterior». | Alfanumérico (1)
+ |  |  | EventoAnterior1 | TipoEvento1 |  | Tipo de registro de evento anterior. | Alfanumérico (2) L2E
+ |  |  |  | FechaHoraHusoGenEvento1 |  | Fecha, hora y huso horario de generación del registro de evento anterior. El huso horario es el que está usando el sistema informático de facturación en el momento de generación del registro de evento. | DateTime. Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)
+ |  |  |  | HuellaEvento1 |  | Primeros 64 caracteres de la huella o «hash» del registro de evento anterior. | Alfanumérico (64)
+ |  | TipoHuella1 |  |  |  | Tipo de algoritmo aplicado a cierto contenido del registro de evento para obtener la huella o «hash». | Alfanumérico (2) L12
+ |  | HuellaEvento1 |  |  |  | Huella o «hash» de cierto contenido de este registro de evento. Dicho contenido se detallará en la documentación correspondiente en la sede electrónica de la AEAT (documento de huella...). | Alfanumérico (64)
+ |  | Signature1 |  |  |  | Firma electrónica del registro de evento en formato Xades Enveloped | Ver formato del "schema", en http://www.w3.org/2000/09/xmldsig#
+ |  |  |  |  |  | Namespace=http://www.w3.org/2000/09/xmldsig#
+
+
+########## HOJA: 5)Definición SistemaInformatico ##########
+BLOQUE | DATOS/ AGRUPACIÓN | DATOS/ AGRUPACIÓN | DESCRIPCIÓN | FORMATO / (LONGITUD) / LISTA
+SistemaInformatico1 | NombreRazon1 |  | Nombre-razón social de la persona o entidad productora (ver * NOTA aclaratoria al final del bloque «SistemaInformatico»). | Alfanumérico (120)
+ | NIF1 |  | NIF de la persona o entidad productora (ver * NOTA aclaratoria al final del bloque «SistemaInformatico»). | FormatoNIF (9)
+ | IDOtro1 | CodigoPais | Código del país de la persona o entidad productora (ver * NOTA aclaratoria al final del bloque «SistemaInformatico»). | Alfanumérico (2) (ISO 3166-1 alpha-2 codes)
+ |  | IDType1 | Clave para establecer el tipo de identificación de la persona o entidad productora (ver * NOTA aclaratoria al final del bloque «SistemaInformatico»). | Alfanumérico (2) L7
+ |  | ID1 | Número de identificación de la persona o entidad productora (ver * NOTA aclaratoria al final del bloque «SistemaInformatico») en el país de residencia. | Alfanumérico (20)
+ | NombreSistemaInformatico |  | Nombre dado por la persona o entidad productora a su sistema informático de facturación (SIF) que, una vez instalado, se constituye en el SIF utilizado. Obligatorio en registros de facturación de alta y de anulación, y opcional en registros de evento. | Alfanumérico (30)
+ | IdSistemaInformatico1 |  | Código identificativo dado por la persona o entidad productora a su sistema informático de facturación (SIF) que, una vez instalado, se constituye en el SIF utilizado. Deberá distinguirlo de otros posibles SIF distintos que produzca esta misma persona o entidad productora. Se detallarán las posibles restricciones a sus valores en la documentación correspondiente en la sede electrónica de la AEAT (documento de validaciones...). | Alfanumérico (2)
+ | Version1 |  | Identificación de la versión del sistema informático de facturación (SIF) que se ejecuta en el sistema informático de facturación utilizado. | Alfanumérico (50)
+ | NumeroInstalacion1 |  | Número de instalación del sistema informático de facturación (SIF) utilizado. Deberá distinguirlo de otros posibles SIF utilizados para realizar la facturación del obligado a expedir facturas, es decir, de otras posibles instalaciones de SIF pasadas, presentes o futuras utilizadas para realizar la facturación del obligado a expedir facturas, incluso aunque en dichas instalaciones se emplee el mismo SIF de un productor. | Alfanumérico (100)
+ | TipoUsoPosibleSoloVerifactu |  | Especifica si para cumplir el Reglamento el sistema informático de facturación solo puede funcionar exclusivamente como «VERI*FACTU» (valor "S") o puede funcionar también como «NO VERI*FACTU» (valor "N"). Obligatorio en registros de facturación de alta y de anulación. No aplica en registros de evento. | Alfanumérico (1) L4
+ | TipoUsoPosibleMultiOT |  | Especifica si el sistema informático de facturación permite llevar independientemente la facturación de varios obligados tributarios (valor "S") o solo de uno (valor "N"). Obligatorio en registros de facturación de alta y de anulación, y opcional en registros de evento. | Alfanumérico (1) L4
+ | IndicadorMultiplesOT |  | Indicador de que el sistema informático, en el momento de la generación de este registro, está soportando la facturación de más de un obligado tributario. Este valor deberá obtenerlo automáticamente el sistema informático a partir del número de obligados tributarios contenidos y/o gestionados en él en ese momento, independientemente de su estado operativo (alta, baja...), no pudiendo obtenerse a partir de otra información ni ser introducido directamente por el usuario del sistema informático ni cambiado por él. El valor "N" significará que el sistema informático solo contiene y/o gestiona un único obligado tributario (de alta o de baja o en cualquier otro estado), que se corresponderá con el obligado a expedir factura de este registro de facturación. En cualquier otro caso, se deberá informar este campo con el valor "S". Obligatorio en registros de facturación de alta y de anulación, y opcional en registros de evento. | Alfanumérico (1) L4
+* NOTA: dato de la persona o entidad productora del sistema informático de facturación (SIF) empleado. En el caso de haber varios productores (por ejemplo, cuando el SIF consta de varios componentes de distintos productores) se deberán consignar los datos del productor responsable del componente principal del SIF, según la definición dada en el artículo 1.2.c) de esta orden.
+
+
+########## HOJA: 6)Listas ##########
+ | L1
+ | VALORES | DESCRIPCIÓN
+ | 01 | Impuesto sobre el Valor Añadido (IVA)
+ | 02 | Impuesto sobre la Producción, los Servicios y la Importación (IPSI) de Ceuta y Melilla
+ | 03 | Impuesto General Indirecto Canario (IGIC)
+ | 05 | Otros
+ | L2
+ | VALORES | DESCRIPCIÓN
+ | F1 | Factura (art. 6, 7.2 y 7.3 del RD 1619/2012)
+ | F2 | Factura Simplificada y Facturas sin identificación del destinatario art. 6.1.d) RD 1619/2012
+ | F3 | Factura emitida en sustitución de facturas simplificadas facturadas y declaradas
+ | R1 | Factura Rectificativa (Error fundado en derecho y Art. 80 Uno Dos y Seis LIVA)
+ | R2 | Factura Rectificativa (Art. 80.3)
+ | R3 | Factura Rectificativa (Art. 80.4)
+ | R4 | Factura Rectificativa (Resto)
+ | R5 | Factura Rectificativa en facturas simplificadas
+ | NOTA: las menciones a la LIVA (Ley 37/1992, de 28 de diciembre, del Impuesto sobre el Valor Añadido) en la lista L2 deben entenderse realizadas, en su caso, a la normativa equivalente de Canarias, Ceuta y Melilla
+ | L3
+ | VALORES | DESCRIPCIÓN
+ | S | Por sustitución
+ | I | Por diferencias
+ | L4
+ | VALORES | DESCRIPCIÓN
+ | S | Sí
+ | N | No
+ | L5
+ | VALORES | DESCRIPCIÓN
+ | S | Sí
+ | N | No
+ | L6
+ | VALORES | DESCRIPCIÓN
+ | D | Destinatario
+ | T | Tercero
+ | L7
+ | VALORES | DESCRIPCIÓN
+ | 02 | NIF-IVA
+ | 03 | Pasaporte
+ | 04 | Documento oficial de identificación expedido por el país o territorio de residencia
+ | 05 | Certificado de residencia
+ | 06 | Otro documento probatorio
+ | 07 | No censado
+ | L8A
+ | VALORES | DESCRIPCIÓN DE LA CLAVE DE RÉGIMEN PARA DESGLOSES  \n DONDE EL IMPUESTO DE APLICACIÓN ES EL IVA
+ | 01 | Operación de régimen general.
+ | 02 | Exportación.
+ | 03 | Operaciones a las que se aplique el régimen especial de bienes usados, objetos de arte, antigüedades y objetos de colección.
+ | 04 | Régimen especial del oro de inversión.
+ | 05 | Régimen especial de las agencias de viajes.
+ | 06 | Régimen especial grupo de entidades en IVA (Nivel Avanzado)
+ | 07 | Régimen especial del criterio de caja.
+ | 08 | Operaciones sujetas al IPSI  / IGIC (Impuesto sobre la Producción, los Servicios y la Importación  / Impuesto General Indirecto Canario).
+ | 09 | Facturación de las prestaciones de servicios de agencias de viaje que actúan como mediadoras en nombre y por cuenta ajena (D.A.4ª RD1619/2012)
+ | 10 | Cobros por cuenta de terceros de honorarios profesionales o de derechos derivados de la propiedad industrial, de autor u otros por cuenta de sus socios, asociados o colegiados efectuados por sociedades, asociaciones, colegios profesionales u otras entidades que realicen estas funciones de cobro.
+ | 11 | Operaciones de arrendamiento de local de negocio.
+ | 14 | Factura con IVA pendiente de devengo en certificaciones de obra cuyo destinatario sea una Administración Pública.
+ | 15 | Factura con IVA pendiente de devengo en operaciones de tracto sucesivo.
+ | 17 | Operación acogida a alguno de los regímenes previstos en el Capítulo XI del Título IX (OSS e IOSS)
+ | 18 | Recargo de equivalencia.
+ | 19 | Operaciones de actividades incluidas en el Régimen Especial de Agricultura, Ganadería y Pesca (REAGYP)
+ | 20 | Régimen simplificado
+ | L8B
+ | VALORES | DESCRIPCIÓN DE LA CLAVE DE RÉGIMEN PARA DESGLOSES  \n DONDE EL IMPUESTO DE APLICACIÓN ES EL IGIC
+ | 01 | Operación de régimen general.
+ | 02 | Exportación.
+ | 03 | Operaciones a las que se aplique el régimen especial de bienes usados, objetos de arte, antigüedades y objetos de colección.
+ | 04 | Régimen especial del oro de inversión.
+ | 05 | Régimen especial de las agencias de viajes.
+ | 06 | Régimen especial grupo de entidades en IGIC (Nivel Avanzado)
+ | 07 | Régimen especial del criterio de caja.
+ | 08 | Operaciones sujetas al IPSI / IVA (Impuesto sobre la Producción, los Servicios y la \n Importación / Impuesto sobre el Valor Añadido).
+ | 09 | Facturación de las prestaciones de servicios de agencias de viaje que actúan como mediadoras en nombre y por cuenta ajena (D.A.4ª RD1619/2012)
+ | 10 | Cobros por cuenta de terceros de honorarios profesionales o de derechos derivados de la propiedad industrial, de autor u otros por cuenta de sus socios, asociados o colegiados efectuados por sociedades, asociaciones, colegios profesionales u otras entidades que realicen estas funciones de cobro.
+ | 11 | Operaciones de arrendamiento de local de negocio.
+ | 14 | Factura con IGIC pendiente de devengo en certificaciones de obra cuyo destinatario sea una Administración Pública.
+ | 15 | Factura con IGIC pendiente de devengo en operaciones de tracto sucesivo.
+ | 17 | Régimen especial de comerciante minorista
+ | 18 | Régimen especial del pequeño empresario o profesional
+ | 19 | Operaciones interiores exentas por aplicación artículo 25 Ley 19/1994
+ | L9
+ | VALORES | DESCRIPCIÓN
+ | S1 | Operación Sujeta y No exenta - Sin inversión del sujeto pasivo.
+ | S2 | Operación Sujeta y No exenta - Con Inversión del sujeto pasivo
+ | N1 | Operación No Sujeta artículo 7, 14, otros.
+ | N2 | Operación No Sujeta por Reglas de localización.
+ | L10
+ | VALORES | DESCRIPCIÓN
+ | E1 | Exenta por el artículo 20
+ | E2 | Exenta por el artículo 21
+ | E3 | Exenta por el artículo 22
+ | E4 | Exenta por los artículos 23 y 24
+ | E5 | Exenta por el artículo 25
+ | E6 | Exenta por otros
+ | L12
+ | VALORES | DESCRIPCIÓN
+ | 01 | SHA-256
+ | L14
+ | VALORES | DESCRIPCIÓN
+ | S | Sí
+ | N | No
+ | L15
+ | VALORES | DESCRIPCIÓN
+ | 1.0 | Versión actual (1.0) del esquema utilizado
+ | L16
+ | VALORES | DESCRIPCIÓN
+ | E | Expedidor (obligado a Expedir la factura anulada).
+ | D | Destinatario
+ | T | Tercero
+ | L17
+ | VALORES | DESCRIPCIÓN
+ | N | No ha habido rechazo previo por la AEAT.
+ | S | Ha habido rechazo previo por la AEAT. No deberían existir operaciones de alta con valores ('Subsanacion'="N" y 'RechazoPrevio'="S"), por lo que no se admiten.
+ | X | Independientemente de si ha habido o no algún rechazo previo por la AEAT, el registro de facturación no existe en la AEAT (registro existente en ese sistema informático o en algún sistema informático del obligado tributario y que no se remitió a la AEAT, por ejemplo, al acogerse a la modalidad «VERI*FACTU» desde la modalidad «NO VERI*FACTU»). No deberían existir operaciones de alta con valores ('Subsanacion'="N" y 'RechazoPrevio'="X"), por lo que no se admiten.
+ | L1E
+ | VALORES | DESCRIPCIÓN
+ | 01 | Integridad-huella
+ | 02 | Integridad-firma
+ | 03 | Integridad - Otros
+ | 04 | Trazabilidad-cadena-registro - Reg. no primero pero con reg. anterior no anotado o inexistente
+ | 05 | Trazabilidad-cadena-registro - Reg. no último pero con reg. posterior no anotado o inexistente
+ | 06 | Trazabilidad-cadena-registro - Otros
+ | 07 | Trazabilidad-cadena-huella - Huella del reg. no se corresponde con la 'huella del reg. anterior' almacenada en el registro posterior
+ | 08 | Trazabilidad-cadena-huella - Campo 'huella del reg. anterior' no se corresponde con la huella del reg. anterior
+ | 09 | Trazabilidad-cadena-huella - Otros
+ | 10 | Trazabilidad-cadena - Otros
+ | 11 | Trazabilidad-fechas - Fecha-hora anterior a la fecha del reg. anterior
+ | 12 | Trazabilidad-fechas - Fecha-hora posterior a la fecha del reg. posterior
+ | 13 | Trazabilidad-fechas - Reg. con fecha-hora de generación posterior a la fecha-hora actual del sistema
+ | 14 | Trazabilidad-fechas - Otros
+ | 15 | Trazabilidad - Otros
+ | 90 | Otros
+ | L2E
+ | VALORES | DESCRIPCIÓN
+ | 01 | Inicio del funcionamiento del sistema informático como «NO VERI*FACTU».
+ | 02 | Fin del funcionamiento del sistema informático como «NO VERI*FACTU».
+ | 03 | Lanzamiento del proceso de detección de anomalías en los registros de facturación.
+ | 04 | Detección de anomalías en la integridad, inalterabilidad y trazabilidad de registros de facturación.
+ | 05 | Lanzamiento del proceso de detección de anomalías en los registros de evento.
+ | 06 | Detección de anomalías en la integridad, inalterabilidad y trazabilidad de registros de evento.
+ | 07 | Restauración de copia de seguridad, cuando ésta se gestione desde el propio sistema informático de facturación.
+ | 08 | Exportación de registros de facturación generados en un periodo.
+ | 09 | Exportación de registros de evento generados en un periodo.
+ | 10 | Registro resumen de eventos
+ | 90 | Otros tipos de eventos a registrar voluntariamente por la persona o entidad productora del sistema informático.
+ | L3E
+ | VALORES | DESCRIPCIÓN
+ | S | Sí
+ | N | No
+ | L4E
+ | VALORES | DESCRIPCIÓN
+ | D | Destinatario
+ | T | Tercero
+
+
+########## HOJA: 7)Leyenda ##########
+Leyenda: | Representación | Significado
+ | Fuente de color rojo o 1(superíndice) | Campo obligatorio
+ | Fuente de color negro | Campo opcional
+ | (Fondo coloreado) | Campo de selección (alternativo)
+
+
+########## HOJA: A)Cuadro Operativa Alta ##########
+ | ALTA DE REGISTROS
+ | Operación | Descripción | Operativa | Tipo SIF al que aplica | Condiciones | Consecuencias | Situación en la AEAT (sólo aplica a sistemas VERI*FACTU)
+ |  |  |  |  |  |  | No existe registro de facturación | Existe registro de alta | Existe registro de anulación
+ | ALTA DE REGISTRO
+ | ALTA | · Alta inicial ("normal") del registro de facturación. \n · Es el alta habitual de un registro de facturación. | · No informar <Subsanacion> o informarlo con valor N \n · No informar <RechazoPrevio> o informarlo con valor N | · VERI*FACTU \n · NO VERI*FACTU | El registro de facturación no debe existir previamente en SIF del obligado / AEAT. | Alta del registro de facturación con los nuevos datos. | OK(1) | ERROR (2) | ERROR (2)
+ | ALTA POR RECHAZO | · Alta por rechazo del registro de facturación de alta inicial (y que, por tanto, no existe aún en la AEAT). \n · Es la subsanación de datos de un registro de facturación de alta inicial, cuando no se exige la emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de Facturación). | · <Subsanacion>=S \n · <RechazoPrevio>=X | · VERI*FACTU | · La clave única del registro de facturación no debe existir previamente en la AEAT. \n · El alta previa del registro de facturación fue rechazada. | Alta del registro de facturación con los nuevos datos.
+ | ALTA DE REGISTRO POR SUBSANACIÓN DE ERRORES
+ | ALTA DE SUBSANACIÓN | · Alta para la subsanación de un registro de facturación ya generado/remitido anteriormente. \n · Es la subsanación habitual de un registro de facturación cuando no se exige la emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de Facturación). | · <Subsanacion>=S \n · No informar <RechazoPrevio> o informarlo con valor N | · VERI*FACTU \n · NO VERI*FACTU | El registro de facturación debe existir previamente en SIF del obligado / AEAT. | Con él se deja constancia de los nuevos datos que deben ser tenidos en cuenta. | ERROR(3) | OK(4) | OK(5)
+ | ALTA POR RECHAZO DE SUBSANACIÓN | · Alta para la subsanación de un registro de facturación que ya está registrado en la AEAT y cuya subsanación posterior fue rechazada. \n · Es la subsanación de datos cuando no se exige la emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de Facturación). | · <Subsanacion>=S \n · <RechazoPrevio>=S | · VERI*FACTU | · La clave única del registro de facturación debe existir previamente en la AEAT. \n · El alta con subsanación del registro de facturación fue rechazada. | Con él se deja constancia de los nuevos datos que deben ser tenidos en cuenta.
+ | ALTA DE REGISTRO POR SUBSANACIÓN CUANDO EL REGISTRO ORIGINAL NO EXISTE
+ | ALTA DE SUBSANACIÓN SIN REGISTRO PREVIO | · Alta para la subsanación de un registro de facturación existente en SIF del obligado (a expedir factura) pero que NO existe en la AEAT porque no se remitió en su momento, por ejemplo, porque funcionaba como NO VERI*FACTU y cambió a VERI*FACTU, que es como funciona ahora; o bien, dependiendo de la implementación del SIF y si así lo necesita, cuando no consta el registro anterior a subsanar en el SIF donde se da de alta la subsanación. \n · Es la subsanación especial de un registro de facturación cuando no se exige la emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de Facturación). | · <Subsanacion>=S \n · <RechazoPrevio>=X | · VERI*FACTU \n · NO VERI*FACTU (opcional) | El registro de facturación no debe existir previamente en la AEAT (o bien, en su caso, en SIF del obligado). | Alta del registro de facturación con los nuevos datos | OK(1) | ERROR (2) | ERROR (2)
+ | ALTA POR RECHAZO DE SUBSANACIÓN SIN REGISTRO PREVIO | · Alta para la subsanación de un registro de facturación que existe en SIF del obligado (a expedir factura) pero que NO existe en la AEAT porque no se remitió en su momento, por ejemplo, porque el SIF funcionaba como NO VERI*FACTU y cambió a VERI*FACTU, que es como funciona ahora, y cuya subsanación se rechazó en la AEAT. \n · Es la subsanación especial de datos cuando no se exige la emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de Facturación). | · <Subsanacion>=S \n · <RechazoPrevio>=X | · VERI*FACTU | · La clave única del registro de facturación no debe existir previamente en la AEAT. \n | Alta del registro de facturación con los nuevos datos
+ | LEYENDA
+ | OPERATIVA HABITUAL (fondo blanco).
+ | OPERATIVA ESPECIAL (fondo gris).
+ | OK (1) = Se admite el registro de facturación de alta
+ | ERROR (2) = No puede recibirse un registro de facturación de alta de esas características existiendo ya algún registro de facturación de esa factura (bien sea de alta o de anulación).
+ | ERROR (3) = Debería existir ya un registro de facturación para esa factura. Si esta situación de error se produce debido a una secuencia de envío incorrecta, se deberá volver a remitir, sin más, una vez haya entrado -por la vía que sea- el registro de facturación.
+ | OK (4) = El registro remitido sustituye completamente al registro de facturación con los nuevos datos recibidos
+ | OK (5) = Reactiva (vuelve a dejar de alta y en vigor) el registro de facturación anulado existente, sustituyendo completamente el registro de facturación registrado con los nuevos datos recibidos
+
+
+########## HOJA: B)Cuadro Operativa Anulación ##########
+ | ANULACIÓN DE REGISTROS
+ | ANULACIÓN DE REGISTRO
+ | Operación | Descripción | Operativa | Tipo SIF al que aplica | Condiciones | Consecuencias | Situación en la AEAT (sólo aplica a sistemas VERI*FACTU)
+ |  |  |  |  |  |  | No existe registro de facturación | Existe registro de alta | Existe registro de anulación
+ | ANULACIÓN | · Anulación de registro de facturación ya generado/remitido. \n · Es la anulación habitual de un registro de facturación cuando no se exige la emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de Facturación). | · No informar <SinRegistroPrevio> o informarlo con valor N \n · No informar <RechazoPrevio> o informarlo con valor N | · VERI*FACTU \n · NO VERI*FACTU | · El registro de facturación debe existir previamente en SIF del obligado / AEAT. \n · El registro a anular puede ser de alta o de anulación (en cuyo caso, deja constancia de los nuevos datos a tener en cuenta).  \n | Anula el registro de facturación registrado dejando los nuevos datos. | ERROR (6) | OK(7) | OK(8)
+ | ANULACIÓN POR RECHAZO | · Anulación (tras un rechazo previo) del registro de facturación cuando el registro de facturación que se quiere anular está registrado en la AEAT. | · No informar <SinRegistroPrevio> o informarlo con valor N \n · <RechazoPrevio>=S | · VERI*FACTU | · La clave única del registro de facturación debe existir previamente en la AEAT. \n · La anulación previa del registro de facturación fue rechazada. | Anula el registro de facturación registrado dejando los nuevos datos.
+ | ANULACIÓN DE REGISTRO QUE NO EXISTE PREVIAMENTE
+ | ANULACIÓN SIN REGISTRO PREVIO | ·Anulación del registro de facturación cuando el registro de facturación que se quiere anular existe en SIF del obligado (a expedir factura) pero NO existe en la AEAT porque no se remitió en su momento, por ejemplo, porque funcionaba como NO VERI*FACTU y cambió a VERI*FACTU, que es como funciona ahora; o bien, dependiendo de la implementación del SIF y si así lo necesita, cuando no consta el registro anterior a anular en el SIF donde se da de alta la anulación. | · <SinRegistroPrevio>=S \n · No informar <RechazoPrevio> o informarlo con valor N | · VERI*FACTU \n · NO VERI*FACTU (opcional) | ·El registro de facturación no debe existir previamente en la AEAT (o bien, en su caso, en SIF del obligado). | Supone la creación de un registro de facturación de anulación con los nuevos datos. | OK(9) | ERROR(10) | ERROR(10)
+ | ANULACIÓN POR RECHAZO SIN REGISTRO PREVIO | · Anulación (tras un rechazo previo) del registro de facturación cuando el registro de facturación que se quiere anular existe en SIF del obligado (a expedir factura) pero NO existe en la AEAT porque no se remitió en su momento, por ejemplo, porque funcionaba como NO VERI*FACTU y cambió a VERI*FACTU, que es como funciona ahora. | · <SinRegistroPrevio>=S \n · <RechazoPrevio>=S | · VERI*FACTU | . La clave única del registro de facturación no debe existir previamente en la AEAT. \n · El intento de anulación anterior del registro de facturación fue rechazado. | Supone la creación de un registro de facturación de anulación con los nuevos datos.
+ | LEYENDA
+ | OPERATIVA HABITUAL (fondo blanco).
+ | OPERATIVA ESPECIAL (fondo gris).
+ | ERROR (6) = Debería existir en la AEAT un registro de facturación previo correspondiente a esa factura.
+ | OK (7) = El registro remitido anula el registro de facturación de alta registrado dejando los nuevos datos recibidos.
+ | OK (8) = El registro remitido anula el registro de facturación de anulación registrado dejando los nuevos datos recibidos.
+ | OK (9) = Creación del registro de facturación de anulación con los datos recibidos.
+ | ERROR (10) = En una "ANULACIÓN SIN REGISTRO PREVIO" NO puede haber en la AEAT ningún registro de facturación de esa factura ya remitido (bien sea de alta o de anulación).
+
+
+########## HOJA: Comprobaciones ##########
+revisado
+Fecha: 15/12/2023
+- Cambio del Formato en la columna H
+- ¿Lista L11 para "Macrodato"?
+Fecha: 13/12/2023 11:08
+- Te pasamos como ejemplo los anexos incluidos en la orden del SII (1) que puede ser interesante imitar en la medida de lo posible. En ellos establecieron un "código" de colores o marcas para los tipos de campo, obligatorios, de selección (alternativa) y demás.
+- En los campos que se indica el uso de las listas "L4" y "L5", ¿os parece conveniente "completar" con el formato (alfanumérico u otro) así como la longitud especificada?
+- Sobre los campos "CodigoPais", creemos que hay una errata al indicar la lista "L17". No sabemos si queríais indicar otra lista nueva y la cual podría apuntar directamente a "ISO 3166-1 alpha-2 codes" sin necesidad de reproducirla en la pestaña de las listas.
+- En el campo "OperacionExenta", la longitud entre paréntesis aparece como "(02)" y suponemos que es simplemente "(2)".
+- En las descripciones había algunas erratas "..alta incial, alta sutitutiva..." y algún detalle ortográfico menor.
+Fecha: 13/12/2023 12:22
+- IDVersion en los 2 DR de conservación: Identificación de la versión actual del esquema o estructura de información utilizada para la generación y conservación de los registros de facturación a la AEAT.
+- Huella en los 6 DR: Huella o "hash" del registro de facturación (Realizada sobre el nodo RegistroFacturacion)
+- Mencionar lo del SII:
+# Fondo salmón para opciones alternativas.
+# Superíndices, además de rojo (esto se puede dejar para más adelante)
+...
+- Formato de "impresión" de los Excel: eliminar columnas no usadas, ajustar anchuras del resto, "paginar" con suficiente espacio por si se necesita "crecer" dentro de la pág. a posteriori, ajustar páginas a ciertos bloques o filas sin dejar campos "partidos"...
+Fecha: 13/12/2023 13:17
+- Para poder ajustar su tamaño automáticamente (Formato de celdas>Alineación>Ajustar texto y doble clic entre filas, en la cabecera, con todas las filas seleccionadas), deshacer combinar celdas en aquellos "conceptos" que no engloben a otros, como TipoFactura, IDType... (casi todas derivadas de que la celda de formato se dividía en "3 filas" -formato/longitud/lista- pero en la práctica no se hace así en muchos casos, sino que se pone todo seguido en la misma celda).
+- NombreRazonEmisor: Nombre-razón social del obligado a expedir la factura.
+- Quitar espacio de nombres de campo: Base Rectificada, Cuota Rectificada.
+- FacturaSimplificadaArticulos7.2_7.3 Factura simplificada Articulo 7.2 Y 7.3 RD 1619/2012. Si no se informa este campo se entenderá que tiene valor  “N"
+- FacturaSinIdentifDestinatarioArticulo6.1.d Factura sin identificación destinatario artículo 6.1.d) RD 1619/2012. Si no se informa este campo se entenderá que tiene valor  “N"

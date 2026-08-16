@@ -1,0 +1,67 @@
+{
+  "name": "@verifactu-js/core",
+  "version": "0.1.0",
+  "description": "Huella encadenada SHA-256 y verificación de cadenas VERI*FACTU (AEAT). Cero dependencias, isomórfico. / Chained SHA-256 hash and chain verification for Spanish VERI*FACTU billing records. Zero dependencies, isomorphic.",
+  "keywords": [
+    "verifactu",
+    "veri-factu",
+    "aeat",
+    "facturacion",
+    "factura",
+    "sif",
+    "rd-1007-2023",
+    "huella",
+    "hash",
+    "spain",
+    "invoicing",
+    "tax"
+  ],
+  "license": "MIT",
+  "author": "",
+  "homepage": "https://github.com/OWNER/verifactu-js/tree/main/packages/core#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OWNER/verifactu-js.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/OWNER/verifactu-js/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup && tsc -p tsconfig.build.json && node ../../scripts/emit-cts-types.mjs dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  }
+}

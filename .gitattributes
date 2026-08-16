@@ -1,0 +1,12 @@
+# Biome enforces LF. Without this, a checkout on Windows rewrites every file to CRLF and the
+# formatter fails on code nobody touched.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
+*.xlsx binary
+*.zip binary
+
+pnpm-lock.yaml linguist-generated=true
+docs/reference/** linguist-vendored=true

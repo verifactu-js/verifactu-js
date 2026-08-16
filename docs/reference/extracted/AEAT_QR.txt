@@ -1,0 +1,1488 @@
+
+
+===== [PAGINA 1 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 1/35 
+ 
+Detalle de las e specificaciones técnicas de l 
+código «QR» de la factura y de la «URL» del 
+servicio de cotejo  o remisión de información 
+por parte del receptor de la factura 
+Autor: AEAT Fecha: 10/12/2025 Versión: 0.5.0 
+ 
+Revisiones: 
+Edic. Rev. Fecha Descripción A (*) Páginas 
+ 0.1.0 05/03/2024 Versión inicial DIT   
+ 0.2.0 29/04/2024 Aportaciones ONIF   
+ 0.3.0 04/06/2024 Aportaciones DIT  29 
+ 0.4.0 01/07/2024 - Cambios en apartado 11 (Normativa 
+legal) y 12 (Se añaden ejemplos de 
+posición QR).  
+- Cambios de literales  en denominación 
+“contrastable” p or “verificable” en 
+sistemas que emiten facturas no 
+verificables. 
+- Nuevo código de error 3002. 
+A 30 
+ 0.4.1 04/07/2024 - Ejemplos de código QR con nivel de 
+corrección M en vez de L acorde a 
+especificación.  
+- Corrección valor parámetro importe 
+ejemplo página 7 
+R 30 
+ 0.4.2 03/09/2024 - Cambios en ejemplos por fecha de factura 
+para cumplir validación de fecha mínima. 
+R 30 
+ 0.4.3 10/09/2024 - Se refina la redacción de la ubicación del 
+QR y se añade n ejemplos en formato A4 
+de “compatibilidad” con otros contenidos. 
+R 33 
+ 0.4.5 02/10/2024 - Se modifica captura de pantalla de 
+ejemplo  sistemas que emiten facturas no 
+verificables (O K) y salida json de los 
+importes en formato string (se añaden “”) 
+R 33 
+ 0.4.6 14/10/2024 - Las facturas anuladas responden como 
+“Factura no encontrada” – Caso OK – 01 
+R 34 
+ 0.4.7 17/10/2024 - Nuevo mensaje informativo en respuesta 
+de cotejo de QR sobre importe.  
+R 34 
+
+===== [PAGINA 2 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 2/35 
+ 
+ 0.5.0 10/12/2025 - Nuevo parámetro opcional “Idioma” 
+- Nuevos textos asociados al resultado 
+de cotejo de QR  en versión HTML y 
+JSON.  
+A/R 35 
+(*) Acción: A = Añadir R = Reemplazar 
+  
+
+===== [PAGINA 3 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 3/35 
+ 
+Índice 
+1. INTRODUCCIÓN. 5 
+2. ESPECIFICACIONES DEL CÓDIGO «QR». 6 
+3. DETALLES DE LA UBICACIÓN Y PRESENTACIÓN DEL CÓDIGO «QR» DENTRO DE LA 
+FACTURA. 7 
+4. CONSIDERACIONES PREVIAS SOBRE LA «URL» DEL CÓDIGO «QR». 8 
+4.1. Ejemplo de tratamiento de «URL encoding» en lenguaje java 9 
+5. FORMATO DE LA «URL» DEL CÓDIGO «QR». 10 
+5.1. Sistema que emite facturas verificables 10 
+5.2. Sistema que emite facturas no verificables 10 
+6. PARÁMETROS DE LA «URL» DEL CÓDIGO «QR». 11 
+7. PARÁMETROS OPCIONALES DEL SERVICIO DE COTEJO O REMISIÓN DE INFORMACIÓN DE 
+LA FACTURA. 12 
+7.1. Parámetro “Idioma” 12 
+7.2. Parámetros “formato” 13 
+8. EJEMPLOS DE «URL» DE CÓDIGO «QR» VÁLIDAS. 14 
+8.1 «URL» entorno de pruebas de SIF que emite facturas verificables. 14 
+8.2 «URL» entorno de pruebas de SIF que emite facturas no verificables.  14 
+8.3 «URL» de entorno de producción de SIF que emite facturas verificables.  15 
+8.4 «URL» de entorno de producción de SIF que emite facturas no verificables.  15 
+9. EJEMPLOS DE RESPUESTAS AL COTEJO O REMISIÓN DE INFORMACIÓN DE LA FACTURA. 16 
+9.1. Respuestas correctas (OK) dadas a peticiones realizadas por «URL» generadas por un sistema que emite 
+facturas verificables. 16 
+9.1.1. Caso de factura encontrada. 16 
+
+===== [PAGINA 4 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 4/35 
+ 
+9.1.1.1. Ante una «URL» de un código «QR» (respuesta en html/web). 16 
+9.1.1.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 16 
+9.1.2. Caso de factura no encontrada. 17 
+9.1.2.1. Ante una «URL» de un código «QR» (respuesta en html/web). 17 
+9.1.2.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 17 
+9.2. Respuestas correctas (OK) dadas a peticiones realizadas por «URL» generadas por un sistema que emite 
+facturas no verificables. 18 
+9.2.1. Ante una «URL» de un código «QR» (respuesta en html/web). 18 
+9.2.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json).  18 
+9.3. Respuestas incorrectas (KO). 19 
+9.3.1. Error en falta de parámetros. 19 
+9.3.1.1. Ante una «URL» de un código «QR» (respuesta en html/web). 19 
+9.3.1.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 19 
+9.3.2. Error en formato de campo. 20 
+9.3.2.1. Ante una «URL» de un código «QR» (respuesta en html/web). 20 
+9.3.2.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 20 
+9.3.3. Error en formato de NIF/NIE. 20 
+9.3.3.1. Ante una «URL» de un código «QR» (respuesta en html/web). 20 
+9.3.3.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 21 
+10. LISTADO DE CÓDIGOS DE ERROR DE VALIDACIÓN DE «URL». 22 
+11. NORMATIVA LEGAL. 23 
+12. ANEXO (EJEMPLOS DE «QR»). 24 
+ 
+  
+
+===== [PAGINA 5 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 5/35 
+ 
+1. Introducción. 
+ 
+En este documento se proporcionan los detalles técnicos necesarios para completar y 
+hacer posible la implementación de las especificaciones del código «QR» y de la «URL» 
+del  servicio de cotejo o remisión de información por parte del receptor de la factura para 
+el cumplimiento de los artículos  20 y 21 de la Orden XXXXXXX que desarrolla las 
+especificaciones técnicas, funcionales y de contenido referidas en el reglamento que 
+establece los requisitos que deben adoptar los sistemas y programas informáticos o 
+electrónicos que soporten los procesos de facturación de empresarios y profesionales, y 
+la estandarización de formatos de los registros de facturación, aprobado por el Real 
+Decreto 1007/2023, de 5 de diciembre, y en el artículo 6.5 del reglamento por el que se 
+regulan las obligaciones de facturación, aprobado por el Real Decreto 1619/2012, de 30 
+de noviembre. 
+El documento establece las condiciones técnicas, físicas, de ubicación y de presentación 
+del código «QR». Además, se describen las «URL» del servicio de remisión de 
+información a través del código «QR» para los sistemas «VERI*FACTU», acompañadas 
+de ejemplos para la llamada y la respuesta. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== [PAGINA 6 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 6/35 
+ 
+2. Especificaciones del código «QR». 
+Se encuentran en el artículo 20.1 y 21 de la orden: 
+Artículo 20. Representación gráfica a incluir en la factura. 
+1. Una factura, tanto si está impresa en soporte papel como si se trata de la imagen de 
+la misma en soporte digital, incluirá los siguientes elementos que, cumpliendo con los 
+requisitos que se determinen, deberán ser legibles y estar impresos con una resolución 
+apropiada: 
+a) Un código «QR», que deberá cumplir con las especificaciones del artículo 21. 
+b) En caso de facturas expedidas por «Sistemas de emisión de facturas verificables» 
+o «VERI*FACTU», según los artículos 15 y 16 del Reglamento, la frase «Factura 
+verificable en la sede electrónica de la AEAT» o «VERI*FACTU», que deberá tener 
+un tipo de letra y tamaño bien visibles, similares a los del resto de datos de la 
+factura. 
+… 
+Artículo 21. Código «QR». 
+1. El código «QR» deberá tener un tamaño entre 30x30 y 40x40 milímetros y seguir las 
+especificaciones de la norma ISO/IEC 18004:2015. Para la generación del código «QR» 
+se empleará el nivel M (medio) de corrección de errores. En la sede electrónica de la 
+Agencia Estatal de Administración Tributaria se publicarán la ubicación y presentación 
+del mismo dentro de la factura, pudiéndose completar con otras características a cumplir. 
+2. El contenido del código «QR» será el siguiente: 
+a) «URL» del servicio de cotejo o remisión de información por parte del receptor de la 
+factura, del cual se informará en la sede electrónica de la Agencia Estatal de 
+Administración Tributaria. 
+b) Información de la factura que formará parte de la «URL»: 
+1.º NIF del obligado a expedir la factura. 
+2.º Número de serie y número de la factura expedida. 
+3.º Fecha de expedición de la factura. 
+4.º Importe total de la factura. 
+Tanto el formato detallado de esta «URL», que podrá ser distinto dependiendo de si el 
+sistema informático que expide la factura y genera su correspondiente código «QR» es 
+o no un sistema informático «VERI*FACTU », como la codificación y formato de la 
+información requerida se especificarán en el correspondiente documento técnico que 
+será publicado en la sede electrónica de la Agencia Estatal de Administración Tributaria. 
+ 
+ 
+
+===== [PAGINA 7 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 7/35 
+ 
+3. Detalles de la ubicación y presentación del código 
+«QR» dentro de la factura. 
+El código «QR» deberá cumplir con las especificaciones dadas en la orden, que se 
+completarán con los detalles de este documento.  
+El contraste de colores entre el código «QR» y el fondo debe ser lo suficientemente alto 
+para asegurar la legibilidad.  
+A este respecto, se deben mantener como mínimo 2  milímetros de espacio vacío (en 
+blanco) alrededor de los cuatro lados del código «QR», recomendándose que sean 6 
+milímetros. 
+El código «QR» se situará al principio de la factura, antes de que empiece el contenido 
+de ésta generado por el sistema informático de facturación, a menos que se justifique la 
+existencia de algún obstáculo para ello, en cuyo caso, deberá quedar siempre bien visible 
+y estar claramente separado y diferenciado –de forma que destaque – del resto de 
+contenidos y otros posibles «QR», ocupando un lugar  preeminente. Así pues , en 
+principio, será siempre el primer código «QR» que aparecerá en la factura (en el caso de 
+que la factura contuviera otros códigos «QR» para otros cometidos). Si la factura ocupara 
+varias páginas, el código «QR» aparecería una única vez, en la primera página. Si se 
+utiliza un formato de orientación vertical para organizar y disponer el contenido de la 
+factura, el código «QR» se situará arriba de esta , próximo al margen superior , 
+preferiblemente centrado respecto a los márgenes izquierdo y derecho de la factura (o, 
+si no, hacia el margen izquierdo-superior). En el caso de utilizar un formato de orientación 
+horizontal (apaisado) para la factura, el código «QR» se situará a la izquierda de esta , 
+preferiblemente cercana al margen superior -izquierdo (o, si no, centrada  respecto a los 
+márgenes superior e inferior de la factura). 
+La presentación del código «QR» incluirá también  un texto que siempre d eberá ir 
+precediéndolo: «QR tributario :», y que se situará encima del propio código «QR» 
+(preferiblemente centrado con respecto a este), de manera que sirva para identificarlo y 
+distinguirlo de otros posibles códigos « QR» que pudiera contener la factura para otros 
+cometidos. 
+Además, en el caso de facturas expedidas por sistemas que emiten facturas verificables, 
+justo debajo del código «QR» deberá aparecer la frase «Factura verificable en la sede 
+electrónica de la AEAT» o « VERI*FACTU», preferiblemente centrada con respecto al 
+código «QR». Si no cabe toda la frase en una sola línea, podrá n utilizarse varias líneas 
+hasta completarla. 
+Tanto el texto que siem pre debe preceder al código «QR», como, en su caso, la frase 
+que habrán de  incluir los sistemas «VERI*FACTU» deberán tener un tipo de letra y 
+tamaño legibles, siempre iguales o superiores a los del resto de datos de la factura. 
+En el anexo de este documento se ofrecen algunos ejemplos posibles de códigos «QR» 
+en los varios escenarios que se pueden dar en función de diversos aspectos. 
+ 
+ 
+
+===== [PAGINA 8 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 8/35 
+ 
+ 
+ 
+4. Consideraciones previas sobre la «URL» del 
+código «QR». 
+A fin de asegurar que todos sus caracteres sean leídos e interpretados correctamente, 
+la «URL» de cotejo o remisión de información de la factura contenida en el código «QR» 
+que debe aparecer en la factura, concretamente el contenido de los parámetros, deberán 
+ser codificados de forma adecuada  siguiendo los estándares generales de las 
+aplicaciones en entorno web  («URL encoding») y utilizando la codificación UTF-8. 
+Con el fin de especificar el uso del «URL encoding», se muestra un ejemplo de factura 
+con el siguiente conjunto de parámetros, para el entorno de Pruebas Externas:  
+ 
+• URL base: https://prewww2.aeat.es/wlpl/TIKE-CONT/ValidarQR? 
+• Parámetro nif: 89890001K 
+• Parámetro numserie: 12345678&G33 
+• Parámetro fecha: 01-01-2024 
+• Parámetro importe: 241.4 
+ 
+El resultado de aplicar la codificación de los parámetros sería la siguiente:  
+ 
+https://prewww2.aeat.es/wlpl/TIKE-
+CONT/ValidarQR?nif=89890001K&numserie=12345678%26G33&fecha=01-01-
+2024&importe=241.4 
+ 
+A modo de ejemplo erróneo se adjunta la siguiente URL, donde no ha sido realizada la 
+codificación necesaria:  
+ 
+https://prewww2.aeat.es/wlpl/TIKE-
+CONT/ValidarQR?nif=89890001K&numserie=12345678&G33&fecha=01-01-
+2024&importe=241.4 
+ 
+En el siguiente apartado 4.1 se describe el proceso para el tratamiento de «URL 
+encoding» para generar «URL» de «QR válidas».  
+ 
+Por último,  es imp ortante destacar que la s cadenas de texto solo pueden contener 
+caracteres ASCII con códigos del 32 al 126 (caracteres imprimibles).  
+ 
+ 
+ 
+
+===== [PAGINA 9 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 9/35 
+ 
+4.1. Ejemplo de tratamiento de «URL encoding» en lenguaje 
+java  
+Se describe un ejemplo de tratamiento de «URL encoding » para generar «URL» de 
+código «QR» válidas en lenguaje de programación Java.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== [PAGINA 10 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 10/35 
+ 
+5. Formato de la «URL» del código «QR». 
+ 
+Dicha «URL» tendrá el siguiente formato, dependiendo de si el sistema  informático de 
+facturación emite facturas verificables o no , así como d el entorno de ejecución a l que 
+vaya dirigida: 
+5.1. Sistema que emite facturas verificables 
+• Entorno de pruebas (Portal de Pruebas Externas): 
+https://prewww2.aeat.es/wlpl/TIKE-
+CONT/ValidarQR?nif=XXXXXXXXY&numserie=YYYY...YYYY&fecha=DD-MM-
+AAAA&importe=NNNNNNNNN.DD 
+ 
+• Entorno de Producción: 
+https://www2.agenciatributaria.gob.es/wlpl/TIKE-
+CONT/ValidarQR?nif=XXXXXXXXY&numserie=YYYY...YYYY&fecha=DD-MM-
+AAAA&importe=NNNNNNNNN.DD 
+ 
+5.2. Sistema que emite facturas no verificables 
+• Entorno de pruebas (Portal de Pruebas Externas): 
+https://prewww2.aeat.es/wlpl/TIKE-
+CONT/ValidarQRNoVerifactu?nif=XXXXXXXXX&numserie=YYYYYYYY&fecha=
+DD-MM-AAAA&importe=NNNNNNNN.DD 
+ 
+• Entorno de Producción: 
+https://www2.agenciatributaria.gob.es/wlpl/TIKE-
+CONT/ValidarQRNoVerifactu?nif=XXXXXXXXX&numserie=YYYYYYYY&fecha=
+DD-MM-AAAA&importe=NNNNNNNN.DD 
+  
+
+===== [PAGINA 11 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 11/35 
+ 
+6. Parámetros de la «URL» del código «QR». 
+La «URL» de cotejo o remisión de información de la factura contenida en el código «QR» 
+deberá incorporar únicamente los siguientes 4 parámetros obligatorios, acompañados 
+de sus correspondientes valores. El resultado será devuelto en formato “html” (web):  
+Parámetro Formato Longitud Obligatorio Descripción 
+nif Formato NIF 9 Sí NIF del obligado a expedir la 
+factura 
+numserie Cadena de 
+texto, puede 
+contener 
+caracteres 
+especiales 
+(ASCII 32 -
+126) 
+Máximo 60 
+caracteres 
+Sí Nº Serie + Nº Factura  que 
+identifica a la factura 
+fecha Tipo fecha con 
+guiones 
+medios (DD -
+MM-AAAA) 
+10 Sí Fecha de expedición de la 
+factura.  
+importe Numérico con 
+decimales. 
+Utilizar el “.” 
+(punto) para 
+separar la 
+parte entera 
+de la decimal . 
+Máximo 12 
+dígitos en 
+la parte 
+entera, y 2 
+dígitos en 
+la  parte 
+decimal 
+Sí Importe total de la factura. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== [PAGINA 12 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 12/35 
+ 
+7. Parámetros opcionales del servicio de cotejo o 
+remisión de información de la factura. 
+Adicionalmente, el servicio electrónico de la AEAT para el cotejo o remisión de 
+información de la factura admitirá los siguientes parámetros opcionales:   
+Parámetro Formato Valores Obligatorio Observaciones 
+idioma Alfanumérico gl 
+ca 
+eu 
+es 
+va 
+en 
+No Indica el idioma en el que se 
+visualizará la respuesta del 
+cotejo de QR en Sede 
+Electrónica 
+Por defecto, si no se informa, 
+se visualizará en castellano. 
+formato Alfanumérico json 
+ 
+No Indica que la respuesta será 
+en formato máquina (json) 
+para permitir la integración de 
+aplicaciones de terceros. 
+IMPORTANTE: este 
+parámetro nunca  podrá 
+incorporarse en la «URL» 
+que va en el código «QR» 
+de la factura 
+ 
+7.1. Parámetro “Idioma” 
+Este parámetro se utiliza para indicar el idioma en el que se visualizará la respuesta del 
+cotejo de QR en Sede Electrónica, pudiendo tomar los siguientes valores:  
+• gl: gallego 
+• ca: catalán 
+• eu: euskera 
+• es: castellano 
+• va: valenciano 
+• en: inglés 
+Se trata de un parámetro opcional, si no se indica valor, el idioma por defecto será “ES” 
+(Castellano).  
+
+===== [PAGINA 13 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 13/35 
+ 
+7.2. Parámetros “formato” 
+Este parámetro está disponible para facilitar a los sistemas informáticos la descarga y 
+procesamiento automatizado del resultado que devuelve el servicio electrónico de la 
+AEAT ante una petición de cotejo o remisión de información de la factura.  
+Un caso típico de uso puede ser cuando se intercambian facturas electrónicas entre el 
+emisor y el receptor, en las que, como indica el artículo 20.2 de la orden, la factura 
+electrónica debe incluir entre su información estructurada la «URL» que habría de llevar 
+el código «QR» de la factura impresa. Añadiendo al final de dicha «URL» este 5.º 
+parámetro junto con su valor correspondiente, el sistema informático del receptor de la 
+factura puede cotejar o remitir la información de la factura recibida a la AEAT, obteniendo 
+el resultado de la respuesta en formato “json”, lo que facilita al sistema informático 
+receptor su posterior tratamiento.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== [PAGINA 14 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 14/35 
+ 
+8. Ejemplos de «URL» de código «QR» válidas. 
+A continuación, se ofrecen ejemplos de «URL» de código «QR» válidas para ilustrar cada 
+uno de los casos que se pueden dar (la respuesta del servicio de cotejo o remisión de 
+información de la factura será ligeramente diferente dependiendo del caso que se trate: 
+ver el apartado correspondiente más adelante):  
+8.1 «URL» entorno de pruebas de SIF que emite facturas verificables. 
+https://prewww2.aeat.es/wlpl/TIKE-
+CONT/ValidarQR?nif=89890001K&numserie=12345678-G33&fecha=01-09-
+2024&importe=241.4 
+ 
+ 
+8.2 «URL» entorno de pruebas  de SIF que emite facturas no 
+verificables. 
+https://prewww2.aeat.es/wlpl/TIKE-
+CONT/ValidarQRNoVerifactu?nif=89890001K&numserie=12345678-G33&fecha=01-
+09-2024&importe=241.4 
+ 
+ 
+ 
+ 
+
+
+===== [PAGINA 15 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 15/35 
+ 
+8.3 «URL» de entorno de pr oducción de SIF que emite facturas 
+verificables. 
+https://www2.agenciatributaria.gob.es/wlpl/TIKE-
+CONT/ValidarQR?nif=89890001K&numserie=12345678-G33&fecha=01-09-
+2024&importe=241.4 
+ 
+8.4 «URL» de entorno de producción de SIF que emite facturas no 
+verificables. 
+https://www2.agenciatributaria.gob.es/wlpl/TIKE-
+CONT/ValidarQRNoVerifactu?nif=89890001K&numserie=12345678-G33&fecha=01-
+09-2024&importe=241.4 
+  
+
+
+===== [PAGINA 16 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 16/35 
+ 
+9. Ejemplos de respuestas al cotejo o remisión de 
+información de la factura. 
+A continuación, se detallan varios ejemplos de posibles respuestas dadas por el servicio 
+de cotejo o remisión de información de la factura ante diversos tipos de peticiones, según 
+se hayan utilizado sistemas que emiten facturas verificables o no, dependiendo también 
+de si se ha empleado en la petición la «URL» del código «QR»  (respuesta en formato 
+HTML/Web) o una «URL» ampliada con el 5.º parámetro opcional adicional (respuesta 
+en formato JSON, para posibles integraciones con aplicaciones móviles o software de 
+terceros) 
+9.1. Respuestas correctas (OK) dadas a peticiones realizadas 
+por «URL» generadas por un sistema que emite facturas 
+verificables. 
+9.1.1. Caso de factura encontrada. 
+9.1.1.1. Ante una «URL» de un código «QR» (respuesta en html/web). 
+Se adjunta respuesta en formato HTML (web) ante una petición 
+proveniente de un sistema  que emite facturas verificables hecha a través 
+de una «URL» del código «QR» indicando que la factura consta como 
+recibida en la AEAT: 
+ 
+9.1.1.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 
+Se adjunta respuesta en formato JSON ante una petición proveniente de 
+un sistema que emite facturas verificables hecha únicamente a través de 
+una URL ampliada con el 5.º parámetro opcional adicional  (nunca con 
+una URL de código «QR»): 
+{ 
+ "status": "OK", 
+ "mensaje": "Encontrada", 
+
+
+===== [PAGINA 17 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 17/35 
+ 
+"visible":"N", 
+"crashlytics":"N", 
+ "respuesta": { 
+  "resultado": "00", 
+  "nif": "89890001K", 
+  "numserie": "12345678-G33", 
+  "fecha": "01-09-2024", 
+  "importe": “241.40” 
+ } 
+} 
+9.1.2. Caso de factura no encontrada. 
+9.1.2.1. Ante una «URL» de un código «QR» (respuesta en html/web). 
+Se adjunta respuesta en formato HTML (web) ante una petición 
+proveniente de un sistema que emite facturas verificables hecha a través 
+de una «URL» del código «QR» indicando que la factura no consta como 
+recibida en la AEAT o se encuentra en estado anulada:  
+ 
+9.1.2.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 
+Se adjunta respuesta en formato JSON ante una petición proveniente de 
+un sistema que emite facturas verificables hecha únicamente a través de 
+una URL ampliada con el 5.º parámetro opcional adicional  (nunca con 
+una URL de código «QR»): 
+{ 
+ "status": "OK", 
+ "mensaje": "No encontrada", 
+
+
+===== [PAGINA 18 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 18/35 
+ 
+"visible":"N", 
+"crashlytics":"N", 
+ "respuesta": { 
+  "resultado": "01", 
+  "nif": "89890001K", 
+  "numserie": "12345678-G33", 
+  "fecha": "01-09-2024", 
+  "importe": “241.50” 
+ } 
+} 
+9.2. Respuestas correctas (OK) dadas a peticiones realizadas por 
+«URL» generadas por un sistema que emite facturas no 
+verificables. 
+9.2.1. Ante una «URL» de un código «QR» (respuesta en html/web).  
+Se adjunta respuesta en formato HTML (web) ante una petición proveniente de 
+un sistema que emite facturas no verificables hecha a través de una «URL» del 
+código «QR»:  
+ 
+9.2.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 
+Se adjunta respuesta en formato JSON ante una petición proveniente de un 
+sistema que emite facturas no verificables hecha únicamente a través de una 
+URL ampliada con el 5.º parámetro opcional adicional (nunca con una URL de 
+código «QR»): 
+{ 
+ "status": "OK", 
+
+
+===== [PAGINA 19 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 19/35 
+ 
+ "mensaje": "No contrastable", 
+"visible":"N", 
+"crashlytics":"N", 
+ "respuesta": { 
+  "resultado": "02", 
+  "nif": "89890001K", 
+  "numserie": "12345678-G33", 
+  "fecha": "01-09-2024", 
+  "importe": “241.40” 
+ } 
+} 
+9.3. Respuestas incorrectas (KO).  
+Además de las respuestas correctas, también se pueden producir respuestas 
+incorrectas de tipo “Error”, como, por ejemplo, relacionadas con la validación de 
+parámetros. A continuación, sin ánimo de ser exhaustivos, se incluyen algunos casos 
+típicos, junto con sus ejemplos, que permiten ilustrar el comportamiento. 
+9.3.1. Error en falta de parámetros. 
+9.3.1.1. Ante una «URL» de un código «QR» (respuesta en html/web). 
+Se adjunta respuesta en formato HTML (web) ante una petición hecha a 
+través de una «URL» del código «QR»:  
+ 
+9.3.1.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 
+ 
+Se adjunta respuesta en formato JSON ante una petición hecha únicamente a 
+través de una URL ampliada con el 5.º parámetro opcional adicional (nunca con 
+una URL de código «QR»):  
+{ 
+ "status": "KO", 
+ "mensaje": "No se ha remitido el parámetro: fecha (El parámetro \"fecha\" 
+es la fecha de expedición de la factura).No se ha remitido el parámetro: 
+importe (El parámetro \"importe\" es el importe total de la factura)", 
+ "visible": "S", 
+"crashlytics": "N", 
+ "codigo_error": "1003.1004" 
+} 
+
+
+===== [PAGINA 20 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 20/35 
+ 
+Nótese que en la respuesta existen dos mensajes de error encadenados. Si 
+se producen estos casos, se encadenan con “.” tanto en el campo “mensaje” 
+como en “codigo_error”. 
+9.3.2. Error en formato de campo. 
+9.3.2.1. Ante una «URL» de un código «QR» (respuesta en html/web). 
+Se adjunta respuesta en formato HTML (web) ante una petición hecha a 
+través de una «URL» del código «QR» en el caso de que se informe de 
+forma incorrecta uno de los parámetros, concretamente, el importe con 
+separador decimal “,”, en vez de “.”. 
+Ejemplo de «URL» incorrecta:  
+https://www2.agenciatributaria.gob.es/wlpl/TIKE-
+CONT/ValidarQR?nif=89890001K&numserie=12345678-
+G33&fecha=01-01-2024&importe=7,2 
+Respuesta HTML:  
+ 
+9.3.2.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 
+Se adjunta respuesta en formato JSON ante una petición hecha 
+únicamente a través de una URL ampliada con el 5.º parámetro opcional 
+adicional (nunca con una URL de código «QR») en el mismo caso 
+planteado inmediatamente antes:  
+{ 
+    "status": "KO", 
+    "mensaje": "El importe tiene un formato incorrecto", 
+    "visible": "S", 
+    "crashlytics": "N", 
+    "codigo_error": "2005" 
+} 
+9.3.3. Error en formato de NIF/NIE. 
+9.3.3.1. Ante una «URL» de un código «QR» (respuesta en html/web). 
+Se adjunta respuesta en formato HTML (web) ante una petición hecha a 
+través de una «URL» del código «QR» en el caso de que se informe de 
+forma incorrecta uno de los parámetros, concretamente,  el formato de 
+un NIF. 
+Ejemplo de «URL» incorrecta:  
+
+
+===== [PAGINA 21 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 21/35 
+ 
+https://www2.agenciatributaria.gob.es/wlpl/TIKE-
+CONT/ValidarQR?nif=891K&numserie=12345678-G33&fecha=01-01-
+2024&importe=241.4 
+Respuesta HTML:  
+ 
+ 
+9.3.3.2. Ante una «URL» ampliada con 5.º parámetro (respuesta en json). 
+Se adjunta respuesta en formato JSON ante una petición hecha 
+únicamente a través de una URL ampliada con el 5.º parámetro opcional 
+adicional (nunca con una URL de código «QR») en el mismo caso 
+planteado inmediatamente antes:  
+{ 
+    "status": "KO", 
+    "mensaje": "El NIF tiene un formato erróneo o no es válido", 
+    "visible": "S", 
+    "crashlytics": "N", 
+    "codigo_error": "2001" 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== [PAGINA 22 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 22/35 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+10. Listado de códigos de error de validación de 
+«URL». 
+Se detallan el listado completo de errores de validación que se pueden producir, con su 
+código y descripción:  
+CÓDIGO DESCRIPCIÓN 
+1001 No se ha remitido el parámetro: nif (El parámetro "nif" es el número de 
+identificación fiscal (NIF) del obligado a expedir la factura) 
+1002 No se ha remitido el parámetro: numserie (El parámetro "numserie" es el número 
+de serie y número de factura que identifica a la factura emitida) 
+1003 No se ha remitido el parámetro: fecha (El parámetro "fecha" es la fecha de 
+expedición de la factura) 
+1004 No se ha remitido el parámetro: importe (El parámetro "importe" es el importe total 
+de la factura) 
+2001 El NIF tiene un formato erróneo o no es válido 
+2002 El número de serie excede el número máximo de caracteres 
+2003 El número de serie contiene caracteres no permitidos 
+2004 La fecha de expedición tiene formato inválido y debe tener el formato DD-MM-
+AAAA 
+2005 El importe tiene un formato incorrecto 
+2006 El importe excede el número máximo de caracteres 
+3001 Se ha producido un error técnico en los sistemas de la Agencia Tributaria, por 
+favor, inténtelo de nuevo más tarde 
+
+===== [PAGINA 23 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 23/35 
+ 
+3002 Se ha excedido el número máximo de intentos permitidos por día, el acceso ha 
+sido bloqueado 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+11. Normativa legal. 
+• Artículo 17 del Reglamento que establece los requisitos que deben adoptar los 
+sistemas y programas informáticos o electrónicos que soporten los procesos de 
+facturación de empresarios y profesionales, y la estandarización de formatos de 
+los registros de facturación , aprobado por el R eal Decreto 1007/2023, de 5 de 
+diciembre. 
+• Artículos 20 y 21, así como la disposición adicional primera de la orden 
+XXXXXXXXXXX por la que se desarrollan las especificaciones técnicas, 
+funcionales y de contenido referidas en el reglamento que establece los requisitos 
+que deben adoptar los sistemas y programas informáticos o electrónicos que 
+soporten los procesos de facturación de empresarios y profesionales, y la 
+estandarización de formatos de los registros de facturación, aprobado por el Real 
+Decreto 1007/2023, de 5 de diciembre, y en el artículo 6.5 del reglamento por el 
+que se regulan las obligaciones de facturación, aprobado por el Real Decreto 
+1619/2012, de 30 de noviembre. 
+• Artículos 6.5 y 7.5 del reglamento por el que se regulan las obligaciones de 
+facturación, aprobado por el Real Decreto 1619/2012, de 30 de noviembre (en su 
+redacción dada por la disposición final primera del Real Decreto 1007/2023, de 5 
+de diciembre). 
+  
+  
+
+===== [PAGINA 24 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 24/35 
+ 
+12. Anexo (ejemplos de «QR»). 
+A continuación, se ofrecen algunos ejemplos posibles de códigos «QR» en los distintos 
+escenarios que se pueden dar en función de varios aspectos: 
+a) Factura expedida por un sistema que emite facturas verificables  en formato vertical 
+(y anchura de 57 mm.), con código «QR» de 40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+QR tributario: 
+Factura verificable en la 
+sede electrónica de la AEAT 
+CONTENIDO 
+DE LA 
+FACTURA 
+
+
+===== [PAGINA 25 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 25/35 
+ 
+b) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(y anchura de 57 mm.), con código «QR» de 40x40 mm., que utiliza la frase corta: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+QR tributario: 
+VERI*FACTU 
+CONTENIDO 
+DE LA 
+FACTURA 
+
+
+===== [PAGINA 26 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 26/35 
+ 
+c) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(y anchura de 44 mm.), con código «QR» de 40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                             
+ 
+ 
+  
+QR tributario: 
+Factura verificable en la 
+sede electrónica de la 
+AEAT 
+CONTENIDO 
+DE LA 
+FACTURA 
+
+
+===== [PAGINA 27 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 27/35 
+ 
+d) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(y anchura de 57 mm.), con código «QR» de 30x30 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+QR tributario: 
+Factura verificable en la 
+sede electrónica de la AEAT 
+ 
+CONTENIDO 
+DE LA 
+FACTURA 
+
+
+===== [PAGINA 28 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 28/35 
+ 
+ 
+e) Factura expedida por un sistema que emite facturas verificables, en formato 
+horizontal (y anchura de 140 mm.), con código «QR» de 40x40 mm., que utiliza la 
+frase larga: 
+ 
+ 
+  
+                                     
+Factura verificable en 
+la sede electrónica de 
+la AEAT 
+ 
+QR tributario: 
+ 
+ 
+CONTENIDO DE LA FACTURA 
+
+
+===== [PAGINA 29 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 29/35 
+ 
+f) Factura expedida por un sistema que emite facturas no verificables, en formato 
+vertical (y anchura de 57 mm.), con código «QR» de 40x40 mm.: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+QR tributario: 
+CONTENIDO 
+DE LA 
+FACTURA 
+
+
+===== [PAGINA 30 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 30/35 
+ 
+g) Factura expedida por un sistema que emite facturas no verificables, en formato 
+horizontal (y anchura de 140 mm.), con código «QR» de 40x40 mm.: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+QR tributario: 
+ 
+ 
+CONTENIDO DE LA FACTURA 
+
+
+===== [PAGINA 31 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 31/35 
+ 
+h) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(tamaño DIN A4), con código «QR» de 40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+QR tributario: 
+Factura verificable en la sede electrónica de la AEAT 
+ 
+CONTENIDO  
+DE  
+LA 
+ FACTURA 
+
+
+===== [PAGINA 32 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 32/35 
+ 
+i) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(tamaño DIN A4), con código «QR» de 40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+NOTA: en casos con suficiente espacio a los lados del código «QR», como cuando se utiliza un 
+formato DIN A4 en vertical, la utilización de los espacios señalados arriba con sendos recuadros 
+(1 y 2) para mostrar ciertos contenidos de la factura, como datos referidos al emisor (incluido el 
+logotipo) o al destinatario, se considera compatible con el código «QR» al principio de la factura.  
+QR tributario: 
+Factura verificable en la sede electrónica de la AEAT 
+ 
+CONTENIDO  
+DE  
+LA 
+ FACTURA 
+ 
+1 
+ 
+2 
+
+===== [PAGINA 33 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 33/35 
+ 
+j) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(tamaño DIN A4), con código «QR» de 40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+NOTA: en casos con suficiente espacio a lo ancho, como cuando se utiliza un formato DIN A4 
+en vertical, también se considera el código «QR» al principio de la factura si este va situado en 
+la parte izquierda y se aprovecha la parte derecha (espacio señalado arriba con el recuadro 1) 
+para mostrar ciertos contenidos de la factura, como datos referidos al emisor (incluido el logotipo) 
+o al destinatario.   
+QR tributario: 
+Factura verificable en la sede electrónica de la AEAT 
+ 
+CONTENIDO  
+DE  
+LA 
+ FACTURA 
+ 
+1 
+
+===== [PAGINA 34 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.5.0 
+  
+ 
+«VERI*FACTU»    Página: 34/35 
+ 
+k) Factura expedida por un sistema que emite facturas verificables, en formato vertical 
+(tamaño DIN A4), con código «QR» de 40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+NOTA: en casos con suficiente espacio a lo ancho, como cuando se utiliza un formato DIN A4 
+en vertical, también se considera el código «QR» al principio de la factura si este va situado en 
+la parte derecha y se aprovecha la parte izquierda (espacio señalado arriba con el recuadro 1) 
+para mostrar ciertos contenidos de la factura, como datos referidos al emisor (incluido el logotipo) 
+o al destinatario.
+QR tributario: 
+Factura verificable en la sede electrónica de la AEAT 
+ 
+CONTENIDO  
+DE  
+LA 
+ FACTURA 
+ 
+1 
+
+===== [PAGINA 35 de 35] =====
+   
+  
+Departamento de Informática Tributaria 
+Subdirección General de Aplicaciones 
+ 
+ 
+Aplicación: «VERI*FACTU» Versión: 0.4.2 
+  
+ 
+«VERI*FACTU»    Página: 35/35 
+ 
+l) Factura expedida por un sistema que emite facturas verificables, en formato horizontal (tamaño DIN A4), con código «QR» de 
+40x40 mm., que utiliza la frase larga: 
+ 
+ 
+ 
+Factura verificable en la sede 
+electrónica de la AEAT 
+ 
+QR tributario: 
+ 
+ 
+CONTENIDO  
+DE 
+ LA 
+ FACTURA 

@@ -1,0 +1,1709 @@
+
+
+===== [PAGINA 1 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 1 
+   
+ 
+ 
+Validaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+ 
+ 
+ 
+HISTÓRICO DE REVISIONES 
+Edic. Rev. Fecha Descripción A(*) Páginas 
+0 0.1.0 12/07/2022 Borrador inicial  17 
+ 0.2.0 16/11/2023 Cambios según comentarios ONIF y Gestión. Se 
+consolidan validaciones y se añade gestión de 
+errores, especialmente en aceptada con errores. 
+  
+ 0.3.0 21/12/2023 Restructuración del documento por parte del DIT  23 
+ 0.4.0 19/01/2024 Nuevas validaciones en bloque IDF actura, en 
+huella/hash y tipos impositivos. Adaptaciones a los 
+cambios en listas L8. 
+ 23 
+ 0.5.0 08/02/2024 Nueva validación campo IdSistemaInformatico   
+ 0.6.0 15/03/2024 Adaptación a cambios DR versión 0.11.2   
+ 0.7.0 29/04/2024 Revisión ONIF y DIT ( aspectos formales, 
+estructura, validaciones…). 
+ 20 
+ 0.7.1 14/05/2024 Eliminación de la validación  del campo  
+NumeroOTAlta en agrupación Sistema 
+Informático.  
+  
+ 0.7.2 21/05/2024 Eliminación de la categorización de errores 
+admisibles subsanables y no subsanables. El error 
+en el campo FechaHoraHusoGenRegistro se 
+excepcionada de la necesidad de subsanación. 
+  
+ 0.7.3 24/05/2024 Cambio en campo RefRequerimiento   
+ 0.7.4 17/06/2024 Nueva validación campos CalificacionOperacion y 
+OperaciónExenta.  
+ 20 
+ 0.7.5 17/06/2024 Nueva validación ImporteRectificacion 
+ 
+ 20 
+ 0.7.6 30/07/2024 Se añade figura de representante en Cabecera y 
+campo Impuesto en Desglose. Modificadas 
+validaciones de TiposImpositivos y 
+TipoRecargoEquivalencia. Eliminación de códigos 
+a raíz del Brexit.  
+ 
+ 21 
+ 0.8.0 19/09/2024 Modificación de validaciones a raíz de cambios en 
+Impuesto (IVA/IGIC/IPSI/Otros) y ClaveRegimen 
+“17” en TiposImpositivos, 
+TiposRecargoEquivalencia y 
+CalificacionOperacion, entre otros.  
+ 23 
+
+===== [PAGINA 2 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 2 
+  
+  
+ 0.9.0 30/09/2024 Se añade ubicación del listado de códigos de error  23 
+ 0.9.1 15/10/2024 Cambios definitivos versión 0.8.0, se desmarcan 
+las validaciones pendientes de desarrollo.  
+ 23 
+ 1.0.0 26/11/2024 Se añade tratamiento de errores para sistemas de 
+remisión bajo requerimiento de la AEAT 
+ 23 
+ 1.0.1 31/01/2025 Aclaraciones en las fórmul as de cálculo de base 
+imponible. Se añade validación ya existente en el 
+sistema sobre la agrupación IDFactura en 
+anulaciones. 
+ 23 
+ 1.0.2 24/02/2025 Se unifica el tratamiento de CuotaRepercutida, 
+independientemente del importe de la Base 
+Imponible (únicamente margen +/- 10 euros).  
+ 22 
+ 1.0.3 18/03/2025 Se incluye nuevo “Aceptado con errores” al hacer 
+un mal uso del primer registro.  
+Se incluye nueva validación para la clave de 
+régimen 18 (Recargo de equivalencia) 
+Se elimina validación de NIFs iguales entre emisor 
+y destinatario (Facturas de autoconsumo).  
+A 22 
+ 1.0.4 07/04/2025 Cambio en el orden de prioridad de los registros de 
+facturación con aceptación con errores.  
+R 23 
+ 1.0.5 16/04/2025 Modificación de la validación de importe total 
+(exclusión de la clave régimen 08) 
+A 23 
+ 1.0.6 25/04/2025 Modificación CalificacionOperacion (15.4), 
+eliminando las referencias a la clave de régimen 17 
+en la clasificación operación N1/N2. 
+Ajuste de la fecha del campo 
+FechaExpedicionFactura (3.1.3.1). 
+R 23 
+ 1.0.7 26/05/2025 Eliminación en 15.6.9 ClaveRegimen  18 de la 
+restricción de uso de la clave de régimen 18 para 
+informar datos sobre el recargo de equivalencia. 
+R 23 
+ 1.0.8 03/06/2025 Modificaciones en 15.5 OperacionExenta en 
+relación a nuevas claves de régimen para Impuesto 
+"IGIC".  
+R 23 
+ 1.0.9 09/06/2025 Modificaciones en 15.6 ClaveRegimen en relación 
+a las nuevas claves de régimen para Impuesto 
+“IGIC”.  
+R 23 
+ 1.1.0 17/06/2025 Se añade “CROACIA” en “Estructura NIF -IVA” 
+en la página 26.  
+R 23 
+ 1.1.1 02/07/2025 Errata en 15.6.10 ClaveRegimen 20 (IGIC). 
+Operaciones sujetas al IPSI. 
+R 23 
+ 1.1.2 15/07/2025 Nueva validación 15.6.1 ClaveRegimen 02 
+(Exportación) 
+Se elimina sección 15.6.9 ClaveRegimen 18 con 
+validación obsoleta.  
+Cambio en el orden del 4.3.1 Tratamiento de 
+errores admisibles, en último lugar los errores que 
+no requieren subsanación.  
+Se añade validación para 15.6.11 Clave de régimen 
+21 (IGIC).  
+A/R 23 
+ 1.1.3 09/09/2025 Caracteres no permitidos en campos alfanuméricos 
+de texto libre en sección 3.1. Validaciones 
+sintácticas 
+A 25 
+
+===== [PAGINA 3 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 3 
+  
+  
+ 1.1.4 23/09/2025 Se eliminan las validaciones de caracteres no 
+permitidos en campos alfanuméricos de texto libre 
+en sección 3.1. Validaciones sintácticas, pero se 
+mantienen exclusivamente a nivel de IDFactura 
+(número serie/factura), modificando la sección 
+3.1.3.1 
+A 25 
+ 1.1.5 02/10/2025 Nueva validación para operación exenta de tipo E5 
+en sección 15.5.1 
+A 25 
+ 1.1.6 11/11/2025 Se añaden claves de régimen para IPSI 
+Modificación de validación operación exenta de 
+tipo E5 en sección 15.5.1 
+A  
+ 1.1.7 19/11/2025 Nueva sección de 5. Aclaraciones 
+Modificación de validación de claves de régimen, 
+sección 15.6 
+Modificación de 4.3.1 Tratamiento de errores 
+subsanables 
+A 27 
+ 1.1.8 09/12/2025 Modificación de la validación de la 15.6.10 
+ClaveRegimen 20 (IGIC).   
+R 27 
+ 1.1.9 12/12/2025 Modificación de la validación de 16. CuotaTotal R 28 
+ 1.2.0 14/01/2026 Modificación de la validación 31.1.3. 
+FechaFinVerifactu 
+R 28 
+ 1.2.1  23/02/2026 Modificación de la denominación de “Holanda” 
+por “Países Bajos” en la tabla de países de la 
+página 18 
+R 28 
+ 1.2.2  08/04/2026 Corrección de erratas literales leyes asociadas al 
+IGIC en el apartado 5.2.2 
+R 28 
+ 
+(*) Acción:  A = Añadir;  R = Reemplazar 
+
+===== [PAGINA 4 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 4 
+  
+  
+CONTENIDO 
+ 
+ 
+1 OBJETIVO 5 
+2 CONTROL DE VERSIONES 6 
+3 VALIDACIONES 6 
+3.1 Validaciones 6 
+3.1.1 Validaciones de negocio del bloque Cabecera. 7 
+3.1.2 Validaciones de negocio del bloque RegistroFactura. 7 
+3.1.3 Validaciones de negocio de la agrupación RegistroAlta en el bloque de RegistroFactura.  7 
+3.1.4 Validaciones de negocio de la agrupación RegistroAnulacion en el bloque RegistroFactura.  16 
+3.1.5 Validaciones de negocio de la agrupación SistemaInformatico en las agrupaciones RegistroAlta y 
+RegistroAnulacion del bloque RegistroFactura. 17 
+4 GESTIÓN DE ERRORES 20 
+4.1 Descripción de estados globales de una petición 20 
+4.2 Tipos de errores definidos. 21 
+4.3 Tratamiento de los errores 21 
+4.3.1 Tratamiento de los errores en remisión voluntaria «VERI*FACTU» 21 
+4.3.2 Tratamiento de los errores en remisión bajo requerimiento de la AEAT «No VERI*FACTU»
+ 22 
+4.4 Listados de códigos de error 22 
+5 ACLARACIONES 24 
+5.1 Calificación de operación N1 / N2 24 
+5.1.1 IVA (Ley 37/1992) 24 
+5.1.2 IGIC (Ley 20/1991) 24 
+5.1.3 IPSI (Ley 8/1991) 24 
+5.2 Operación Exenta 24 
+5.2.1 IVA (Ley 37/1992) 24 
+5.2.2 IGIC (Ley 20/1991) 25 
+5.2.3 IPSI (Ley 8/1991) 25 
+6 ANEXO: OPERATIVAS DE ALTA Y ANULACIÓN ADMISIBLES 26 
+6.1 Operativas de alta admisibles 26 
+6.2 Operativas de anulación admisibles 28 
+ 
+
+===== [PAGINA 5 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 5 
+  
+  
+ 
+1 OBJETIVO  
+ 
+El presente documento constituye el result ado de la fase de análisis de validaciones y 
+gestión de errores del proyecto  de Sistemas Informáticos de Facturación y Sistemas 
+VERI*FACTU regulado por el Reglamento aprobado por el Real Decreto 1007/2023, de 5 de 
+diciembre, y su correspondiente orden ministerial. 
+ 
+En el proceso de recepción de los mensajes con registros de alta y anulación , la AEAT 
+realiza automáticamente una serie de validaciones. En este documento se detallan dichas 
+validaciones. 
+  
+
+===== [PAGINA 6 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 6 
+  
+  
+ 
+2 CONTROL DE VERSIONES 
+ 
+Consultar tabla de contenidos.  
+ 
+3 VALIDACIONES 
+ 
+3.1 Validaciones 
+ 
+Se han definido tres tipologías de validaciones: 
+ 
+1. Validaciones estructurales: para validar que la estructura de etiquetas cumple el esquema 
+en cuanto al establecimiento de etiquetas obligatorias. 
+El no cumplimiento de estas validaciones dará lugar al rechazo completo del mensaje de 
+remisión. 
+ 
+2. Validaciones sintácticas : en ellas se valida el formato, longitud, obligatoriedad del 
+contenido y si el valor debe coincidir con una serie de valores preestablecidos, en los 
+casos que aplique. 
+ 
+Cuando est as validaciones provoquen errores, que se hayan producido en el bloque 
+Cabecera, darán lugar al rechazo completo del mensaje de remisión. 
+Cuando estos errores se hayan producido a nivel de registro (agrupaciones RegistroAlta 
+o RegistroAnulacion dentro del bloque RegistroFactura) , provocarán el rechazo del 
+registro, pero se seguirán procesando el resto de registros incluido s en  el mensaje de 
+remisión. 
+ 
+3. Validaciones de negocio : estarán asociadas principalmente a validaciones de campos 
+cuyo contenido u obligatoriedad depende del valor asociado a otro campo.  
+Estos errores provocarán el rechazo del registro, pero se seguirán procesando el resto de 
+registros en el mensaje de remisión. 
+ 
+
+===== [PAGINA 7 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 7 
+  
+  
+ 
+3.1.1 Validaciones de negocio del bloque Cabecera. 
+ 
+1. ObligadoEmision  
+ 
+- El NIF del obligado a expedir (emitir) facturas asociado a la remisión debe estar identificado 
+en la AEAT.  
+ 
+2. Representante 
+ 
+- El NIF del representante/asesor del obligado a expedir (emitir) facturas asociado a la remisión 
+debe estar identificado en la AEAT.  
+ 
+3. FechaFinVeriFactu 
+ 
+- Sólo se permite contenido en sistemas que emite facturas verificables. 
+- A partir del 1 de enero de 2027, el campo FechaFinVeriFactu debe tener el formato 31 -12-
+20XX. 
+- El año de la fecha deberá ser igual al año de la fecha del sistema de la AEAT, o al año 
+anterior (para admitir casos excepcionales y puntuales que pudieran darse a finales de un 
+año y comienzo del siguiente). 
+ 
+4. Incidencia 
+ 
+- Sólo se permite contenido en sistemas que emite facturas verificables. 
+ 
+5. RefRequerimiento 
+ 
+- Sólo se permite contenido en sistemas que emiten facturas no verificables. 
+- Obligatorio en sistemas que emiten facturas no verificables. 
+- La referencia del requerimiento deberá existir en la AEAT.  
+ 
+3.1.2 Validaciones de negocio del bloque RegistroFactura. 
+ 
+1. Agrupaciones RegistroAlta y RegistroAnulacion  
+- Dentro de cada una de las posibles repeticiones u “ocurrencias” d e RegistroFactura (de 1 a 
+1000) se pueden incluir registros de facturación de alta (agrupación RegistroAlta) y de 
+anulación (agrupación RegistroAnulacion) en un mismo mensaje remitido, pero siempre que 
+vayan en distintas ocurrencias de RegistroFactura (no pueden ir ambas agrupaciones a la vez 
+dentro de la misma ocurrencia). 
+ 
+3.1.3 Validaciones de negocio de la agrupación RegistroAlta en el bloque de 
+RegistroFactura.  
+ 
+1. Agrupación IDFactura 
+
+===== [PAGINA 8 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 8 
+  
+  
+- El NIF del campo IDEmisorFactura debe ser el mismo que el del campo NIF de la agrupación 
+ObligadoEmision del bloque Cabecera.  
+- La FechaExpedicionFactura no podrá ser superior a la fecha actual. 
+- Si Impuesto = “01” (IVA), “03” (IGIC)  o no se cumplimenta (considerándose “01” - IVA), l a 
+FechaExpedicionFactura solo puede ser anterior a la FechaOperacion, si ClaveRegimen= 
+"14" o "15”. 
+- La FechaExpedicionFactura no debe ser inferior a 28/10/2024 (fecha de entrada en vigor de 
+la Orden Ministerial de VERI*FACTU). 
+- NumSerieFactura solo puede contener caracteres ASCII del 32 a 126 (caracteres 
+imprimibles), no permitiéndose la existencia de los siguientes caracteres:  
+ 
+• “    (ASCII 34) 
+• ‘    (ASCII 39) 
+• <   (ASCII 60)  
+• >   (ASCII 62) 
+• =   (ASCII 61) 
+ 
+ 
+2. RechazoPrevio 
+ 
+- Solo podrá incluirse el campo RechazoPrevio con valor “X” si se ha informado el campo 
+Subsanacion y tiene el valor “S”.  
+- No podrá informarse el campo RechazoPrevio con valor “S” si no se informa el campo 
+Subsanación o éste tiene el valor “N” 
+ 
+3. TipoRectificativa  
+  
+- Solo podrá incluirse este campo si el valor del campo TipoFactura es igual a “R1”, “R2”, “R3”, 
+“R4” o “R5” 
+- Campo obligatorio si TipoFactura es igual a “R1”, “R2”, “R3”, “R4” o “R5”. 
+ 
+4. Agrupación FacturasRectificadas 
+ 
+- El NIF del campo IDEmisorFactura debe estar identificado.  
+- Sólo podrá incluirse esta agrupación (no es obligatoria) si TipoFactura e s igual a “R1”, “R2”, 
+“R3”, “R4” o “R5”.  
+ 
+5. Agrupación FacturasSustituidas 
+ 
+- El NIF del campo IDEmisorFactura debe estar identificado. 
+- Sólo podrá incluirse esta agrupación (no es obligatoria) cuando el campo TipoFactura="F3". 
+ 
+6. Agrupación ImporteRectificacion 
+ 
+- Sólo deberá incluirse esta agrupación si el campo TipoRectificativa = "S". 
+- Obligatorio si TipoRectificativa = “S”. 
+ 
+7. FechaOperacion 
+ 
+
+===== [PAGINA 9 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 9 
+  
+  
+- La FechaOperacion no debe ser inferior a la  fecha actual menos veinte años y no debe ser 
+superior al año siguiente de la fecha actual.  
+- Si Impuesto = “01” (IVA),  “03” (IGIC)  o no se cumplimenta (considerándose “01” - IVA), e l 
+campo FechaOperacion solo podrá ser s uperior a la fecha actual, si ClaveRegimen= "14" o 
+"15”. 
+ 
+ 
+ 
+ 
+8. FacturaSimplificadaArt7273  
+ 
+- Sólo se podrá rellenar con “S” si TipoFactura=“F1” o “F3” o “R1” o “R2” o “R3” o “R4”.  
+ 
+9. FacturaSinIdentifDestinatarioArt61d 
+ 
+- Sólo se podrá rellenar con “S” si TipoFactura=”F2” o “R5”.  
+ 
+10. Macrodato 
+ 
+- Campo obligatorio si ImporteTotal >= |100.000.000,00| (valor absoluto). 
+ 
+11. EmitidaPorTerceroODestinatario 
+ 
+- Si es igual a “T”, el bloque Tercero será de cumplimentación obligatoria.  
+- Si es igual a “D”, el bloque Destinatarios será de cumplimentación obligatoria.  
+ 
+12. Agrupación Tercero 
+ 
+- Solo podrá cumplimentarse si EmitidaPorTerceroODestinatario es “T”.  
+- Si se identifica mediante NIF, el NIF debe estar identificado y ser distinto del NIF del campo 
+IDEmisorFactura de la agrupación IDFactura.  
+- Si se cumplimenta NIF, no deberá existir la agrupación IDOtro y viceversa, pero es obligatorio 
+que se cumplimente uno de los dos.  
+- Si el campo IDType = “02” (NIF-IVA), no será exigible el campo CodigoPais.  
+- Cuando el tercero se i dentifique a través de  la agrupación IDOtro e IDType sea “02”, se 
+validará que el campo identificador ID se ajuste a la estructura de NIF -IVA de alguno de los 
+Estados Miembros y debe estar identificado. Ver nota (1). 
+- Si se identifica a través de la agrupación IDOtro y CodigoPais sea "ES", se validará que el 
+campo IDType sea “03”. 
+- No se admite el tipo de identificación IDType “07” (No censado).  
+ 
+ 
+13. Agrupación Destinatarios  
+ 
+- Si TipoFactura es “F1”, “F3”, “R1”, “R2”, “R3” o “R4”, la agrupación  Destinatarios tiene que 
+estar cumplimentada, con al menos un destinatario.  
+- Si TipoFactura es “F2” o “R5”, la agrupación Destinatarios no puede estar cumplimentada. 
+
+===== [PAGINA 10 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 10 
+  
+  
+- Si se cumplimenta NIF, no deberá existir la agrupación IDOtro y viceversa, pero es obligatorio 
+que se cumplimente uno de los dos.  
+- Si el campo IDType = “02” (NIF-IVA), no será exigible el campo CodigoPais. 
+- Si el campo IDType = “07” (No censado), el campo CodigoPais debe ser “ES”.  
+- Cuando uno o varios destinatarios se identifiquen  a través de la agrupación IDOtro e IDType 
+sea “02”, se validará que el campo identificador se ajuste a la estructura de NIF -IVA de 
+alguno de los Estados Miembros y debe estar identificado. Ver nota (1). 
+- Cuando uno o varios destinatarios se identifiquen a través de  la agrupación  IDOtro y 
+CodigoPais sea "ES", se validará que el campo IDType sea “03” o “07”. 
+- Cuando se identifique a través del bloque “IDOtro” y IDType sea “02”, se validará que 
+TipoFactura sea “F1”, “F3”, “R1”, “R2”, “R3” ó “R4”. 
+ 
+ 
+ 
+ 
+14. Cupon 
+ 
+- Sólo se podrá rellenar con “S” (no es obligatorio) si TipoFactura = ”R5” o “R1” 
+ 
+ 
+15.  Agrupación Desglose / DetalleDesglose.  
+ 
+15.1 TipoImpositivo 
+ 
+- Si Impuesto = “01” (IVA)  o no se cu mplimenta (considerándose “01” - IVA) y 
+CalificacionOperacion = “S1”:  
+- Solo se permiten TipoImpositivo =  0; 2; 4; 5; 7,5; 10 y 21 (valores que indican 
+el tanto por ciento).  
+- Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura si no 
+se informa FechaOperacion) ≥ 1 de julio de 2022 y ≤  30 de septiembre de 
+2024 se admitirá TipoImpositivo = 5.  
+- Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura si no 
+se informa FechaOperacion) ≥ 1 de octubre de 2024 y ≤ 31 de diciembre de 
+2024 se admitirá el TipoImpositivo = 2  
+- Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura si no 
+se informa FechaOperacion) ≥ 1 de octubre de 2024 y ≤ 31 de diciembre de 
+2024 se admitirá el TipoImpositivo = 7,5. 
+ 
+15.2 BaseImponibleACoste 
+ 
+- El campo BaseImponibleACoste solo puede estar cumplimentado si la 
+ClaveRegimen es = “06” o Impuesto = “02” (IPSI) o Impuesto = “05” (Otros). 
+ 
+15.3 TipoRecargoEquivalencia  
+- Si Impuesto = “01” (IVA) o no se cumplimenta (considerándose “01” - IVA) y  
+CalificacionOperacion = “S1”:  
+- Solo se permiten TipoRecargoEquivalencia = 0; 0,26; 0,5; 0,62; 1;  1,4; 1,75; 
+5,2 (valores que indican el tanto por ciento).  
+
+===== [PAGINA 11 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 11 
+  
+  
+- Si TipoImpositivo es 21 sólo se admitirán TipoRecargoEquivalencia =  5,2 ó 
+1,75.  
+- Si TipoImpositivo es 10 sólo se admitirá TipoRecargoEquivalencia = 1,4.  
+- Si TipoImpositivo es 7,5 sólo se admitirá TipoRecargoEquivalencia = 1.  
+✓ Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura 
+si no se informa FechaOperacion) es mayor o igual que 1 de octubre de 
+2024 y menor o igual que 31 de diciembre de 2024 se admitirá el 
+TipoRecargoEquivalencia = 1. 
+- Si tipo impositivo es 5:  
+✓ Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura 
+si no se informa FechaOperacion) es igual o inferior al 31 de diciembre de 
+2022, solo se admitirá TipoRecargoEquivalencia = 0,5.  
+✓ Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura 
+si no se informa FechaOperacion) es mayor o igual que 1 de enero de 
+2023 y menor o igual que 30 de septiembre de 2024 , solo se admitirá  
+TipoRecargoEquivalencia = 0,62.  
+- Si TipoImpositivo es 4 sólo se admitirá TipoRecargoEquivalencia = 0,5.  
+- Si TipoImpositivo es 2 sólo se admitirá TipoRecargoEquivalencia = 0,26.  
+✓ Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura 
+si no se informa FechaOperacion) es mayor o igual que 1 de octubre de 
+2024 y menor o igual que 31 de diciembre de 2024 se admitirá el 
+TipoRecargoEquivalencia = 0,26. 
+- Si tipo impositivo es 0: 
+✓ Si FechaOperacion (FechaExpedicionFactura de la agrupación IDFactura 
+si no se informa FechaOperacion) es mayor o igual que 1 de enero de 
+2023 y menor o igual que 30 de septiembre de 2024 , solo se admitirá 
+TipoRecargoEquivalencia = 0.  
+ 
+15.4 CalificacionOperacion  
+ 
+- Si CalificacionOperacion es “S2”, TipoFactura solo puede ser “F1”, “F3”, “R1”, “R2”, “R3” y 
+“R4”. 
+- Cuando CalificacionOperacion sea “S2”:  
+✓ TipoImpositivo = 0. (No se admite que vaya vacío o que el campo no 
+exista).  
+✓ CuotaRepercutida = 0. (No se admite que vaya vacío o que el campo no 
+exista ).  
+- Si C alificacionOperacion es = “N1/N2” e Impuesto = ”01” (IVA ) o no se 
+cumplimenta (considerándose “01” - IVA), no se puede informar ninguno de 
+estos campos:  
+✓ TipoImpositivo, CuotaRepercutida. 
+✓ TipoRecargoEquivalencia, CuotaRecargoEquivalencia. 
+ 
+15.5 OperacionExenta.  
+ 
+ 
+- Si Impuesto = “01” (IVA) o no se cumplimenta (considerándose “01” - IVA), el valor 
+de OperacionExenta deberá estar contenido en lista L10. 
+ 
+
+===== [PAGINA 12 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 12 
+  
+  
+- Si Impuesto = “03” (IGIC), el valor de OperacionExenta deberá estar contenido en 
+lista L10 y adicionalmente podrá contener los valores “E7” y “E8”. 
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA), y 
+ClaveRegimen es igual a “01”, no pueden marcarse los valores de OperacionExenta “E2” 
+y “E3”.  
+- Si el campo OperacionExenta está cumplimentado no se pueden informar ninguno 
+de estos campos: TipoImpositivo, CuotaRepercutida, TipoRecargoEquivalencia y 
+CuotaRecargoEquivalencia. 
+ 
+15.5.1 OperacionExenta E5 
+ 
+- Si Impuesto = “01” (IVA) o no se cumplimenta (considerándose “01” - IVA) y, si 
+OperacionExenta es igual a “E5”, sólo deberá existir la agrupación IDOtro cuando se 
+cumplimente el bloque “Destinatario”. 
+ 
+ 
+15.6 ClaveRegimen  
+ 
+- Solo podrá incluirse este campo si Impuesto = “01” (IVA ), “02” (IPSI), “03” (IGIC) o no se 
+cumplimenta (considerándose “01” - IVA). 
+- Si Impuesto = “01” (IVA) o no se cumplimenta (considerándose “01” - IVA), el valor 
+de ClaveRegimen deberá estar cumplimentado y contenido en lista L8A. 
+- Si Impuesto = “02” (IPSI), el valor de ClaveRegimen deberá estar cumplimentado y 
+deberá contener cualquiera de estas claves:  
+✓ 01 Operación de régimen general.  
+✓ 08 Operaciones sujetas al IGIC / IVA (Impuesto General Indirecto Canario 
+/ Impuesto sobre el Valor Añadido).  
+✓ 11 Operaciones de arrendamiento de local de negocio. 
+✓ 18 Operaciones recogidas en el artículo 73. 4 y 5 de la Ordenanza fiscal 
+IPSI. (Sólo Ceuta).  
+✓ 19 Operaciones interiores exentas. 
+✓ 20 Régimen estimación objetiva. 
+ 
+En caso contrario se devolverá un aviso de error , sin generar  rechazo y  
+marcándose como “Aceptada como errores” , hasta el 31/12/2026 y se procederá a 
+rechazar el registro a partir de 01/01/2027. 
+ 
+- Si Impuesto = “03” (IGIC), el valor de ClaveRegimen deberá estar cumplimentado 
+y contenido en lista L8B. Adicionalmente, puede  contener el valor “20” 
+(Operaciones sujetas al IPSI).  
+  
+ 
+15.6.1 ClaveRegimen 02. Exportación.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA), si 
+clave de ClaveRegimen es igual a “ 02”, solo puede estar cumplimentado 
+OperacionExenta.  
+ 
+
+===== [PAGINA 13 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 13 
+  
+  
+ 
+15.6.2 ClaveRegimen 03. REBU.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA), 
+cuando ClaveRegimen sea igual a “03”, si se cumplimenta CalificacionOperacion, este 
+campo solo puede contener el valor “S1”. 
+ 
+Aclaración: ClaveRegimen  “03” es compatible con operación exenta, ya que el artículo 137. 
+Dos. 5ª de la Ley 37/1992, de 28 de diciembre, del Impuesto sobre el Valor Añadido  
+contempla expresamente la posibilidad de aplicar exenciones en REBU ( Régimen especial de 
+bienes usados, objetos de arte, antigüedades y objetos de colección).   
+ 
+ 
+15.6.3 ClaveRegimen 04. Operaciones con oro de inversión.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA), si 
+clave de ClaveRegimen es igual a “04”, CalificacionOperacion solo puede ser “S2”, o bien 
+OperacionExenta.  
+ 
+15.6.4 ClaveRegimen 06. Grupo de entidades nivel avanzado.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA): 
+- Si ClaveRegimen es igual a “06”: 
+✓ Se validará que TipoFactura sea distinto de “F2”, “F3”, “R5”. 
+✓ Campo BaseImponibleACoste deberá estar cumplimentado.  
+ 
+15.6.5 ClaveRegimen 07. Criterio de caja.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA): 
+- Si ClaveRegimen = “07”: 
+✓   CalificacionOperacion no puede ser “S2”, “N1”, “N2”. 
+✓   OperacionExenta no puede ser “E2”, “E3”, “E4” y “E5”. 
+ 
+15.6.6 ClaveRegimen 08.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA): 
+✓ Si ClaveRegimen = “08”, CalificacionOperacion tiene que ser “N2” y siempre debe 
+ir relleno.  
+ 
+15.6.7 ClaveRegimen 10. Cobro por cuenta de terceros.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA): 
+- Si existe una ClaveRegimen “10”: 
+✓ CalificacionOperacion tiene que ser “N1” y siempre debe ir relleno.  
+✓ TipoFactura tiene que ser “F1”.  
+✓ Todos los destinatarios tienen que estar identificado mediante NIF.  
+
+===== [PAGINA 14 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 14 
+  
+  
+ 
+15.6.8 ClaveRegimen 11. Arrendamiento de local de negocio 
+ 
+- Si Impuesto = “01” (IVA) o no se cumplimenta (considerándose “01” - IVA), c uando 
+ClaveRegimen sea “11”, únicamente se admitirá el TipoImpositivo = 21. 
+ 
+ 
+15.6.9 ClaveRegimen 14. IVA pendiente AAPP.  
+ 
+- Si Impuesto = “01” (IVA), “03” (IGIC) o no se cumplimenta (considerándose “01” - IVA): 
+- Si existe una ClaveRegimen igual a “14”: 
+✓ FechaOperacion, campo de cumplimentación obligatoria y posterior a fecha de 
+expedición. 
+✓ Todos los destinatarios tienen que estar identificados mediante NIF y comenzar 
+por “P”,”Q”,”S” o “V”.  
+✓ TipoFactura: se validará que tipo de factura sea “F1”, “R1”, “R2”, “R3” o “R4”.  
+ 
+ 
+15.6.10 ClaveRegimen 20 (IGIC).  Operaciones sujetas al IPSI.  
+ 
+- Si Impuesto = “03” (IGIC)  y la ClaveRegimen es igual a “20”  (Operaciones sujetas 
+al IPSI – Valor adicional L8B), CalificacionOperacion tiene que ser “N2” y siempre 
+debe ir relleno. 
+ 
+ 
+15.6.11 ClaveRegimen 21 (IGIC).  Régimen simplificado.  
+ 
+- Si Impuesto = “03” (IGIC), el valor de ClaveRegimen debe estar contenido en la 
+lista L8B y adicionalmente puede contener el valor “21” (Régimen simplificado).  
+ 
+ 
+15.7 CuotaRepercutida.  
+ 
+- Solo podrá ser distinta de cero (positivo o negativo) si CalificacionOperacion es “S1”. 
+ 
+- Si CalificacionOperacion es “S1” y BaseImponibleACoste no está cumplimentada, se 
+validará que:  
+✓ TipoImpositivo: campo obligatorio. 
+✓ CuotaRepercutida: campo obligatorio y deberá validarse (excepto si TipoRectificativa 
+= “I” o TipoFactura “R2”, “R3”) que:  
+▪ CuotaRepercutida y BaseImponibleOimporteNoSujeto deben tener el 
+mismo signo.  
+▪ [CuotaRepercutida] = ([BaseImponibleOimporteNoSujeto] * TipoImpositivo) 
+/ 100 +/- 10,00 euros 
+ 
+- Si CalificacionOperacion es “S1” y BaseImponibleACoste está cumplimentada, se 
+validará que:  
+✓ TipoImpositivo: campo obligatorio. 
+
+===== [PAGINA 15 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 15 
+  
+  
+✓ CuotaRepercutida: campo obligatorio y deberá validarse (excepto si TipoRectificativa 
+= “I” o TipoFactura “R2”, “R3”) que:  
+▪ CuotaRepercutida y BaseImponibleACoste deben tener el mismo signo.  
+▪ [CuotaRepercutida] = ([BaseImponibleACoste]  * TipoImpositivo)  / 100  +/- 
+10,00 euros.  
+ 
+15.8 Validaciones adicionales en el caso de facturas simplificadas.  
+ 
+- Cuando TipoFactura sea “F2”, se validará que Ʃ (BaseImponibleOimporteNoSujeto + 
+CuotaRepercutida) de todas las líneas de detalle no sea superior a 3 .000,00 euros.  Se 
+admitirá un error de + 10,00 euros. 
+ 
+Esta validación no se aplicará cuando exista acuerdo de facturación, es decir, cuando el 
+campo NumRegistroAcuerdoFacturacion esté cumplimentado. Esta validación tampoco se 
+aplicará cuando el campo FacturaSinIdentifDestinatarioArticulo61d = “S”.  
+ 
+16. CuotaTotal  
+ 
+- Se validará que sea igual a  Ʃ (CuotaRepercutida + CuotaRecargoEquivalencia) de todas las 
+líneas de detalle de desglose. En caso contrario se devolverá un aviso de error (no generará 
+rechazo), admitiéndose un margen de error de +/- 10,00 euros. 
+ 
+- Esta validación no se aplicará cuando ClaveRegimen sea “03”, “05”, “06”, “08” o “09”. 
+ 
+ 
+17. ImporteTotal  
+ 
+- Se validará que sea igual a  Ʃ ( BaseImponibleOimporteNoSujeto + CuotaRepercutida + 
+CuotaRecargoEquivalencia) de todas las líneas de detalle  de desglose. En caso contrario  se 
+devolverá un aviso de error (no generará rechazo), admitiéndose un margen de error de +/ - 
+10,00 euros. 
+ 
+- Esta validación no se aplicará cuando ClaveRegimen sea “03”, “05”, “06”, “08” o “09”. 
+ 
+18. Huella (del registro anterior) 
+ 
+- Se validará que la huella del encadenamiento del registro anterior cumpla el formato de salida 
+del algoritmo SHA -256, siendo de 64 caracteres en hexadecimal y en mayúsculas. En caso 
+contrario se devolverá un aviso de error (no generará rechazo). 
+ 
+ 
+19. Agrupación SistemaInformatico   
+ 
+Ver las validaciones que le aplican en su apartado correspondiente. 
+ 
+20. FechaHoraHusoGenRegistro 
+ 
+Se validará que la FechaHoraHusoGenRegistro sea menor o igual que la fecha del sistema 
+de la AEAT, admitiéndose un margen de error. En caso de superar el umbral, se devolverá un 
+aviso de error (no generará rechazo).  
+ 
+
+===== [PAGINA 16 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 16 
+  
+  
+ 
+21. NumRegistroAcuerdoFacturacion  
+  
+- Si se informa, debe existir el NumRegistroAcuerdoFacturacion en la AEAT. 
+ 
+22. IdAcuerdoSistemaInformatico  
+ 
+- Si se informa, debe existir el IdAcuerdoSistemaInformatico en la AEAT. 
+ 
+ 
+23. Huella 
+ 
+- Se validará que la huella o  «hash» generado sea acorde a las especificaciones y formato 
+detallados en el documento “Especificaciones técnicas para generación de la huella o  «hash» 
+de los registros de facturación” publicado en Sede Electrónica de la AEAT. En caso contrario , 
+se devolverá un aviso de error (no generará rechazo). 
+ 
+3.1.4 Validaciones de negocio de la agrupación RegistroAnulacion en el bloque 
+RegistroFactura. 
+ 
+1. Agrupación IDFactura 
+- El NIF del campo IDEmisorFactura Anulada debe ser el mismo que el del campo NIF de la 
+agrupación ObligadoEmision del bloque Cabecera.  
+ 
+ 
+2. GeneradoPor  
+ 
+- Si se informa este campo, deberá informarse la agrupación Generador.  
+ 
+3. Agrupación Generador  
+ 
+- Si se informa esta agrupación, debe haberse informado el campo GeneradoPor.  
+- Si se identifica mediante NIF, el NIF debe estar identificado y ser distinto del campo NIF de la 
+agrupación ObligadoEmisión del bloque Cabecera.  
+- Si se cumplimenta NIF, no deberá existir la agrupación IDOtro y viceversa, pero es obligatorio 
+que se cumplimente uno de los dos.  
+- Si el campo IDType = “02” (NIF-IVA), no será exigible el campo CodigoPais.  
+- Cuando el generador se identifique a través de  la agrupación IDOtro e IDType sea “02”, se 
+validará que el campo identificador ID se ajuste a la estructura de NIF -IVA de alguno de los 
+Estados Miembros y debe estar identificado. Ver nota (1). 
+- Si el valor de GeneradoPor es igual a “E”, debe estar relleno el campo NIF en el generador.  
+- Si el valor  de GeneradoPor es igual a “D”, cuando el Generador se identifique a través del 
+bloque IDOtro y CodigoPais sea "ES", se validará que el campo IDType sea “03” o “07”. 
+- Si el valor del campo GeneradoPor es igual a “T”:  
+o Si se identifica a través de la agrupación IDOtro y CodigoPais sea "ES", se validará 
+que el campo IDType sea “03”. 
+o No se admite el tipo de identificación IDType “07” (“No censado”).  
+ 
+
+===== [PAGINA 17 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 17 
+  
+  
+ 
+4. Huella (del registro anterior) 
+ 
+- Se validará que la huella del encadenamiento del registro anterior cumpla el formato de salida 
+del algoritmo SHA -256, siendo de 64 caracteres en hexadecimal y en mayúsculas. En caso 
+contrario se devolverá un aviso de error (no generará rechazo). 
+ 
+5. Agrupación SistemaInformatico   
+ 
+Ver las validaciones que le aplican en su apartado correspondiente. 
+ 
+6. FechaHoraHusoGenRegistro 
+ 
+Se validará que la FechaHoraHusoGenRegistro sea menor o igual que la fecha del sistema 
+de la AEAT, admitiéndose un margen de error. En caso de superar el umbral, se devolverá un 
+aviso de error (no generará rechazo).  
+ 
+7. Huella 
+ 
+- Se validará que la huella o « hash» generado sea acorde a las especificaciones y formato 
+detallados en el documento “Especificaciones técnicas para generación de la huella o « hash» 
+de los registros de facturación” publicado en Sede Electrónica de la AEAT. En caso contrario, 
+se devolverá un aviso de error (no generará rechazo). 
+ 
+ 
+3.1.5 Validaciones de negocio de la agrupación SistemaInformatico en las agrupaciones 
+RegistroAlta y RegistroAnulacion del bloque RegistroFactura. 
+ 
+1. Agrupación SistemaInformatico   
+ 
+- Si se cumplimenta NIF, no deberá existir la agrupación IDOtro y viceversa, pero es obligatorio 
+que se cumplimente uno de los dos.  
+- Si el campo IDType = “02” (NIF-IVA), no será exigible el campo CodigoPais.  
+- Cuando la persona o entidad productora del sistema informático se identifique a través de la 
+agrupación IDOtro e IDType sea “02”, se validará que el campo identificador se ajuste a la 
+estructura de NIF-IVA de alguno de los Estados Miembros  y debe estar identificado . Ver nota 
+(1). 
+- Si se identifica a través de la agrupación IDOtro y CodigoPais sea "ES", se validará que el 
+campo IDType sea “03”. 
+- No se admite el tipo de identificación IDType “07” (“No censado”).  
+- El campo IdSistemaInformatico deberá tener rellenas siempre las dos posiciones, cada una 
+de las cuales deberá ser una letra mayúscula, excepto la Ñ, o un dígito numérico.  
+- El campo NombreSistemaInformatico es obligatorio y debe tener contenido.  
+- El campo TipoUsoPosibleSoloVerifactu es obligatorio y debe tener contenido.  
+- El campo TipoUsoPosibleMultiOT es obligatorio y debe tener contenido.  
+ 
+ 
+Nota (1) 
+ 
+
+===== [PAGINA 18 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 18 
+  
+  
+-Sólo se admiten mayúsculas de acuerdo con las directrices de la Comisión: 
+https://ec.europa.eu/taxation_customs/vies/help.html 
+https://ec.europa.eu/taxation_customs/vies/faq.html#item_11 
+ 
+Estructura NIF-IVA. 
+País  Cód. País Número 
+ 
+Alemania  DE 9 caracteres numéricos 
+Austria  AT 9 caracteres alfanuméricos 
+Bélgica  BE 10 caracteres numéricos 
+Chipre  CY 9 caracteres alfanuméricos 
+Checa, República  CZ 8, 9 ó 10 caracteres numéricos 
+Croacia                                    HR                          11 caracteres numéricos 
+Dinamarca  DK 8 caracteres numéricos 
+Eslovaquia  SK 10 caracteres numéricos 
+Eslovenia  SI 8 caracteres numéricos 
+Estonia  EE 9 caracteres numéricos 
+Finlandia  FI 8 caracteres numéricos 
+Francia  FR 11 caracteres alfanumérico 
+Grecia  EL 9 caracteres numéricos 
+Irlanda del Norte  GB o XI (*) 5, 9 ó 12 caracteres alfanuméricos 
+Países Bajos  NL 12 caracteres alfanumérico 
+Hungría  HU 8 caracteres numéricos 
+Italia  IT 11 caracteres numéricos 
+Irlanda  IE 8 ó 9 caracteres alfanuméricos 
+Letonia  LV 11 caracteres numéricos 
+Lituania  LT 9 ó 12 caracteres numéricos 
+Luxemburgo  LU 8 caracteres numéricos 
+Malta  MT 8 caracteres numéricos 
+Polonia  PL 10 caracteres numéricos 
+Portugal  PT 9 caracteres numéricos 
+Suecia  SE 12 caracteres numéricos 
+Bulgaria  BG 9 ó 10 caracteres numéricos 
+Rumanía   RO de 2 a 10 caracteres numéricos sin ceros a la 
+izquierda  
+  
+(*) BREXIT: NIF-IVA (NVAT) admisibles para Reino Unido:  
+ 
+- Si FechaOperacion (FechaExpedicionFactura si no se informa FechaOperacion) es 
+anterior a 01/01/2021 el NVAT tiene que comenzar por “GB”.  
+- Si FechaOperacion (FechaExpedicionFactura si no se informa FechaOperacion) es mayor 
+o igual que 01/01/2021 y menor o igual que 31/01/2021 puede empezar por “GB” o “XI”.  
+- -Si FechaOperacion (FechaExpedicionFactura si no se informa FechaOperacion) es 
+mayor o igual que 01/02/2021 tiene que empezar por “XI”. 
+ 
+Enlace web Comisión para comprobar la estructura de los NIF-IVA: 
+ 
+
+===== [PAGINA 19 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 19 
+  
+  
+https://ec.europa.eu/taxation_customs/vies 
+
+===== [PAGINA 20 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 20 
+  
+  
+4 GESTIÓN DE ERRORES 
+ 
+Las peticiones realizadas a través de los servicios web devolverán una respuesta en la que 
+se indicará tanto el resultado global del envío, como el resultado específico de cada registro. 
+El resultado global del envío estará incluido en uno de los siguientes estados: 
+• Aceptación completa 
+• Aceptación parcial 
+• Rechazo completo 
+ 
+El resultado p arcial de cada registro incluido en la petición se encontrará en uno de los 
+siguientes estados: 
+• Aceptado 
+• Aceptado con errores 
+• Rechazado 
+ 
+4.1 Descripción de estados globales de una petición 
+ 
+Aceptación completa 
+Una presentación cuyo resultado sea la aceptación completa de  la misma, indicará que 
+todos los registros incluidos  en la misma han pasado tanto las validaciones sintácticas, 
+como las de negocio y que por tanto han sido registradas de manera satisfactoria por la 
+Agencia. 
+Rechazo completo 
+Una presentación con un rechazo completo de la misma puede deberse a dos casuísticas: 
+1. O bien la estructura definida en la presentación no es conforme al esquema definido (no 
+cumple las validaciones estructurales), o bien, existen errores sintácticos en la cabecera 
+y por ello toda la petición ha de ser rechazada. 
+La respuesta se devolverá un mensaje de tipo “SoapFault”, en el que se especifica el 
+error concreto. 
+2. Todos los registros incluidos  en la petición no cumplen las validaciones sintácticas o de 
+negocio (de la cabecera) asociadas y por tanto todas ellas han sido rechazadas. 
+ 
+Aceptación Parcial 
+Una presentación con Aceptación parcial, indic ará que no todos los registros incluidos en la 
+misma han sido aceptados correctamente y que por tanto los no aceptados no han pasado 
+algún tipo de validación de las establecidas. 
+ 
+Solo en el caso de la remisión voluntaria, será necesario el envío de una nueva presentación 
+de los registros erróneos subsanando los errores. 
+Este tipo de respuesta se originará cuando existan en un mismo envío registros aceptado s 
+(o aceptados con errores) y rechazados. 
+ 
+En el caso de la remisión bajo requerimiento de la AEAT, no debe subsanar los errores 
+relacionados con las validaciones de negocio de los registros enviados, ya que estos 
+registros deben ser los que se han conservado en el sistema del obligado tributario en el 
+momento de su generación. 
+ 
+
+===== [PAGINA 21 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 21 
+  
+  
+ 
+4.2 Tipos de errores definidos. 
+ 
+• Errores “No admisibles” : son aquellos errores que en ningún caso podrán ser 
+admitidos por la AEAT en la presentación de registros. Se corresponden con los 
+errores provocados al no superar las validaciones sintácticas del envío y a errores de 
+negocio. Estos errores provocan el rechazo del registro de facturación.  
+ 
+• Errores “Admisibles”: son aquellos errores que no provocan el rechazo del registro. 
+Estos registros serán admitidos por la AEAT. 
+ 
+La respuesta dada para este tipo de errores será especificada como error, pero de 
+tipo admisible, para dejar constancia al presentador de que se ha producido un error, 
+pero no ha impedido su registro por la AEAT. 
+ 
+4.3 Tratamiento de los errores 
+ 
+4.3.1 Tratamiento de los errores en remisión voluntaria «VERI*FACTU» 
+ 
+Los registros de facturación con errores admisibles serán “aceptados” y registrados por los 
+sistemas de la AEAT, pero deberán ser subsanados para poder llevar a cabo el tratamiento 
+y validación de los mismos. 
+ 
+Los errores admisibles que se han detectado  en la versión actual , que deben ser 
+subsanados, son los siguientes:  
+ 
+- Los NIF informados en la agrupación Destinatario que sean correctos, pero no 
+figuren censados en la AEAT, indicando el tipo de identificación “07” (“No 
+censado”) en el campo “IDType” dentro del bloque “IDOtro”.  
+- Se ha informado una huella o hash del registro de facturación que no coincide 
+con el calculado por la AEAT. 
+- Si el campo ImporteTotal no cumple la validación especificada en cuanto a ajuste 
+de las cantidades (Ʃ (BaseImponibleOimporteNoSujeto + CuotaRepercutida + 
+CuotaRecargoEquivalencia) de todas las líneas de detalle de desglose dentro del 
+margen establecido.  
+- Si el campo Cu otaTotal no cumple la validación especificada en cuanto a ajuste 
+de las cantidades Ʃ (CuotaRepercutida + CuotaRecargoEquivalencia) de todas 
+las líneas de detalle de desglose dentro del margen establecido.  
+- Si el registro de facturación remitido se marca como “PrimerRegistro” a “S”  en el 
+bloque de “Encadenamiento” y ya existen registros de facturación para dicho SIF 
+y NIF obligado a emisión.  
+- Si no se informa “ClaveRegimen” cuando Impuesto sea igual a “IPSI” (02).  Se 
+excepciona este error de la necesidad de ser subsanado. 
+- Si se ha informado en el campo FechaHoraHusoGenRegistro una fecha y hora 
+mayor que la fecha del sistema de la AEAT, admitiéndose un margen de error. Se 
+excepciona este error de la necesidad de ser subsanado. 
+ 
+ 
+
+===== [PAGINA 22 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 22 
+  
+  
+Solo podrá llevarse a cabo una subsanación cuando no se trate de una causa que exija la 
+emisión de una factura rectificativa (u otro mecanismo contemplado en el Reglamento de 
+Facturación). 
+ 
+Este mecanismo se empleará para subsanar datos en cualquiera de los siguientes casos:  
+- Errores admisibles (registro de facturación aceptado –con errores admisibles– por 
+la AEAT ), salvo las excepciones previstas en el apartado que explica el 
+tratamiento de los errores admisibles. 
+- Errores no admisibles (registro de facturación rechazado por la AEAT). 
+- Dato incorrecto detectado posteriormente por el obligado a expedir factura 
+(registro de facturación remitido y aceptado sin errores por la AEAT).   
+Para llevar a cabo la subsanación, será necesaria la remisión de un nuevo registro de 
+facturación (con el mismo identificador de factura del registro de facturación que se quiere 
+subsanar) por cada uno de los registros con datos a subsanar, con la combinación de 
+valores de campos que proceda según el caso (ver en el anexo los cuadros de operativas de 
+alta y anulación admisibles). 
+ 
+ 
+ 
+4.3.2 Tratamiento de los errores en remisión bajo requerimiento de la AEAT «No 
+VERI*FACTU» 
+ 
+En el caso de la remisión bajo requerimiento de la AEAT, no debe subsanar los errores 
+relacionados con las validaciones de negocio de los registros enviados, ya que estos 
+registros deben ser los que se han conservado en el sistema del obligado tributario en el 
+momento de su generación. 
+ 
+Todos los errores provocados por validaciones de negocio se marcarán como errores 
+admisibles para no rechazar los registros de facturación conservados en el sistema del 
+obligado tributario, con la única excepción de las validaciones asociadas a la identificación 
+de <NIF> o <IdOtro>. 
+ 
+ 
+4.4 Listados de códigos de error 
+ 
+Los listados de códigos de error se pueden consultar a través del siguiente recurso estático 
+publicado en el Portal de Desarrolladores.  
+ 
+https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/
+ws/errores.properties 
+ 
+Se detallan el listado completo de errores de validación que se pueden produc ir, con su 
+código y descripción, y organizados en tres categorías:  
+• Errores que provocan el rechazo del envío completo 
+• Errores que provocan el rechazo de la factura (o de la petición completa si el error se 
+produce en la cabecera) 
+
+===== [PAGINA 23 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 23 
+  
+  
+• Errores que producen la aceptación del registro de facturación en el sistema 
+(posteriormente deben ser subsanados) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== [PAGINA 24 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 24 
+  
+  
+ 
+5 ACLARACIONES  
+ 
+Se añade un glosario aclaratorio para especificar a qué normativa hace referencia a los 
+distintos conceptos, según el tipo de impuesto.  
+ 
+ 
+ 
+5.1 Calificación de operación N1 / N2 
+ 
+ 
+5.1.1 IVA (Ley 37/1992) 
+ 
+• N1 – Operación no sujeta según los artículos 7, 14 y otros supuestos de no sujeción 
+de la Ley 37/1992, de 28 de diciembre, del IVA. 
+• N2 – Operación no sujeta por reglas de localización conforme a la Ley 37/1992, de 
+28 de diciembre, del IVA. 
+ 
+5.1.2 IGIC (Ley 20/1991) 
+ 
+• N1 – Operación no sujeta según el artículo 9 y otros supuestos de no sujeción de la 
+Ley 20/1991, de 7 de junio, del IGIC. 
+• N2 – Operación no sujeta por reglas de localización conforme a la Ley 20/1991, de 7 
+de junio, del IGIC. 
+ 
+5.1.3 IPSI (Ley 8/1991) 
+ 
+• N1 – Operación no sujeta según el artículo 6 y otros supuestos de no sujeción de la 
+Ley 8/1991, de 25 de marzo, del IPSI. 
+• N2 – Operación no sujeta por reglas de localización conforme a la Ley 8/1991, de 25 
+de marzo, del IPSI.  
+ 
+ 
+5.2 Operación Exenta 
+ 
+ 
+5.2.1 IVA (Ley 37/1992) 
+ 
+• E1 – Operación exenta según el artículo 20 de la Ley 37/1992, de 28 de diciembre, 
+del IVA. 
+• E2 – Operación exenta según el artículo 21 de la Ley 37/1992, de 28 de diciembre, 
+del IVA. 
+• E3 – Operación exenta según el artículo 22 de la Ley 37/1992, de 28 de diciembre, 
+del IVA. 
+• E4 – Operación exenta según los artículos 23 y 24 de la Ley 37/1992, de 28 de 
+diciembre, del IVA. 
+
+===== [PAGINA 25 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 25 
+  
+  
+• E5 – Operación exenta según el artículo 25 de la Ley 37/1992, de 28 de diciembre, 
+del IVA. 
+• E6 – Operación exenta según la Ley 37/1992, de 28 de diciembre, del IVA. 
+ 
+5.2.2 IGIC 
+ 
+• E1 – Operación exenta según el capítulo I del Decreto Legislativo 1/2025, de 13 de 
+octubre, por el que se aprueba el texto refundido de las normas legales aprobadas 
+por la Comunidad Autónoma de Canarias en relación con el Impuesto General 
+Indirecto Canario y el Arbitrio sobre Importaciones y Entregas de Mercancías en las 
+Islas Canarias 
+• E2 – Operación exenta según el artículo 11 de la Ley 20/1991, de 7 de junio, del 
+IGIC. 
+• E3 – Operación exenta según el artículo 12 de la Ley 20/1991, de 7 de junio, del 
+IGIC. 
+• E4 – Operación exenta según el artículo 13 de la Ley 20/1991, de 7 de junio, del 
+IGIC. 
+• E5 – Operación exenta según el artículo 25 de la Ley 19/1994, de 6 de julio, del IGIC. 
+• E6 – Operación exenta según el artículo 47 de la Ley 19/1994, de 6 de julio, del IGIC. 
+• E7 – Operación exenta según el artículo 90 del Decreto Legislativo 1/2025, de 13 de 
+octubre, por el que se aprueba el texto refundido de las normas legales aprobadas 
+por la Comunidad Autónoma de Canarias en relación con el Impuesto General 
+Indirecto Canario y el Arbitrio sobre Importaciones y Entregas de Mercancías en las 
+Islas Canarias 
+• E8 – Operación exenta según la Ley 20/1991, de 7 de junio, del IGIC. 
+ 
+ 
+5.2.3 IPSI (Ley 8/1991) 
+ 
+• E1 – Operación exenta según el artículo 7 de la Ley 8/1991, de 25 de marzo, del 
+IPSI.  
+• E2 – Operación exenta según el artículo 8 de la Ley 8/1991, de 25 de marzo, del 
+IPSI.  
+• E3 – Operación exenta según el artículo 8 de la Ley 8/1991, de 25 de marzo, del 
+IPSI.  
+• E4 – Operación exenta según los artículos 9 y 10 de la ley 8/1991, de 25 de marzo, 
+del IPSI.  
+• E5 – Operación exenta según el artículo 8 de la Ley 8/1991, de 25 de marzo, del 
+IPSI.  
+• E6 – Operación exenta según la Ley 8/1991, de 25 de marzo, del IPSI.  
+
+===== [PAGINA 26 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 26 
+   
+ 
+6 ANEXO: OPERATIVAS DE ALTA Y ANULACIÓN ADMISIBLES 
+ 
+6.1 Operativas de alta admisibles  
+ 
+
+===== [PAGINA 27 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 27 
+  
+  
+No existe registro de 
+facturación Existe registro de alta Existe registro de anulación 
+ALTA · Alta inicial ("normal") del regis tro de facturación.
+· Es  el alta habitual de un regis tro de facturación.
+· No informar <Subs anacion> o  
+informarlo con valor N
+· No  informar <RechazoPrevio> o  
+informarlo con valor N
+· VERI*FACTU
+· NO VERI*FACTU
+El regis tro de facturación no debe exis tir 
+previamente en SIF del obligado / AEAT.
+Alta del regis tro de facturación con los  
+nuevos  datos .
+ALTA POR RECHAZO
+· Alta por rechazo del regis tro de facturación de alta 
+inicial (y que, por tanto, no exis te aún en la AEAT).
+· Es  la s ubs anación de datos  de un regis tro de 
+facturación de alta inicial, cuando no s e exige la 
+emis ión de una factura rectificativa (u otro 
+mecanis mo contemplado en el Reglamento de 
+Facturación).
+· <Subs anacion>=S
+· <RechazoPrevio>=X · VERI*FACTU
+· La clave única del regis tro de facturación no 
+debe exis tir previamente en la AEAT.
+· El alta previa del regis tro de facturación fue 
+rechazada.
+Alta del regis tro de facturación con los  
+nuevos  datos .
+ALTA DE SUBSANACIÓN
+· Alta para la s ubs anación de un regis tro de 
+facturación ya generado/remitido anteriormente.
+· Es  la s ubs anación habitual de un regis tro de 
+facturación cuando no s e exige la emis ión de una 
+factura rectificativa (u otro mecanis mo contemplado 
+en el Reglamento de Facturación).
+· <Subs anacion>=S
+· No informar <RechazoPrevio> o 
+informarlo con valor N
+· VERI*FACTU
+· NO VERI*FACTU
+El regis tro de facturación debe exis tir 
+previamente en SIF del obligado / AEAT.
+Con él s e deja cons tancia de los  
+nuevos  datos  que deben s er tenidos  
+en cuenta.
+ALTA POR RECHAZO DE 
+SUBSANACIÓN
+· Alta para la s ubs anación de un regis tro de 
+facturación que ya es tá regis trado en la AEAT y cuya 
+s ubs anación pos terior fue rechazada.
+· Es  la s ubs anación de datos  cuando no s e exige la 
+emis ión de una factura rectificativa (u otro 
+mecanis mo contemplado en el Reglamento de 
+Facturación).
+· <Subs anacion>=S
+· <RechazoPrevio>=S · VERI*FACTU
+· La clave única del regis tro de facturación 
+debe exis tir previamente en la AEAT.
+· El alta con s ubs anación del regis tro de 
+facturación fue rechazada.
+Con él s e deja cons tancia de los  
+nuevos  datos  que deben s er tenidos  
+en cuenta.
+ALTA DE SUBSANACIÓN 
+SIN REGISTRO PREVIO
+· Alta para la s ubs anación de un regis tro de 
+facturación exis tente en SIF del obligado (a expedir 
+factura) pero que NO exis te en la AEAT porque no s e 
+remitió en s u momento, por ejemplo, porque 
+funcionaba como NO VERI*FACTU y cambió a 
+VERI*FACTU, que es  como funciona ahora; o bien, 
+dependiendo de la implementación del SIF y s i as í lo 
+neces ita, cuando no cons ta el regis tro anterior a 
+s ubs anar en el SIF donde s e da de alta la 
+s ubs anación.
+· Es  la s ubs anación es pecial de un regis tro de 
+facturación cuando no s e exige la emis ión de una 
+factura rectificativa (u otro mecanis mo contemplado 
+en el Reglamento de Facturación). 
+· <Subs anacion>=S
+· <RechazoPrevio>=X
+· VERI*FACTU
+· NO VERI*FACTU (opcional)
+El regis tro de facturación no debe exis tir 
+previamente en la AEAT (o bien, en s u cas o, 
+en SIF del obligado).
+Alta del regis tro de facturación con los  
+nuevos  datos  
+ALTA POR RECHAZO DE 
+SUBSANACIÓN SIN 
+REGISTRO PREVIO 
+· Alta para la s ubs anación de un regis tro de 
+facturación que exis te en SIF del obligado (a expedir 
+factura) pero que NO exis te en la AEAT porque no s e 
+remitió en s u momento, por ejemplo, porque el SIF 
+funcionaba como NO VERI*FACTU y cambió a 
+VERI*FACTU, que es  como funciona ahora, y cuya 
+s ubs anación s e rechazó en la AEAT.
+· Es  la s ubs anación es pecial de datos  cuando no s e 
+exige la emis ión de una factura rectificativa (u otro 
+mecanis mo contemplado en el Reglamento de 
+Facturación).
+· <Subs anacion>=S
+· <RechazoPrevio>=X · VERI*FACTU
+· La clave única del regis tro de facturación no 
+debe exis tir previamente en la AEAT. Alta del regis tro de facturación con los  
+nuevos  datos  
+LEYENDA
+OK (4) = El registro remitido sustituye completamente al registro de facturación con los nuevos datos recibidos 
+OK (5) = Reactiva (vuelve a dejar de alta y en vigor) el registro de facturación anulado existente, sustituyendo completamente el registro de facturación registrado con los nuevos datos recibidos 
+Situación en la AEAT (sólo aplica a sistemas VERI*FACTU)
+Operación Descripción Operativa Condiciones
+ERROR (3) = Debería existir ya un registro de facturación para esa factura. Si esta situación de error se produce debido a una secuencia de envío incorrecta, se deberá volver a remitir, sin más, una vez haya entrado -por la vía que sea- el registro de facturación. 
+ConsecuenciasTipo SIF al que aplica
+OPERATIVA HABITUAL (fondo blanco).
+OPERATIVA ESPECIAL (fondo gris).
+OK (1) = Se admite el registro de facturación de alta
+ERROR (2) = No puede recibirse un registro de facturación de alta de esas características existiendo ya algún registro de facturación de esa factura (bien sea de alta o de anulación).
+ERROR(3) OK(4)
+ALTA DE REGISTROS
+ALTA DE REGISTRO POR SUBSANACIÓN DE ERRORES
+ALTA DE REGISTRO POR SUBSANACIÓN CUANDO EL REGISTRO ORIGINAL NO EXISTE
+ALTA DE REGISTRO
+OK(1) ERROR (2) ERROR (2) 
+OK(1) ERROR (2) ERROR (2) 
+OK(5)
+ 
+
+===== [PAGINA 28 de 28] =====
+ 
+ 
+Departamento de Informática Tributaria       
+Subdirección General Aplicaciones 
+ 
+Sistemas Informáticos de Facturación y 
+Sistemas VERI*FACTU 
+  Versión: 1.2.2 
+ 
+Sistemas Informáticos de Facturación y Sistemas VERI*FACTU Página 28 
+  
+  
+6.2 Operativas de anulación admisibles  
+ 
+No existe registro 
+de facturación Existe registro de alta Existe registro de anulación 
+ANULACIÓN 
+· Anulación de regis tro de facturación ya 
+generado/remitido.
+· Es  la anulación habitual de un regis tro de facturación 
+cuando no s e exige la emis ión de una factura rectificativa 
+(u otro mecanis mo contemplado en el Reglamento de 
+Facturación).
+· No informar <SinRegistroPrevio> o informarlo con 
+valor N
+· No informar <RechazoPrevio> o informarlo con 
+valor N
+· VERI*FACTU
+· NO VERI*FACTU
+· El regis tro de facturación debe exis tir 
+previamente en SIF del obligado / AEAT.
+· El regis tro a anular puede s er de alta o de 
+anulación (en cuyo cas o, deja cons tancia de 
+los  nuevos  datos  a tener en cuenta). 
+Anula el regis tro de facturación 
+regis trado dejando los  nuevos  
+datos .
+ANULACIÓN  POR 
+RECHAZO
+· Anulación (tras  un rechazo previo) del regis tro de 
+facturación cuando el regis tro de facturación que s e 
+quiere anular es tá regis trado en la AEAT.
+· No informar <SinRegistroPrevio> o informarlo con 
+valor N
+· <RechazoPrevio>=S
+· VERI*FACTU
+· La clave única del regis tro de facturación 
+debe exis tir previamente en la AEAT.
+· La anulación previa del regis tro de 
+facturación fue rechazada.
+Anula el regis tro de facturación 
+regis trado dejando los  nuevos  
+datos .
+ANULACIÓN SIN 
+REGISTRO PREVIO
+·Anulación del regis tro de facturación cuando el regis tro 
+de facturación que s e quiere anular exis te en SIF del 
+obligado (a expedir factura) pero NO exis te en la AEAT 
+porque no s e remitió en s u momento, por ejemplo, 
+porque funcionaba como NO VERI*FACTU y cambió a 
+VERI*FACTU, que es  como funciona ahora; o bien, 
+dependiendo de la implementación del SIF y s i as í lo 
+neces ita, cuando no cons ta el regis tro anterior a anular 
+en el SIF donde s e da de alta la anulación.
+· <SinRegistroPrevio>=S
+· No informar  <RechazoPrevio> o informarlo con 
+valor N
+· VERI*FACTU
+· NO VERI*FACTU (opcional)
+·El regis tro de facturación no debe exis tir 
+previamente en la AEAT (o bien, en s u cas o, en 
+SIF del obligado).
+Supone la creación de un 
+regis tro de facturación de 
+anulación con los  nuevos  
+datos .
+ANULACIÓN POR 
+RECHAZO SIN 
+REGISTRO PREVIO 
+· Anulación (tras  un rechazo previo) del regis tro de 
+facturación cuando el regis tro de facturación que s e 
+quiere anular exis te en SIF del obligado (a expedir 
+factura) pero NO exis te en la AEAT porque no s e remitió 
+en s u momento, por ejemplo, porque funcionaba como 
+NO VERI*FACTU y cambió a VERI*FACTU, que es  como 
+funciona ahora.
+· <SinRegistroPrevio>=S
+· <RechazoPrevio>=S · VERI*FACTU
+. La clave única del regis tro de facturación no 
+debe exis tir previamente en la AEAT.
+· El intento de anulación anterior del regis tro 
+de facturación fue rechazado.
+Supone la creación de un 
+regis tro de facturación de 
+anulación con los  nuevos  
+datos .
+LEYENDA
+ERROR (10) = En una "ANULACIÓN SIN REGISTRO PREVIO" NO puede haber en la AEAT ningún registro de facturación de esa factura ya remitido (bien sea de alta o de anulación).
+OK(9) ERROR(10) ERROR(10)
+OPERATIVA HABITUAL (fondo blanco).
+OPERATIVA ESPECIAL (fondo gris).
+OK (7) = El registro remitido anula el registro de facturación de alta registrado dejando los nuevos datos recibidos.
+OK (8) = El registro remitido anula el registro de facturación de anulación registrado dejando los nuevos datos recibidos.
+OK (9) = Creación del registro de facturación de anulación con los datos recibidos.
+ANULACIÓN DE REGISTROS
+ERROR (6) = Debería existir en la AEAT un registro de facturación previo correspondiente a esa factura.
+ANULACIÓN DE REGISTRO QUE NO EXISTE PREVIAMENTE
+ANULACIÓN DE REGISTRO
+ERROR (6) OK(7) OK(8)
+Situación en la AEAT (sólo aplica a sistemas VERI*FACTU)
+Operación Descripción Operativa Tipo SIF al que aplica Condiciones Consecuencias
+ 
