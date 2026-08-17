@@ -84,6 +84,12 @@ jobs:
       - name: Reference documents unaltered
         run: pnpm check:manifest
 
+      # Sibling packages are linked from this repository only while the local version satisfies
+      # the declared range. When it stops doing so, pnpm quietly installs the published copy and
+      # the suite starts testing against npm instead of against this code.
+      - name: Workspace dependencies
+        run: pnpm check:workspace
+
       - name: Lint (Biome)
         run: pnpm lint
 
