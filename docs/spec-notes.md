@@ -1040,6 +1040,15 @@ dependencias, (e) `verifyChain`. La tesis del brief se sostiene. Lo que cambia e
 | **D-6** | El texto consolidado de **F9** en BOE trae los anexos con los diseños de registro **como imágenes**, no como texto (páginas 18, 19, 21, 23-27 salen vacías al extraer). | El diccionario de datos operativo es **F5 (XLSX v1.0)**, no el PDF del BOE. |
 | **D-7** | El PDF del QR (**F2 v0.5.0**) arrastra la cabecera «Versión: 0.4.2» en su última página (35/35). | Errata editorial de la AEAT. La versión del documento es 0.5.0 (portada e histórico). Sin impacto técnico. |
 | **D-8** | Tanto **F1** como **F2** se refieren a la Orden como «la Orden XXXXXXX» / «orden XXXXXXXXXXX» (placeholder sin rellenar tras la publicación). | Se trata de la Orden HAC/1177/2024. Sin impacto técnico, pero indica que la AEAT no ha revisado esos documentos desde antes de la publicación en BOE. |
+| **D-9** | **F4** documenta `CodigoErrorRegistro` como «alfanumérico(5)» con lista L20; **F8** (`RespuestaSuministro.xsd`) lo declara `ErrorDetalleType` = `<restriction base="integer"/>`, **sin facetas**: ni longitud, ni mínimo, ni máximo. | Gana el XSD para el parseo: leerlo como entero y **no** asumir 5 posiciones ni ceros a la izquierda. Conservar además el literal recibido. Auditado el 16/08/2026 (I-16). |
+| **D-10** | `DescripcionErrorRegistro` es `TextMax1500Type` en `RespuestaLinea` pero `TextMax500Type` dentro de `RegistroDuplicado` — **mismo nombre de elemento, dos longitudes máximas** según dónde aparezca. F4 documenta 500 para ambos. | No compartir un solo tipo entre los dos contextos. Auditado el 16/08/2026 (I-16). |
+| **D-11** | `TiempoEsperaEnvio` se documenta como «Numérico» en F4; el XSD lo declara `Tipo6Type`, que es **`string`** con `pattern="\d{0,4}"`. Admite la cadena vacía y topa en 9999 s. | Parsear defensivamente: cadena vacía ⇒ sin dato, no `0`. Auditado el 16/08/2026 (I-16). |
+| **D-12** | `EstadoRegistro` usa masculinos (`Correcto`, `AceptadoConErrores`, `Incorrecto`); `EstadoRegistroDuplicado` usa **femeninos y un conjunto distinto** (`Correcta`, `AceptadaConErrores`, **`Anulada`**). | Son dos enumeraciones distintas, no una compartida con otro género. `Anulada` no existe en la primera ni `Incorrecto` en la segunda. Auditado el 16/08/2026 (I-16). |
+| **D-13** | El elemento `RechazoPrevio` es `RechazoPrevioType` (**S/N/X**) dentro de `RegistroAlta` y `RechazoPrevioAnulacionType` (**S/N**) dentro de `RegistroAnulacion`. Mismo nombre, dominio distinto según el contexto. | Tipar por contexto. Un `X` en una anulación no valida contra el XSD. Auditado el 16/08/2026 (I-16). |
+| **D-14** | **F2 (QR)** §6 admite para `numserie` «ASCII 32-126» **sin** excluir los cinco caracteres que **F3** §3.1.3.1 sí prohíbe en `NumSerieFactura`. Un `=` sería aceptable para el servicio de cotejo e inaceptable para el registro. | Gana F3, que es la que rige el registro: `core` rechaza los cinco. Consecuencia práctica: la sonda del QR **no** puede cerrar I-28, porque mide otro servicio con otras reglas. Ver §18.4. |
+| **D-15** | El histórico de revisiones de **F3** sitúa la restricción de caracteres en «sección 3.1. **Validaciones sintácticas**» (rev. 1.1.3 y 1.1.4); el título real de §3.1 en ese mismo documento es «Validaciones de **negocio**». | Sin impacto en la consecuencia: F3 §3 (p. 6) establece que **ambas** categorías, a nivel de registro, «provocarán el rechazo del registro, pero se seguirán procesando el resto». Ver §18.4. |
+| **D-16** | **F3** §3.1.1 hace `RemisionVoluntaria` exclusiva de los sistemas verificables y `RemisionRequerimiento` exclusiva —y obligatoria— de los no verificables; el **XSD** declara ambos bloques como `minOccurs="0"` independientes, así que admite los dos a la vez y ninguno de los dos. | Gana F3. `@verifactu-js/xml` rechaza la combinación con `CABECERA_INCOHERENTE`. Ver §19.3. |
+| **D-17** | El XSD admite `<RemisionVoluntaria/>` vacío: sus dos hijos son opcionales. Sintácticamente válido, semánticamente nada. | Se omite el bloque entero en lugar de emitirlo vacío, igual que con las listas vacías. Ver §19.3. |
 
 ---
 
@@ -1146,8 +1155,11 @@ antes de declarar `0.1.0` estable.
   **Actualización (16/08/2026):** deja de ser un bloqueo estructural. El fichero está en
   `prewww2.aeat.es`, y ese host admite cualquier certificado electrónico cualificado (ver I-27),
   luego es descargable con el mismo certificado que se use para los tests de integración.
-- **I-16 — Estructura completa de `Cabecera` y `RespuestaSuministro`.** Extraída del XSD pero no
-  auditada campo a campo en este documento. Pendiente para la fase 2/3.
+- **I-16 — Estructura completa de `Cabecera` y `RespuestaSuministro`.**
+  **Auditada campo a campo el 16/08/2026** contra `RespuestaSuministro.xsd` y
+  `SuministroInformacion.xsd`. Resultado: cinco divergencias entre lo que documenta F4 y lo que
+  declara el XSD, todas anotadas como **D-9 … D-13** en §10. Ninguna afecta a la huella; todas
+  afectan al parseo de la respuesta (fase 2). **Cerrada.**
 - **I-17 — `IdPeticion` / correlación de envíos.** Aparece `IdPeticionRegistroDuplicado` en la
   respuesta, luego existe un `IdPeticion`. No he documentado cómo se genera ni si lo asigna la AEAT.
   **Sin confirmar.**
@@ -1574,15 +1586,31 @@ huella.
 > - `>`   (ASCII 62)
 > - `=`   (ASCII 61)»
 
-Esta restricción tiene historia propia en el documento, que confirma que es deliberada:
+### 18.2.1 Por qué esto no es una casualidad
 
-| Rev. | Fecha | Descripción (cita del histórico de F3) |
+La regla, leída sola, parece una validación de saneamiento cualquiera —de hecho cuatro de los
+cinco caracteres (`"` `'` `<` `>`) son los sospechosos habituales de inyección en XML y HTML, y
+`=` parecería estar ahí de acompañante. El histórico de revisiones de F3 demuestra que no lo es:
+
+| Rev. | Fecha | Descripción (cita literal del histórico de F3, pp. 2-3) |
 |---|---|---|
-| 1.1.3 | 09/09/2025 | «Caracteres no permitidos en campos alfanuméricos de texto libre en sección 3.1» |
-| 1.1.4 | 23/09/2025 | «Se eliminan las validaciones de caracteres no permitidos en campos alfanuméricos de texto libre […] pero **se mantienen exclusivamente a nivel de IDFactura (número serie/factura)**» |
+| 1.1.3 | 09/09/2025 | «Caracteres no permitidos en campos alfanuméricos de texto libre en sección 3.1. Validaciones sintácticas» |
+| 1.1.4 | 23/09/2025 | «Se eliminan las validaciones de caracteres no permitidos en campos alfanuméricos de texto libre en sección 3.1. Validaciones sintácticas, **pero se mantienen exclusivamente a nivel de IDFactura (número serie/factura)**, modificando la sección 3.1.3.1» |
 
-Es decir: la AEAT probó a restringir todos los campos de texto libre, lo revirtió, y **conservó
-la restricción justo en el único campo de texto libre que entra en la huella.**
+La secuencia es: la AEAT restringió **todos** los campos alfanuméricos de texto libre, dos semanas
+después lo revirtió por completo —presumiblemente porque rechazaba descripciones y nombres
+legítimos— y, al replegarse, **conservó la restricción exactamente en `IDFactura`**.
+
+`NumSerieFactura` es el único campo de texto libre que entra en la huella. De todo lo que la AEAT
+podría haber conservado, conservó justo eso.
+
+**Consecuencia para la valoración del riesgo:** que la cadena canónica no escape sus separadores
+**no es un agujero abierto**, es un problema *mitigado en el diseño del formato*, y la mitigación
+está en el sitio correcto —en la validación de entrada del único campo que podría explotarlo— en
+lugar de en un escapado que habría roto la compatibilidad de la huella con lo ya emitido. La
+librería no está tapando un descuido de la especificación: está **replicando una defensa que la
+especificación ya tiene**, y por eso `core` puede rechazar esos caracteres sin miedo a rechazar
+facturas que la AEAT aceptaría.
 
 ### 18.3 Conclusión: `=` prohibido resuelve el problema; `&` es inocuo
 
@@ -1608,10 +1636,23 @@ Contra eso juega un argumento fuerte: una anulación anula una factura cuyo `Num
 pasó (o pasará) por la validación del alta, así que una serie con `=` no debería poder existir.
 Pero eso es razonamiento, no cita.
 
+**Severidad: resuelta (rechazo del registro).** F3 no lo dice en §3.1.3.1, pero no hace falta:
+§3 (p. 6) fija la consecuencia por *categoría* de validación, y las dos candidatas coinciden.
+
+> «2. Validaciones sintácticas […] Cuando estos errores se hayan producido a nivel de registro (agrupaciones RegistroAlta o RegistroAnulacion dentro del bloque RegistroFactura), provocarán el **rechazo del registro**, pero se seguirán procesando el resto de registros incluidos en el mensaje de remisión.
+>
+> 3. Validaciones de negocio […] Estos errores provocarán el **rechazo del registro**, pero se seguirán procesando el resto de registros en el mensaje de remisión.»
+
+Hay una ambigüedad sobre a cuál de las dos categorías pertenece la regla (**D-15**: el histórico
+dice «sintácticas», el título de la sección dice «de negocio»), pero **da igual**: por cualquiera
+de los dos caminos el registro se rechaza y el resto de la remisión sigue procesándose.
+
+Esto separa I-28 de las demás incógnitas de la huella: una serie con `=` **no** produce un
+«Aceptado con errores» silencioso, produce un rechazo visible. Rechazarla en `core` adelanta un
+error que la AEAT iba a dar de todas formas.
+
 También sin confirmar:
 
-- Si el incumplimiento **rechaza** el registro o solo lo marca como «Aceptado con errores».
-  §3.1.3 está bajo «Validaciones de negocio», y F3 no lo especifica para esta regla.
 - **Discrepancia D-14:** el documento del QR (F2 §6) admite para `numserie` «ASCII 32-126» **sin**
   la lista de cinco caracteres prohibidos. Un `=` sería válido en el QR e inválido en el registro.
 
@@ -1636,6 +1677,220 @@ Requiere medir contra preproducción con certificado, así que **pertenece a la 
 sonda del QR (que mide otro servicio: ver D-14). Casos a enviar:
 
 1. Alta con `&` en `NumSerieFactura` → ¿`Correcto` o `AceptadoConErrores`? Confirmaría que la
-   huella con `&` sin escapar coincide con la que recalcula la AEAT.
-2. Alta con `=` en `NumSerieFactura` → ¿rechazo o aviso? Determina la severidad.
-3. Anulación con `=` en `NumSerieFacturaAnulada` → cierra el hueco de §18.4.
+   huella con `&` sin escapar coincide con la que recalcula la AEAT. **Es el caso importante**:
+   si saliera `AceptadoConErrores`, la AEAT estaría escapando o normalizando algo que nosotros no.
+2. Alta con `=` en `NumSerieFactura` → se espera `Incorrecto` (§18.4). Sirve de control: confirma
+   que el envío de prueba llega y que la regla está realmente implementada, no solo documentada.
+3. Anulación con `=` en `NumSerieFacturaAnulada` → cierra el único hueco que queda de §18.4.
+
+---
+
+## 19. `Cabecera` y el lote: auditoría campo a campo
+
+> Auditado el **17/08/2026** contra `SuministroInformacion.xsd` (`CabeceraType`),
+> `SuministroLR.xsd` (raíz), F3 v1.2.2 §3.1.1-§3.1.4 y F5 (diseño de registro).
+
+### 19.1 Estructura real
+
+`RegFactuSistemaFacturacion` (raíz, `SuministroLR.xsd`) es **exactamente**:
+
+```
+Cabecera            (sf:CabeceraType)          1
+RegistroFactura     (sfLR:RegistroFacturaType) 1..1000
+```
+
+y `RegistroFacturaType` es un `choice` de un `sf:RegistroAlta` **o** un `sf:RegistroAnulacion`.
+No hay nada más en la raíz.
+
+`CabeceraType` es:
+
+| Elemento | Tipo | Ocurrencias |
+|---|---|---|
+| `ObligadoEmision` | `PersonaFisicaJuridicaESType` (`NombreRazon` + `NIF`) | 1 |
+| `Representante` | `PersonaFisicaJuridicaESType` | 0..1 |
+| `RemisionVoluntaria` | `{ FechaFinVeriFactu?, Incidencia? }` | 0..1 |
+| `RemisionRequerimiento` | `{ RefRequerimiento, FinRequerimiento? }` | 0..1 |
+
+**Trampa de namespace, la segunda de este proyecto (ver §8.3).** El elemento `Cabecera` está
+**declarado en `SuministroLR.xsd`**, así que con `elementFormDefault="qualified"` toma el
+namespace *de ese* esquema: se escribe **`sfLR:Cabecera`**. Pero su **tipo** es
+`sf:CabeceraType`, declarado en `SuministroInformacion.xsd`, y de ahí sacan el namespace sus
+hijos: `sf:ObligadoEmision`, `sf:Representante`, `sf:RemisionVoluntaria`,
+`sf:RemisionRequerimiento`.
+
+> Un mismo bloque, con el **nombre en un namespace y el contenido en otro**.
+
+Escribir `sf:Cabecera` produce este error, que no menciona el namespace por ninguna parte:
+
+```
+Element '{…/SuministroInformacion.xsd}Cabecera': This element is not expected.
+Expected is ( {…/SuministroLR.xsd}Cabecera ).
+```
+
+Y como el mismo `CabeceraType` se devuelve en la respuesta —declarado allí dentro de
+`RespuestaSuministro.xsd`— **el mismo bloque viaja como `sfR:Cabecera` de vuelta**. Tres prefijos
+distintos para el mismo tipo según dónde aparezca. Hay test.
+
+`ObligadoEmision` y `Representante` usan `PersonaFisicaJuridicaESType`, que **solo admite `NIF`**:
+a diferencia de `Tercero`, `Destinatarios` o `SistemaInformatico`, aquí no existe la alternativa
+`IDOtro`. El obligado y su representante son necesariamente españoles.
+
+### 19.2 Dos campos que no existen
+
+**No hay `IDVersion` en `Cabecera`.** Ni en la raíz. `IDVersion` es el primer elemento de
+`RegistroAlta` y de `RegistroAnulacion`, uno por registro. Un lote de 1000 registros lleva 1000
+`IDVersion` y ninguno en la cabecera.
+
+**No existe `TipoComunicacion` en VERI\*FACTU.** Búsqueda sobre los 8 XSD, el WSDL y los seis
+documentos extraídos: **cero coincidencias**. Es un elemento del **SII** (`CabeceraSii/TipoComunicacion`,
+valores `A0` alta / `A1` modificación), y quien venga de integrar el SII lo buscará por costumbre.
+El concepto equivalente en VERI\*FACTU **no está en la cabecera sino en cada registro**:
+`Subsanacion` (`S`/`N`) y `RechazoPrevio` (`S`/`N`/`X`), que distinguen un envío nuevo de la
+corrección de uno anterior registro a registro, no remisión a remisión.
+
+### 19.3 Validaciones de negocio de la cabecera (F3 §3.1.1)
+
+Citas literales:
+
+> «El NIF del obligado a expedir (emitir) facturas asociado a la remisión debe estar identificado en la AEAT.»
+> «El NIF del representante/asesor […] debe estar identificado en la AEAT.»
+> «FechaFinVeriFactu — Sólo se permite contenido en sistemas que emite facturas verificables. A partir del 1 de enero de 2027, el campo FechaFinVeriFactu debe tener el formato 31-12-20XX. El año de la fecha deberá ser igual al año de la fecha del sistema de la AEAT, o al año anterior […]»
+> «Incidencia — Sólo se permite contenido en sistemas que emite facturas verificables.»
+> «RefRequerimiento — Sólo se permite contenido en sistemas que emiten facturas no verificables. Obligatorio en sistemas que emiten facturas no verificables. La referencia del requerimiento deberá existir en la AEAT.»
+
+**Discrepancia D-16.** De esas reglas se sigue que `RemisionVoluntaria` y `RemisionRequerimiento`
+son **mutuamente excluyentes** —la primera solo para sistemas verificables, la segunda solo para
+no verificables— pero el XSD declara las dos como `minOccurs="0"` independientes: admite ambas a
+la vez, y admite ninguna. Gana F3: la librería rechaza la combinación.
+
+**D-17.** El XSD admite `<RemisionVoluntaria/>` vacío, porque sus dos hijos son opcionales. Es
+sintácticamente válido y semánticamente nada. La librería omite el bloque en lugar de emitirlo
+vacío, igual que hace con las listas vacías.
+
+`FinRequerimiento` «solo puede cumplimentarse si el campo RefRequerimiento viene informado»
+(F5): aquí el esquema **sí** lo garantiza, porque `FinRequerimiento` vive dentro de
+`RemisionRequerimiento` y `RefRequerimiento` es obligatorio ahí. No hace falta comprobación extra.
+
+### 19.4 Lo que ata el lote a la cabecera
+
+Dos citas, una por tipo de registro:
+
+> **F3 §3.1.3.1** (alta): «El NIF del campo IDEmisorFactura debe ser el mismo que el del campo NIF de la agrupación ObligadoEmision del bloque Cabecera.»
+>
+> **F3 §3.1.4.1** (anulación): «El NIF del campo IDEmisorFacturaAnulada debe ser el mismo que el del campo NIF de la agrupación ObligadoEmision del bloque Cabecera.»
+
+Esto **resuelve la pregunta del NIF en el lote**. §4.3 dice que el NIF puede cambiar entre
+eslabones de una cadena, y `verifyChain` no debe asumirlo constante. Las dos cosas conviven así:
+
+> Una **cadena** puede cambiar de NIF a lo largo del tiempo. Un **lote** no: todos sus registros
+> han de llevar el NIF que declara su cabecera. Una cadena que cambia de NIF se parte en dos
+> lotes justo en ese punto.
+
+No es una inferencia nuestra, es la regla de la AEAT, y es comprobable localmente.
+
+### 19.5 Mezcla de altas y anulaciones (F3 §3.1.2)
+
+> «Dentro de cada una de las posibles repeticiones u "ocurrencias" de RegistroFactura (de 1 a 1000) se pueden incluir registros de facturación de alta (agrupación RegistroAlta) y de anulación (agrupación RegistroAnulacion) en un mismo mensaje remitido, pero siempre que vayan en distintas ocurrencias de RegistroFactura (no pueden ir ambas agrupaciones a la vez dentro de la misma ocurrencia).»
+
+Mezclar está **explícitamente permitido**. Lo que no se puede es meter las dos agrupaciones en la
+misma ocurrencia, y eso ya lo impide el `choice` del XSD.
+
+### 19.6 Contigüidad: por qué se comprueba aquí y no en fase 3
+
+Un lote es un **segmento de cadena**, no un conjunto. La huella de cada registro se calculó sobre
+la huella del anterior, así que el orden del lote no es una preferencia de presentación: es la
+única forma en que la AEAT puede recalcular la cadena.
+
+Lo que sí es comprobable dentro del lote, y por tanto se exige:
+
+1. Entre 1 y 1000 registros (`maxOccurs="1000"`, y una `sequence` no puede quedar vacía).
+2. El `Huella` hasheado de cada registro (salvo el primero del lote) es la `huella` del registro
+   inmediatamente anterior **del lote**.
+3. Su `registroAnterior` identifica a ese mismo registro: emisor, serie y fecha de expedición.
+4. `PrimerRegistro` solo puede aparecer **en la posición 0**. En medio significaría que la cadena
+   se reinicia dentro del lote.
+5. Todos los `IDEmisorFactura`/`IDEmisorFacturaAnulada` coinciden con `ObligadoEmision/NIF`
+   (§19.4).
+
+Lo que **no** es comprobable: si el primer registro del lote enlaza correctamente con el último
+del lote anterior. Ese registro no está en el mensaje. Es responsabilidad de quien mantiene la
+cadena, y `verifyChain` de `core` es la herramienta para ello.
+
+El coste de no comprobarlo se paga tarde: si un registro intermedio se rechaza, la AEAT ve un
+hueco en la cadena y los posteriores quedan colgando de una huella que, para ella, no existe.
+Detectarlo antes de enviar es aritmética local; detectarlo después es reconstruir una cadena
+contra un estado remoto que ya no coincide.
+
+---
+
+## 20. Dónde viven las validaciones de negocio (F3 §3.1)
+
+> Decidido el **17/08/2026**, antes de escribir la primera.
+
+### 20.1 La decisión
+
+**Paquete propio: `@verifactu-js/validation`**, que depende de `core`. Ni dentro de `core` ni
+dentro de `xml`.
+
+```
+core  ──►  validation  ──►  xml
+  │            │             │
+  └────────────┴─────────────┴──►  client   (fase 3)
+```
+
+### 20.2 Por qué no dentro de `core`
+
+`core` conoce **ocho campos** del alta y cinco de la anulación: los que entran en la huella. Las
+validaciones de F3 §3.1.3 hablan de `Desglose`, `Destinatarios`, `TipoRectificativa`,
+`ClaveRegimen`, `Macrodato`… campos que `core` no modela y que no debería empezar a modelar. Para
+alojarlas habría que meter el registro completo en el paquete cuya promesa es «la huella y la
+cadena, cero dependencias, superficie mínima».
+
+### 20.3 Por qué no dentro de `xml`
+
+Porque quien instala solo `core` —la mayoría, porque la huella es la parte que nadie quiere
+implementar a mano— se quedaría sin ellas, y no tiene por qué cargar con un serializador y un
+parser para poder comprobar si su factura rectificativa lleva `TipoRectificativa`.
+
+Y al revés: hay un caso legítimo de serializar sin validar, el de reenviar un registro archivado
+tal y como se emitió. Acoplar las dos cosas obliga a una de ellas siempre.
+
+### 20.4 Qué se lleva `validation` además de las reglas
+
+**El modelo de datos del registro completo** (`DatosAlta`, `DetalleDesglose`,
+`SistemaInformatico`, `PersonaFisicaJuridica`, `IDOtro`…), que hoy vive en `xml`. Las reglas de
+§3.1.3 *son* la semántica de ese modelo: qué combinaciones de esos campos son legales. Tipo y
+regla van juntos.
+
+`xml` los importa con `import type`, que se borra al compilar: depender de `validation` no le
+añade un solo byte al bundle mientras no ejecute una validación.
+
+> **Restricción de calendario:** mover esos tipos es gratis **hoy**, porque `xml` es
+> `private: true` y no hay nada publicado que dependa de ellos. Deja de serlo en cuanto `xml`
+> salga a npm. El movimiento va antes de quitarle el `private`.
+
+### 20.5 Qué NO hace `xml` con ellas
+
+**No valida automáticamente al serializar.** Las reglas de negocio cambian con cada revisión de
+F3 —§18.2.1 es un ejemplo de una que se puso, se quitó y se dejó a medias—, mientras que la
+serialización es estructural y estable. Una regla que se dispare de más bloquearía una factura
+que la AEAT habría aceptado, y ese es el mismo error que rechazar un CIF por una regla no
+publicada (§15).
+
+El punto natural para validar es **antes de enviar**, en `client` (fase 3), donde el coste de un
+rechazo es visible y la decisión de enviar de todas formas es del usuario.
+
+### 20.6 Lo que `xml` sí comprueba, y por qué eso no contradice lo anterior
+
+`xml` comprueba **lo que el XSD no puede expresar y afecta a la huella o a la cadena**:
+
+| Comprobación | Por qué no es una validación de negocio |
+|---|---|
+| `Encadenamiento` coherente con la `Huella` hasheada | Es una contradicción interna del documento, no una regla de la AEAT |
+| Lote contiguo y ordenado (§19.6) | Aritmética local sobre las huellas del propio lote |
+| `IDEmisorFactura` = `ObligadoEmision/NIF` (§19.4) | Regla citada, comprobable sin contexto, y su incumplimiento parte el lote |
+| Cardinalidades 1..12 / 1..1000 | Estructura del esquema, no negocio |
+| `RemisionVoluntaria` XOR `RemisionRequerimiento` (D-16) | El XSD lo admite y la AEAT no; sin esto el documento sale mal formado de fábrica |
+
+La línea es: **lo que hace que el documento se contradiga a sí mismo va en `xml`; lo que depende
+del criterio de la AEAT sobre el contenido de la factura va en `validation`.**
