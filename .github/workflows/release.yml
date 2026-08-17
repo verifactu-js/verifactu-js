@@ -51,15 +51,6 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
 
-      - run: pnpm install --frozen-lockfile
-
-      - name: Verify before publishing
-        run: |
-          pnpm lint
-          pnpm typecheck
-          pnpm test:coverage
-          pnpm build
-
       - name: Resolve package directory
         id: pkg
         run: |
@@ -70,6 +61,30 @@ jobs:
             name="${GITHUB_REF_NAME#@verifactu-js/}"
             echo "dir=packages/${name%@*}" >> "$GITHUB_OUTPUT"
           fi
+
+      # npm answers 404 both when the package does not exist and when the credentials are not
+      # authorised for that name, and the message distinguishes neither. This says which, and it
+      # runs first: there is no point linting, testing and building for four minutes to be turned
+      # away by the registry at the end.
+      #
+      # The first version of a new package cannot be published over OIDC at all — the trusted
+      # publisher is configured on the package's own settings page, which does not exist until the
+      # package does (npm/cli#8544, open since 2025-09-01). Needs no dependencies: plain `fetch`.
+      #
+      # Skipped on a dry run, which is exactly how you check the packaging of a package that is
+      # not on the registry yet.
+      - name: Publishable at all
+        if: '!inputs.dry_run'
+        run: node scripts/check-first-publish.mjs ${{ steps.pkg.outputs.dir }}
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Verify before publishing
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test:coverage
+          pnpm build
 
       - name: Publish (dry run)
         if: inputs.dry_run
