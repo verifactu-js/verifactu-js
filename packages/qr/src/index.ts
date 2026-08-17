@@ -235,7 +235,11 @@ export function validarParametrosQR(params: ParametrosQR): ProblemaQR[] {
         'No se ha remitido el parámetro: importe (El parámetro "importe" es el importe total de la factura)',
     });
   } else if (!RE_IMPORTE.test(importe)) {
-    const parteEntera = (importe.replace(/^[+-]/, '').split('.')[0] ?? '').length;
+    // Integer digits, counted without allocating: `indexOf` returns -1 when there is no decimal
+    // separator, in which case the whole (unsigned) string is the integer part.
+    const sinSigno = importe.replace(/^[+-]/, '');
+    const punto = sinSigno.indexOf('.');
+    const parteEntera = punto === -1 ? sinSigno.length : punto;
     const excedeLongitud = parteEntera > 12;
 
     problemas.push({

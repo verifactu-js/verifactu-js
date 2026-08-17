@@ -1,138 +1,149 @@
 /**
- * Minimal valid documents, built with the real `XmlWriter`.
+ * Fixtures built with the real serialisers.
  *
- * Scaffolding for the namespace tests: just enough of a `RegFactuSistemaFacturacion` to be
- * schema-valid, built with the writer under test rather than hand-written string literals.
+ * Nothing here hand-writes XML. The records come from `createSifChain()` in `@verifactu-js/core`,
+ * so the literals in the document are the ones that were hashed — which is the property most of
+ * these tests exist to check.
  *
- * Fragments are composed by writing *into* a shared writer, never by concatenating strings.
- * That is also how the real serialiser will work, and it is why `XmlWriter` deliberately has no
+ * Fragments are composed by writing *into* a shared writer, never by concatenating strings. That
+ * is also how the real batch serialiser will work, and it is why `XmlWriter` deliberately has no
  * raw-append: a fragment spliced in as text is a fragment nobody escaped.
  */
-import { NS_SUMINISTRO_INFORMACION, NS_SUMINISTRO_LR, PREFIX, XmlWriter } from '../../src/index.js';
+import {
+  type AltaRequest,
+  type AnulacionRequest,
+  createSifChain,
+  type EslabonAltaCanonico,
+} from '@verifactu-js/core';
+
+import {
+  NS_SUMINISTRO_INFORMACION,
+  NS_SUMINISTRO_LR,
+  PREFIX,
+  type RegistroAlta,
+  type RegistroAnulacion,
+  type SistemaInformatico,
+  writeRegistroAlta,
+  writeRegistroAnulacion,
+  XmlWriter,
+} from '../../src/index.js';
 
 /** Writes a fragment into the document being built. */
 export type Fragmento = (writer: XmlWriter) => void;
 
-/** Fields of a minimal, schema-valid `RegistroAlta`. */
-export interface AltaMinima {
-  readonly IDEmisorFactura: string;
-  readonly NumSerieFactura: string;
-  readonly FechaExpedicionFactura: string;
-  readonly TipoFactura: string;
-  readonly CuotaTotal: string;
-  readonly ImporteTotal: string;
-  readonly FechaHoraHusoGenRegistro: string;
-  readonly Huella: string;
+/**
+ * A chain with a frozen clock, so every fixture is byte-identical between runs.
+ *
+ * `Europe/Madrid` in January is `+01:00`, so the instant below serialises as
+ * `2024-01-01T19:20:30+01:00`.
+ */
+export function cadena(instante = '2024-01-01T18:20:30Z'): ReturnType<typeof createSifChain> {
+  return createSifChain({ timeZone: 'Europe/Madrid', now: () => new Date(instante) });
 }
 
-const POR_DEFECTO: AltaMinima = {
+/** A `SistemaInformatico` block that satisfies the schema. */
+export const SISTEMA: SistemaInformatico = {
+  NombreRazon: 'PRODUCTORA SL',
+  NIF: 'B72877814',
+  NombreSistemaInformatico: 'VERIFACTU-JS',
+  IdSistemaInformatico: 'VJ',
+  Version: '0.1.0',
+  NumeroInstalacion: 'INST-001',
+  TipoUsoPosibleSoloVerifactu: 'S',
+  TipoUsoPosibleMultiOT: 'N',
+  IndicadorMultiplesOT: 'N',
+};
+
+const ALTA_POR_DEFECTO: Omit<AltaRequest, 'previous'> = {
   IDEmisorFactura: '89890001K',
   NumSerieFactura: '12345678/G33',
   FechaExpedicionFactura: '01-01-2024',
   TipoFactura: 'F1',
   CuotaTotal: '12.35',
   ImporteTotal: '123.45',
-  FechaHoraHusoGenRegistro: '2024-01-01T19:20:30+01:00',
-  Huella: '3C464DAF61ACB827C65FDA19F352A4E3BDC2C640E9E9FC4CC058073F38F12F60',
 };
 
-/** A minimal `RegistroAlta`, in the element order the schema requires. */
-export function registroAltaMinimo(overrides: Partial<AltaMinima> = {}): Fragmento {
-  const f: AltaMinima = { ...POR_DEFECTO, ...overrides };
-  const sf = PREFIX.sf;
+const ANULACION_POR_DEFECTO: Omit<AnulacionRequest, 'previous'> = {
+  IDEmisorFacturaAnulada: '89890001K',
+  NumSerieFacturaAnulada: '12345679/G34',
+  FechaExpedicionFacturaAnulada: '01-01-2024',
+};
 
-  return (w) => {
-    w.open(`${sf}:RegistroAlta`);
-    w.element(`${sf}:IDVersion`, '1.0');
+/** A `RegistroAlta` with only the mandatory elements. */
+export async function altaMinima(
+  overrides: Partial<AltaRequest> = {},
+  datos: Partial<RegistroAlta['datos']> = {},
+): Promise<RegistroAlta> {
+  const eslabon = await cadena().alta({
+    ...ALTA_POR_DEFECTO,
+    previous: null,
+    ...overrides,
+  });
 
-    w.open(`${sf}:IDFactura`);
-    w.element(`${sf}:IDEmisorFactura`, f.IDEmisorFactura);
-    w.element(`${sf}:NumSerieFactura`, f.NumSerieFactura);
-    w.element(`${sf}:FechaExpedicionFactura`, f.FechaExpedicionFactura);
-    w.close();
-
-    w.element(`${sf}:NombreRazonEmisor`, 'EMPRESA DE PRUEBA SL');
-    w.element(`${sf}:TipoFactura`, f.TipoFactura);
-    w.element(`${sf}:DescripcionOperacion`, 'PRESTACION DE SERVICIOS');
-
-    w.open(`${sf}:Desglose`);
-    w.open(`${sf}:DetalleDesglose`);
-    w.element(`${sf}:CalificacionOperacion`, 'S1');
-    w.element(`${sf}:TipoImpositivo`, '21');
-    w.element(`${sf}:BaseImponibleOimporteNoSujeto`, '111.10');
-    w.element(`${sf}:CuotaRepercutida`, '12.35');
-    w.close();
-    w.close();
-
-    w.element(`${sf}:CuotaTotal`, f.CuotaTotal);
-    w.element(`${sf}:ImporteTotal`, f.ImporteTotal);
-
-    w.open(`${sf}:Encadenamiento`);
-    w.element(`${sf}:PrimerRegistro`, 'S');
-    w.close();
-
-    w.open(`${sf}:SistemaInformatico`);
-    w.element(`${sf}:NombreRazon`, 'PRODUCTORA SL');
-    w.element(`${sf}:NIF`, 'B72877814');
-    w.element(`${sf}:NombreSistemaInformatico`, 'VERIFACTU-JS');
-    w.element(`${sf}:IdSistemaInformatico`, 'VJ');
-    w.element(`${sf}:Version`, '0.1.0');
-    w.element(`${sf}:NumeroInstalacion`, 'INST-001');
-    w.element(`${sf}:TipoUsoPosibleSoloVerifactu`, 'S');
-    w.element(`${sf}:TipoUsoPosibleMultiOT`, 'N');
-    w.element(`${sf}:IndicadorMultiplesOT`, 'N');
-    w.close();
-
-    w.element(`${sf}:FechaHoraHusoGenRegistro`, f.FechaHoraHusoGenRegistro);
-    w.element(`${sf}:TipoHuella`, '01');
-    w.element(`${sf}:Huella`, f.Huella);
-    w.close();
+  return {
+    eslabon,
+    datos: {
+      NombreRazonEmisor: 'EMPRESA DE PRUEBA SL',
+      DescripcionOperacion: 'PRESTACION DE SERVICIOS',
+      Desglose: [
+        {
+          ClaveRegimen: '01',
+          CalificacionOperacion: 'S1',
+          TipoImpositivo: '21',
+          BaseImponibleOimporteNoSujeto: '111.10',
+          CuotaRepercutida: '12.35',
+        },
+      ],
+      SistemaInformatico: SISTEMA,
+      ...datos,
+    },
   };
 }
 
-/** A minimal `RegistroAnulacion`. */
-export function registroAnulacionMinimo(
-  overrides: Partial<{ NumSerieFacturaAnulada: string; Huella: string }> = {},
-): Fragmento {
-  const sf = PREFIX.sf;
-  const numSerie = overrides.NumSerieFacturaAnulada ?? '12345679/G34';
-  const huella =
-    overrides.Huella ?? 'F7B94CFD8924EDFF273501B01EE5153E4CE8F259766F88CF6ACB8935802A2B97';
+/** A `RegistroAnulacion` with only the mandatory elements. */
+export async function anulacionMinima(
+  overrides: Partial<AnulacionRequest> = {},
+  datos: Partial<RegistroAnulacion['datos']> = {},
+): Promise<RegistroAnulacion> {
+  const eslabon = await cadena('2024-01-01T18:20:40Z').anulacion({
+    ...ANULACION_POR_DEFECTO,
+    previous: null,
+    ...overrides,
+  });
 
+  return { eslabon, datos: { SistemaInformatico: SISTEMA, ...datos } };
+}
+
+/** Builds the link a chained record points back to. Always an alta, so its fields are concrete. */
+export async function altaPrevia(): Promise<EslabonAltaCanonico> {
+  return cadena('2024-01-01T18:00:00Z').alta({
+    ...ALTA_POR_DEFECTO,
+    NumSerieFactura: '12345677/G32',
+    previous: null,
+  });
+}
+
+/** Turns a record into a fragment. */
+export function fragmentoAlta(registro: RegistroAlta): Fragmento {
   return (w) => {
-    w.open(`${sf}:RegistroAnulacion`);
-    w.element(`${sf}:IDVersion`, '1.0');
-
-    w.open(`${sf}:IDFactura`);
-    w.element(`${sf}:IDEmisorFacturaAnulada`, '89890001K');
-    w.element(`${sf}:NumSerieFacturaAnulada`, numSerie);
-    w.element(`${sf}:FechaExpedicionFacturaAnulada`, '01-01-2024');
-    w.close();
-
-    w.open(`${sf}:Encadenamiento`);
-    w.element(`${sf}:PrimerRegistro`, 'S');
-    w.close();
-
-    w.open(`${sf}:SistemaInformatico`);
-    w.element(`${sf}:NombreRazon`, 'PRODUCTORA SL');
-    w.element(`${sf}:NIF`, 'B72877814');
-    w.element(`${sf}:NombreSistemaInformatico`, 'VERIFACTU-JS');
-    w.element(`${sf}:IdSistemaInformatico`, 'VJ');
-    w.element(`${sf}:Version`, '0.1.0');
-    w.element(`${sf}:NumeroInstalacion`, 'INST-001');
-    w.element(`${sf}:TipoUsoPosibleSoloVerifactu`, 'S');
-    w.element(`${sf}:TipoUsoPosibleMultiOT`, 'N');
-    w.element(`${sf}:IndicadorMultiplesOT`, 'N');
-    w.close();
-
-    w.element(`${sf}:FechaHoraHusoGenRegistro`, '2024-01-01T19:20:40+01:00');
-    w.element(`${sf}:TipoHuella`, '01');
-    w.element(`${sf}:Huella`, huella);
-    w.close();
+    writeRegistroAlta(w, registro);
   };
 }
 
-/** Wraps record fragments in a `RegFactuSistemaFacturacion` with its `Cabecera`. */
+/** Turns a cancellation record into a fragment. */
+export function fragmentoAnulacion(registro: RegistroAnulacion): Fragmento {
+  return (w) => {
+    writeRegistroAnulacion(w, registro);
+  };
+}
+
+/**
+ * Wraps record fragments in a `RegFactuSistemaFacturacion` with its `Cabecera`.
+ *
+ * Scaffolding: the real `Cabecera` and batch serialiser are the next step of the work order.
+ * Until then this exists so records can be validated against the XSD, which only accepts whole
+ * documents.
+ */
 export function remision(registros: readonly Fragmento[]): string {
   const { sfLR, sf } = PREFIX;
   const w = new XmlWriter();
@@ -158,4 +169,12 @@ export function remision(registros: readonly Fragmento[]): string {
 
   w.close();
   return w.toString();
+}
+
+/** Serialises one alta inside a minimal remision. */
+export async function documentoConAlta(
+  overrides: Partial<AltaRequest> = {},
+  datos: Partial<RegistroAlta['datos']> = {},
+): Promise<string> {
+  return remision([fragmentoAlta(await altaMinima(overrides, datos))]);
 }

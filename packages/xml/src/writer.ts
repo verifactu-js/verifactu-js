@@ -9,6 +9,8 @@
  * The writer knows nothing about VERI*FACTU. It opens elements, closes them, and escapes text.
  */
 
+import { assertTextoSerializado, errorDocumento } from './errors.js';
+
 /** An attribute to emit, in the order given. */
 export interface XmlAttribute {
   readonly name: string;
@@ -103,7 +105,10 @@ export class XmlWriter {
   declaration(): this {
     this.#assertOpen();
     if (this.#parts.length > 0) {
-      throw new Error('La declaración XML debe ser lo primero que se emite.');
+      throw errorDocumento(
+        'La declaración XML debe ser lo primero que se emite.',
+        'Llama a declaration() antes que a cualquier open() o element().',
+      );
     }
     this.#parts.push('<?xml version="1.0" encoding="UTF-8"?>');
     return this;
@@ -125,17 +130,33 @@ export class XmlWriter {
   close(): this {
     this.#assertOpen();
     const name = this.#open.pop();
-    if (name === undefined) throw new Error('No hay ningún elemento abierto que cerrar.');
+    if (name === undefined) {
+      throw errorDocumento(
+        'No hay ningún elemento abierto que cerrar.',
+        'Cada close() debe corresponder a un open() previo; revisa el fragmento que lo emite.',
+      );
+    }
     this.#parts.push(`</${name}>`);
     return this;
   }
 
-  /** Writes escaped text into the current element. */
+  /**
+   * Writes escaped text into the current element.
+   *
+   * Rejects anything that is not already a string. A template literal would have coerced a
+   * number silently, and that number would then be the literal in the document — see
+   * {@link assertTextoSerializado}.
+   */
   text(value: string): this {
     this.#assertOpen();
-    if (this.#open.length === 0) {
-      throw new Error('No se puede escribir texto fuera de un elemento.');
+    const actual = this.#open.at(-1);
+    if (actual === undefined) {
+      throw errorDocumento(
+        'No se puede escribir texto fuera de un elemento.',
+        'Abre el elemento con open() antes de escribir su contenido, o usa element().',
+      );
     }
+    assertTextoSerializado(actual, value);
     this.#parts.push(escapeText(value));
     return this;
   }
@@ -172,9 +193,11 @@ export class XmlWriter {
    */
   toString(): string {
     if (this.#open.length > 0) {
-      throw new Error(
+      throw errorDocumento(
         `El documento XML tiene ${this.#open.length} elemento(s) sin cerrar: ` +
           `${this.#open.join(' > ')}`,
+        'Cierra los elementos pendientes. Un documento desequilibrado llegaría al validador ' +
+          'como un error de esquema confuso, muy lejos de donde está el fallo.',
       );
     }
     this.#closed = true;
@@ -183,7 +206,11 @@ export class XmlWriter {
 
   #assertOpen(): void {
     if (this.#closed) {
-      throw new Error('El documento ya se ha cerrado con toString(); crea un XmlWriter nuevo.');
+      throw errorDocumento(
+        'El documento ya se ha cerrado con toString(); crea un XmlWriter nuevo.',
+        'No reutilices un XmlWriter después de serializarlo: el resultado sería un documento ' +
+          'con dos raíces.',
+      );
     }
   }
 }

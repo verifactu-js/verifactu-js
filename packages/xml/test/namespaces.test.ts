@@ -19,7 +19,8 @@ import {
   NS_SUMINISTRO_LR,
   PREFIX,
 } from '../src/index.js';
-import { registroAltaMinimo, remision } from './helpers/documentos.js';
+import { documentoConAlta } from './helpers/documentos.js';
+import { ordenDeElementos } from './helpers/leer.js';
 import { esperarInvalido, esperarValido, validarContraXsd } from './helpers/xsd.js';
 
 describe('the declared namespaces, not the download URLs', () => {
@@ -62,13 +63,13 @@ describe('the declared namespaces, not the download URLs', () => {
 
 describe('a document with the correct namespaces validates', () => {
   it('validates against SuministroLR.xsd', async () => {
-    await esperarValido(remision([registroAltaMinimo()]));
+    await esperarValido(await documentoConAlta());
   });
 });
 
 describe('the tikeV1.0 trap', () => {
   it('a document using the download URL as namespace is REJECTED', async () => {
-    const roto = remision([registroAltaMinimo()])
+    const roto = (await documentoConAlta())
       .split('/aeat/tike/cont/ws/')
       .join('/aeat/tikeV1.0/cont/ws/');
 
@@ -78,7 +79,7 @@ describe('the tikeV1.0 trap', () => {
 
   it('swapping only the child namespace is also rejected', async () => {
     // A half-migration: the root keeps the right namespace, the children do not.
-    const roto = remision([registroAltaMinimo()]).replace(
+    const roto = (await documentoConAlta()).replace(
       `xmlns:${PREFIX.sf}="${NS_SUMINISTRO_INFORMACION}"`,
       `xmlns:${PREFIX.sf}="${NS_SUMINISTRO_INFORMACION.replace('/tike/', '/tikeV1.0/')}"`,
     );
@@ -86,7 +87,7 @@ describe('the tikeV1.0 trap', () => {
   });
 
   it('using the prewww2 host as namespace is rejected', async () => {
-    const roto = remision([registroAltaMinimo()])
+    const roto = (await documentoConAlta())
       .split('https://www2.agenciatributaria.gob.es/')
       .join('https://prewww2.aeat.es/');
     await esperarInvalido(roto);
@@ -95,7 +96,7 @@ describe('the tikeV1.0 trap', () => {
 
 describe('elementFormDefault="qualified": every child carries a prefix', () => {
   it('an unqualified child is rejected', async () => {
-    const roto = remision([registroAltaMinimo()])
+    const roto = (await documentoConAlta())
       .replace(`<${PREFIX.sf}:IDVersion>`, '<IDVersion>')
       .replace(`</${PREFIX.sf}:IDVersion>`, '</IDVersion>');
 
@@ -104,17 +105,16 @@ describe('elementFormDefault="qualified": every child carries a prefix', () => {
   });
 
   it('an unqualified grandchild is rejected', async () => {
-    const roto = remision([registroAltaMinimo()])
+    const roto = (await documentoConAlta())
       .replace(`<${PREFIX.sf}:IDEmisorFactura>`, '<IDEmisorFactura>')
       .replace(`</${PREFIX.sf}:IDEmisorFactura>`, '</IDEmisorFactura>');
 
     await esperarInvalido(roto);
   });
 
-  it('the correct document has no unprefixed element at all', () => {
-    const xml = remision([registroAltaMinimo()]);
+  it('the correct document has no unprefixed element at all', async () => {
     // Every start tag must carry one of our prefixes.
-    for (const [, name] of xml.matchAll(/<([A-Za-z][\w.-]*)[\s>]/g)) {
+    for (const name of ordenDeElementos(await documentoConAlta())) {
       expect(name).toMatch(/^(sfLR|sf|sfR|soapenv):/);
     }
   });
@@ -128,13 +128,12 @@ describe('the harness itself is trustworthy', () => {
   });
 
   it('catches a value outside an enumeration', async () => {
-    const roto = remision([registroAltaMinimo({ TipoFactura: 'ZZ' })]);
-    const errores = await esperarInvalido(roto);
+    const errores = await esperarInvalido(await documentoConAlta({ TipoFactura: 'ZZ' }));
     expect(errores.join(' ')).toContain('TipoFactura');
   });
 
   it('catches elements emitted out of order', async () => {
-    const xml = remision([registroAltaMinimo()]);
+    const xml = await documentoConAlta();
     const roto = xml.replace(
       `<${PREFIX.sf}:CuotaTotal>12.35</${PREFIX.sf}:CuotaTotal><${PREFIX.sf}:ImporteTotal>123.45</${PREFIX.sf}:ImporteTotal>`,
       `<${PREFIX.sf}:ImporteTotal>123.45</${PREFIX.sf}:ImporteTotal><${PREFIX.sf}:CuotaTotal>12.35</${PREFIX.sf}:CuotaTotal>`,
@@ -144,7 +143,7 @@ describe('the harness itself is trustworthy', () => {
   });
 
   it('catches a Huella that is one character too long', async () => {
-    const xml = remision([registroAltaMinimo()]);
+    const xml = await documentoConAlta();
     const roto = xml.replace(/([0-9A-F]{64})<\/sf:Huella>/, '$10</sf:Huella>');
     expect(roto).not.toBe(xml);
     await esperarInvalido(roto);

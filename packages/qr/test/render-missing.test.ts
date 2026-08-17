@@ -73,6 +73,30 @@ describe('qrcode cannot be imported', () => {
   });
 });
 
+describe('qrcode arrives as named exports, with no default', () => {
+  beforeEach(() => {
+    // `qrcode` v1 is CommonJS and reaches us under `default` through Node's interop. A bundler,
+    // or an ESM-native build, can hand over the namespace itself instead. Both must work: this
+    // is the only reason the unwrapping exists, and it is invisible until it breaks.
+    vi.doMock('qrcode', () => ({
+      toString: () => Promise.resolve('<svg data-stub="named"></svg>'),
+      toDataURL: () => Promise.resolve('data:image/png;base64,TkFNRUQ='),
+    }));
+  });
+
+  it('renderSvg uses the namespace itself', async () => {
+    const { renderSvg } = await import('../src/render.js');
+    await expect(renderSvg('https://example.invalid/x')).resolves.toContain('data-stub="named"');
+  });
+
+  it('renderPngDataUrl uses it too', async () => {
+    const { renderPngDataUrl } = await import('../src/render.js');
+    await expect(renderPngDataUrl('https://example.invalid/x')).resolves.toBe(
+      'data:image/png;base64,TkFNRUQ=',
+    );
+  });
+});
+
 describe('qrcode imports but is not what we expect', () => {
   beforeEach(() => {
     // A stub, a broken install, or a major version that moved the API.

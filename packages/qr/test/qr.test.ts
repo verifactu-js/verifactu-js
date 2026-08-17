@@ -188,9 +188,21 @@ describe('validarParametrosQR — AEAT error codes (QR spec §10)', () => {
     expect(validarParametrosQR({ ...EJEMPLO, importe: '241.4' })).toEqual([]);
   });
 
-  it('rejects an amount with more than twelve integer digits', () => {
-    const problemas = validarParametrosQR({ ...EJEMPLO, importe: '1234567890123.00' });
-    expect(problemas).not.toEqual([]);
+  it.each([
+    ['con decimales', '1234567890123.00'],
+    ['sin decimales', '1234567890123'],
+    ['con signo', '-1234567890123.00'],
+  ])('reports 2006, not 2005, for thirteen integer digits (%s)', (_label, importe) => {
+    // 2005 is «formato incorrecto» and 2006 is «excede el número máximo de caracteres». Telling
+    // them apart is the whole point of counting the integer part, and the count has to work
+    // whether or not there is a decimal separator to stop at.
+    const problemas = validarParametrosQR({ ...EJEMPLO, importe });
+    expect(problemas.map((p) => p.codigo)).toEqual(['2006']);
+  });
+
+  it('reports 2005 for twelve integer digits with too many decimals', () => {
+    const problemas = validarParametrosQR({ ...EJEMPLO, importe: '999999999999.999' });
+    expect(problemas.map((p) => p.codigo)).toEqual(['2005']);
   });
 
   it('never throws, whatever it is handed', () => {

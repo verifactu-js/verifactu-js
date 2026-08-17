@@ -67,6 +67,17 @@ interface QrCodeModule {
 
 let cached: QrCodeModule | null = null;
 
+/**
+ * Reports whether a value exposes the two functions we call.
+ *
+ * `toDataURL` is what actually discriminates: every object inherits a `toString` from
+ * `Object.prototype`, so checking that alone would accept anything.
+ */
+function esModuloQr(value: unknown): value is QrCodeModule {
+  const m = value as Partial<QrCodeModule> | null | undefined;
+  return typeof m?.toString === 'function' && typeof m?.toDataURL === 'function';
+}
+
 async function loadQrCode(): Promise<QrCodeModule> {
   if (cached) return cached;
 
@@ -77,10 +88,15 @@ async function loadQrCode(): Promise<QrCodeModule> {
     throw new QrRenderDependencyError(error);
   }
 
-  const candidate = imported as { default?: unknown };
-  const resolved = (candidate?.default ?? imported) as QrCodeModule;
+  // `qrcode` v1 is CommonJS, so Node's interop hands it over under `default`. A build exposing
+  // named exports instead arrives as the namespace object itself. Which one it is, is decided by
+  // whether `default` is declared — not by whether reading it yields something: probing an
+  // export a module does not declare is undefined behaviour worth avoiding, and under a mocked
+  // module it throws outright.
+  const ns = imported as { default?: unknown };
+  const resolved = 'default' in ns ? ns.default : imported;
 
-  if (typeof resolved?.toString !== 'function' || typeof resolved?.toDataURL !== 'function') {
+  if (!esModuloQr(resolved)) {
     throw new QrRenderDependencyError(
       new Error('El módulo «qrcode» se ha cargado pero no expone toString/toDataURL.'),
     );

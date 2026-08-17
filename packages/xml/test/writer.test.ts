@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { escapeAttribute, escapeText, XmlWriter } from '../src/index.js';
+import { escapeAttribute, escapeText, VerifactuXmlError, XmlWriter } from '../src/index.js';
 
 describe('escapeText', () => {
   it.each([
@@ -145,6 +145,42 @@ describe('XmlWriter', () => {
     w.element('a', '1');
     w.toString();
     expect(() => w.element('b', '2')).toThrow(/ya se ha cerrado/);
+  });
+
+  it('refuses anything that is not already a string', () => {
+    // A template literal would have coerced these silently, and the coerced form would then be
+    // the literal in the document. `String(131.40)` is `"131.4"`.
+    const casos: ReadonlyArray<readonly [string, unknown, string]> = [
+      ['number', 131.4, 'number (131.4)'],
+      ['bigint', 10n, 'bigint (10)'],
+      ['null', null, 'null'],
+      ['undefined', undefined, 'undefined'],
+      ['object', { toString: () => '1' }, 'object'],
+    ];
+
+    for (const [etiqueta, valor, esperado] of casos) {
+      const w = new XmlWriter();
+      try {
+        w.element('sf:CuotaTotal', valor as string);
+        expect.unreachable(`should have rejected a ${etiqueta}`);
+      } catch (error) {
+        const e = error as VerifactuXmlError;
+        expect(e).toBeInstanceOf(VerifactuXmlError);
+        expect(e.code).toBe('VALOR_NO_SERIALIZADO');
+        expect(e.message).toContain(esperado);
+        expect(e.message).toContain('sf:CuotaTotal');
+      }
+    }
+  });
+
+  it('reports structural misuse with a code, not just a message', () => {
+    const w = new XmlWriter();
+    try {
+      w.close();
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect((error as VerifactuXmlError).code).toBe('DOCUMENTO_MAL_FORMADO');
+    }
   });
 
   it('has no raw-append escape hatch', () => {
