@@ -1,5 +1,18 @@
 packages:
   - 'packages/*'
 
+# Link sibling packages from this repository when the local version satisfies the declared range.
+#
+# The ranges in packages/*/package.json are real semver (`^0.2.0`), not pnpm's `workspace:`
+# protocol, because the release workflow publishes with `npm publish` and npm does not translate
+# that protocol: it would upload a manifest saying `workspace:^`, unusable for anyone installing
+# from the registry. Same class of mistake as the unsubstituted repository placeholder that forced
+# core@0.1.1, and npm versions are immutable.
+#
+# pnpm 10 flipped the default of this to false, which would silently install the *published* copy
+# of a sibling instead of the one being edited. `scripts/check-workspace-deps.mjs` fails the build
+# if a local version stops satisfying its range, which is the one way this can go quietly wrong.
+linkWorkspacePackages: true
+
 allowBuilds:
   esbuild: true

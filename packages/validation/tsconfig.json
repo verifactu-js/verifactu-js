@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // No `rootDir`: this config emits nothing, and setting it would reject `core`'s source files
+    // for living outside this package. `tsconfig.build.json`, which does emit, keeps it.
+    "noEmit": true,
+    "types": [],
+
+    // Typecheck against `core`'s source, not its built `dist`. Same reasoning as in
+    // `packages/xml/tsconfig.json`: otherwise a fresh clone and CI both fail, because Build runs
+    // after Typecheck — and worse, a stale `dist` would make this pass against outdated types.
+    // `tsconfig.build.json` has no `paths`, so the published declarations are still exercised.
+    "paths": {
+      "@verifactu-js/core": ["../core/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+}
