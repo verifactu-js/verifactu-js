@@ -5,19 +5,34 @@
  * produces, batch them, wrap them in the SOAP envelope, and read the response back without
  * normalising a single character on the way.
  *
- * Deliberately out of scope for now: `ds:Signature` (XAdES), the `ConsultaFactuSistemaFacturacion`
- * query service, the event records, and the AEAT's business validations — which belong in
- * `@verifactu-js/validation`, so that installing `core` alone can still get them.
+ * The record model (`DatosAlta`, `DetalleDesglose`, `Cabecera`…) is defined in
+ * `@verifactu-js/validation` and re-exported here for convenience: the AEAT's rules are the
+ * semantics of those types, so type and rule live together. It is imported with `import type`, so
+ * this package pays nothing at runtime for the dependency.
+ *
+ * Deliberately out of scope: `ds:Signature` (XAdES), the `ConsultaFactuSistemaFacturacion` query
+ * service, and the event records. Business validations live in `@verifactu-js/validation` and are
+ * **not** run when you serialise — see its README for why.
  *
  * The specification, with a citation per claim, is in `docs/spec-notes.md`.
  */
 
 export type {
   Cabecera,
+  DatosAlta,
+  DatosAnulacion,
+  DetalleDesglose,
+  IDFacturaAR,
+  IDOtro,
+  ImporteRectificacion,
   PersonaES,
+  PersonaFisicaJuridica,
   RemisionRequerimiento,
   RemisionVoluntaria,
-} from './cabecera.js';
+  SiNo,
+  SistemaInformatico,
+} from '@verifactu-js/validation';
+
 export { writeCabecera } from './cabecera.js';
 export type { VerifactuXmlErrorCode } from './errors.js';
 export { VerifactuXmlError } from './errors.js';
@@ -31,19 +46,7 @@ export {
 } from './namespaces.js';
 export type { XmlElement } from './parser.js';
 export { hijo, hijos, parsearXml, textoDeHijo } from './parser.js';
-export type {
-  DatosAlta,
-  DatosAnulacion,
-  DetalleDesglose,
-  IDFacturaAR,
-  IDOtro,
-  ImporteRectificacion,
-  PersonaFisicaJuridica,
-  RegistroAlta,
-  RegistroAnulacion,
-  SiNo,
-  SistemaInformatico,
-} from './registro.js';
+export type { RegistroAlta, RegistroAnulacion } from './registro.js';
 export { writeRegistroAlta, writeRegistroAnulacion } from './registro.js';
 export type { RegistroFactura, Remision } from './remision.js';
 export { serializarRemision, writeRemision } from './remision.js';

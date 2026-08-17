@@ -19,7 +19,8 @@
     // `core`'s real `exports` map. The runtimes matrix imports the built bundle on five runtimes,
     // and `publint` + `attw` run at release.
     "paths": {
-      "@verifactu-js/core": ["../core/src/index.ts"]
+      "@verifactu-js/core": ["../core/src/index.ts"],
+      "@verifactu-js/validation": ["../validation/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]

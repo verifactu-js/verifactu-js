@@ -13,6 +13,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@verifactu-js/core': fileURLToPath(new URL('../core/src/index.ts', import.meta.url)),
+      '@verifactu-js/validation': fileURLToPath(
+        new URL('../validation/src/index.ts', import.meta.url),
+      ),
     },
   },
   test: {

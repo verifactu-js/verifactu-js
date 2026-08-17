@@ -1,8 +1,7 @@
 {
   "name": "@verifactu-js/xml",
   "version": "0.1.0",
-  "private": true,
-  "description": "Serialización al esquema oficial VERI*FACTU (AEAT) y envoltorio SOAP. Cero dependencias. / Official VERI*FACTU schema serialisation and SOAP envelope.",
+  "description": "Serialización al esquema oficial VERI*FACTU (AEAT), envoltorio SOAP y lectura de la respuesta. Sin dependencias de terceros. / Official VERI*FACTU schema serialisation, SOAP envelope and response parsing. No third-party dependencies.",
   "keywords": [
     "verifactu",
     "aeat",
@@ -52,7 +51,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@verifactu-js/core": "workspace:^"
+    "@verifactu-js/core": "^0.2.0",
+    "@verifactu-js/validation": "^0.1.0"
   },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json && node ../../scripts/emit-cts-types.mjs dist",

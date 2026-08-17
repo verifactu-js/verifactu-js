@@ -19,7 +19,8 @@
  * `@verifactu-js/core` is the tool for that.
  */
 
-import type { Cabecera } from './cabecera.js';
+import type { Cabecera } from '@verifactu-js/validation';
+
 import { writeCabecera } from './cabecera.js';
 import { assertCardinalidad, VerifactuXmlError } from './errors.js';
 import { NS_SUMINISTRO_INFORMACION, NS_SUMINISTRO_LR, PREFIX } from './namespaces.js';

@@ -1865,9 +1865,17 @@ regla van juntos.
 `xml` los importa con `import type`, que se borra al compilar: depender de `validation` no le
 añade un solo byte al bundle mientras no ejecute una validación.
 
-> **Restricción de calendario:** mover esos tipos es gratis **hoy**, porque `xml` es
-> `private: true` y no hay nada publicado que dependa de ellos. Deja de serlo en cuanto `xml`
-> salga a npm. El movimiento va antes de quitarle el `private`.
+> **Hecho el 17/08/2026**, antes de quitarle el `private` a `xml`, que era la ventana en la que
+> el movimiento salía gratis. Comprobado: el bundle de `xml` es **byte a byte el mismo** antes y
+> después (`sha256 6a341ae7…`, 38 890 bytes) y no contiene ni una aparición de la cadena
+> «validation».
+
+**Matiz sobre «dependencia de runtime».** El bundle no importa nada —ni `core` ni `validation`—,
+pero las dos figuran en `dependencies` de `xml`, y **tienen que figurar**: los `.d.ts` publicados
+reexportan sus tipos, así que un consumidor los necesita instalados para que le resuelvan. npm no
+tiene una categoría para «dependencia solo de tipos»; `peerDependencies` opcional rompería los
+tipos en silencio, que es peor. Lo que sí dejó de ser cierto es la frase «cero dependencias» de la
+descripción del paquete, corregida a «sin dependencias de terceros», que es lo que se sostiene.
 
 ### 20.5 Qué NO hace `xml` con ellas
 

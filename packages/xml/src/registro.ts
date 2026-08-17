@@ -21,11 +21,11 @@
  *
  * - **`ds:Signature`** (`minOccurs="0"`) is not emitted. XAdES belongs to a later phase, and a
  *   half-signature is worse than none.
- * - **Business validations** (AEAT Validaciones §3.1.3: `TipoRectificativa` required for R1-R5,
- *   `Macrodato` above 100 000 000, the `Desglose` rules) are **not** checked here. The XSD is
- *   checked in CI, and the structural invariants the XSD cannot express are checked below; the
- *   rest belongs to a validation module of its own. It is not silently assumed to be someone
- *   else's problem — it is listed here so the gap is visible.
+ * - **Business validations** (AEAT Validaciones §3.1.3) are **not** checked here. They live in
+ *   `@verifactu-js/validation` and are not run on serialisation: a rule that fires when it should
+ *   not would block an invoice the AEAT would have accepted. What *is* checked below is the
+ *   narrower set the XSD cannot express and that makes the document contradict itself — the
+ *   chaining block against the hashed digest, and the cardinalities.
  */
 
 import type {
@@ -36,142 +36,21 @@ import type {
   RegistroAnulacionHashInput,
 } from '@verifactu-js/core';
 
+import type {
+  DatosAlta,
+  DatosAnulacion,
+  DetalleDesglose,
+  IDFacturaAR,
+  IDOtro,
+  PersonaFisicaJuridica,
+  SistemaInformatico,
+} from '@verifactu-js/validation';
+
 import { assertCardinalidad, VerifactuXmlError } from './errors.js';
 import { PREFIX } from './namespaces.js';
 import type { XmlWriter } from './writer.js';
 
 const sf = PREFIX.sf;
-
-/** `SiNoType`: the AEAT's boolean. */
-export type SiNo = 'S' | 'N';
-
-/** Party identified by something other than a Spanish NIF (`IDOtroType`). */
-export interface IDOtro {
-  /** ISO 3166-1 alpha-2. Omitted for `IDType` 07 (not registered). */
-  readonly CodigoPais?: string;
-  /** `PersonaFisicaJuridicaIDTypeType`: 02 NIF-IVA, 03 pasaporte, 04 documento oficial, 05 certificado de residencia, 06 otro, 07 no censado. */
-  readonly IDType: string;
-  /** The identifier itself, up to 20 characters. */
-  readonly ID: string;
-}
-
-/** `PersonaFisicaJuridicaType`: a name plus either a NIF or an `IDOtro`, never both. */
-export type PersonaFisicaJuridica = {
-  readonly NombreRazon: string;
-} & (
-  | { readonly NIF: string; readonly IDOtro?: never }
-  | { readonly NIF?: never; readonly IDOtro: IDOtro }
-);
-
-/** `IDFacturaARType`: identifies an invoice being rectified or replaced. */
-export interface IDFacturaAR {
-  readonly IDEmisorFactura: string;
-  readonly NumSerieFactura: string;
-  /** `dd-mm-yyyy`. */
-  readonly FechaExpedicionFactura: string;
-}
-
-/** `DesgloseRectificacionType`: what the rectified invoice used to say. */
-export interface ImporteRectificacion {
-  readonly BaseRectificada: string;
-  readonly CuotaRectificada: string;
-  readonly CuotaRecargoRectificado?: string;
-}
-
-/**
- * `DetalleType`: one line of the tax breakdown.
- *
- * Every amount is a **string**, serialised once by the caller — the same rule as `CuotaTotal` and
- * `ImporteTotal` in `core`, for the same reason.
- */
-export interface DetalleDesglose {
-  /** `01` IVA, `02` IPSI, `03` IGIC, `05` otros. Omitted means IVA. */
-  readonly Impuesto?: string;
-  /** Régimen key (list L8A/L8B). Required for IVA and IGIC. */
-  readonly ClaveRegimen?: string;
-  /** `S1` sujeta no exenta sin inversión, `S2` con inversión del sujeto pasivo, `N1`/`N2` no sujeta. Mutually exclusive with `OperacionExenta`. */
-  readonly CalificacionOperacion?: string;
-  /** `E1`…`E6`, the exemption cause. Mutually exclusive with `CalificacionOperacion`. */
-  readonly OperacionExenta?: string;
-  readonly TipoImpositivo?: string;
-  readonly BaseImponibleOimporteNoSujeto: string;
-  readonly BaseImponibleACoste?: string;
-  readonly CuotaRepercutida?: string;
-  readonly TipoRecargoEquivalencia?: string;
-  readonly CuotaRecargoEquivalencia?: string;
-}
-
-/**
- * `SistemaInformaticoType`: the producer's declaration about the software itself.
- *
- * Present in **every** record, not once per batch (docs/spec-notes.md §6).
- *
- * The identification half is a {@link PersonaFisicaJuridica} because that is literally how the
- * schema declares it: an inner `sequence` of `NombreRazon` plus the same `NIF`/`IDOtro` choice
- * every other party uses. Reusing the type keeps "exactly one of the two" enforced here too.
- */
-export type SistemaInformatico = PersonaFisicaJuridica & {
-  readonly NombreSistemaInformatico: string;
-  /** Two characters, `[A-Z0-9]` except `Ñ` (docs/spec-notes.md §10, D-3). */
-  readonly IdSistemaInformatico: string;
-  readonly Version: string;
-  readonly NumeroInstalacion: string;
-  /** `S` if the system can only operate in VERI*FACTU mode. */
-  readonly TipoUsoPosibleSoloVerifactu: SiNo;
-  /** `S` if the system can serve several obligated parties. */
-  readonly TipoUsoPosibleMultiOT: SiNo;
-  /** `S` if it is currently serving more than one. */
-  readonly IndicadorMultiplesOT: SiNo;
-};
-
-/** Fields of a `RegistroAlta` that are **not** part of the hash. */
-export interface DatosAlta {
-  /** Caller's own reference. Echoed back in the response. */
-  readonly RefExterna?: string;
-  readonly NombreRazonEmisor: string;
-  /** `S` when this record corrects one previously sent. */
-  readonly Subsanacion?: SiNo;
-  /** `S`/`N`/`X` — see docs/spec-notes.md §10, D-13: the anulación uses a different domain. */
-  readonly RechazoPrevio?: 'S' | 'N' | 'X';
-  /** `S` sustitutiva, `I` por diferencias. Required by the AEAT for types R1-R5. */
-  readonly TipoRectificativa?: 'S' | 'I';
-  /** 1 to 1000 entries. */
-  readonly FacturasRectificadas?: readonly IDFacturaAR[];
-  /** 1 to 1000 entries. */
-  readonly FacturasSustituidas?: readonly IDFacturaAR[];
-  readonly ImporteRectificacion?: ImporteRectificacion;
-  /** `dd-mm-yyyy`, when the operation date differs from the issue date. */
-  readonly FechaOperacion?: string;
-  readonly DescripcionOperacion: string;
-  readonly FacturaSimplificadaArt7273?: SiNo;
-  readonly FacturaSinIdentifDestinatarioArt61d?: SiNo;
-  /** `S` when the invoice exceeds the amount the AEAT considers a macrodato. */
-  readonly Macrodato?: SiNo;
-  /** `D` destinatario, `T` tercero. */
-  readonly EmitidaPorTerceroODestinatario?: 'D' | 'T';
-  readonly Tercero?: PersonaFisicaJuridica;
-  /** 1 to 1000 entries. Absent for a simplified invoice. */
-  readonly Destinatarios?: readonly PersonaFisicaJuridica[];
-  readonly Cupon?: SiNo;
-  /** 1 to 12 lines. */
-  readonly Desglose: readonly DetalleDesglose[];
-  readonly SistemaInformatico: SistemaInformatico;
-  readonly NumRegistroAcuerdoFacturacion?: string;
-  readonly IdAcuerdoSistemaInformatico?: string;
-}
-
-/** Fields of a `RegistroAnulacion` that are **not** part of the hash. */
-export interface DatosAnulacion {
-  readonly RefExterna?: string;
-  /** `S` when cancelling an invoice that was never registered. */
-  readonly SinRegistroPrevio?: SiNo;
-  /** Only `S`/`N` here — `X` exists for the alta alone (docs/spec-notes.md §10, D-13). */
-  readonly RechazoPrevio?: SiNo;
-  /** `E` expedidor, `D` destinatario, `T` tercero. */
-  readonly GeneradoPor?: 'E' | 'D' | 'T';
-  readonly Generador?: PersonaFisicaJuridica;
-  readonly SistemaInformatico: SistemaInformatico;
-}
 
 /** A `RegistroAlta` ready to serialise: the canonical link plus everything outside the hash. */
 export interface RegistroAlta {

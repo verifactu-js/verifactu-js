@@ -44,11 +44,20 @@ importers:
         specifier: ^1.5.4
         version: 1.5.4
 
+  packages/validation:
+    dependencies:
+      '@verifactu-js/core':
+        specifier: ^0.2.0
+        version: link:../core
+
   packages/xml:
     dependencies:
       '@verifactu-js/core':
-        specifier: workspace:^
+        specifier: ^0.2.0
         version: link:../core
+      '@verifactu-js/validation':
+        specifier: ^0.1.0
+        version: link:../validation
 
 packages:
 
