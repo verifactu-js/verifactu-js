@@ -13,6 +13,12 @@ sha256sum docs/reference/AEAT_huella_hash.pdf  # o a mano, contra la tabla
 Descargados el **2026-08-16**. Ninguno se ha alterado: si un fichero cambia, el
 hash deja de coincidir y el CI falla.
 
+> **Finales de línea.** Varios de estos ficheros vienen con CRLF y así se guardan. `.gitattributes`
+> marca `docs/reference/** -text` para que git no los convierta al hacer commit ni al clonar:
+> una conversión silenciosa cambiaría los bytes, y entonces estos SHA-256 solo coincidirían en el
+> sistema operativo donde se generaron. No es una preferencia de formato — es la diferencia entre
+> que la tabla demuestre algo o no.
+
 ## Condiciones de reutilización
 
 **AEAT** — [Utilización de la información contenida en la web](https://sede.agenciatributaria.gob.es/Sede/condiciones-uso-sede-electronica/aviso-legal/utilizacion-informacion-contenida-web-aeat.html),

@@ -9,4 +9,16 @@
 *.zip binary
 
 pnpm-lock.yaml linguist-generated=true
-docs/reference/** linguist-vendored=true
+
+# docs/reference redistributes official AEAT, BOE and W3C documents **byte for byte**, and
+# MANIFEST.md publishes a SHA-256 per file so anyone can verify that without trusting us.
+#
+# `* text=auto eol=lf` above broke exactly that: git rewrote the CRLF line endings of
+# SistemaFacturacion.wsdl, ConsultaLR.xsd and RespuestaConsultaLR.xsd to LF on commit. The files
+# on a Windows working tree stayed as the AEAT published them, so the manifest matched locally
+# and failed on the Linux runner — where the checkout gets the altered bytes.
+#
+# `-text` means "store and check out these bytes unchanged, on every platform". It is not a
+# formatting preference here: the AEAT's reuse terms forbid «la desnaturalización del contenido»,
+# and a hash that only matches on one operating system proves nothing.
+docs/reference/** -text linguist-vendored=true

@@ -66,6 +66,12 @@ sha256sum docs/reference/AEAT_huella_hash.pdf  # o a mano, contra la tabla
 Descargados el **${sources.downloadedAt}**. Ninguno se ha alterado: si un fichero cambia, el
 hash deja de coincidir y el CI falla.
 
+> **Finales de línea.** Varios de estos ficheros vienen con CRLF y así se guardan. \`.gitattributes\`
+> marca \`docs/reference/** -text\` para que git no los convierta al hacer commit ni al clonar:
+> una conversión silenciosa cambiaría los bytes, y entonces estos SHA-256 solo coincidirían en el
+> sistema operativo donde se generaron. No es una preferencia de formato — es la diferencia entre
+> que la tabla demuestre algo o no.
+
 ## Condiciones de reutilización
 
 **AEAT** — [Utilización de la información contenida en la web](https://sede.agenciatributaria.gob.es/Sede/condiciones-uso-sede-electronica/aviso-legal/utilizacion-informacion-contenida-web-aeat.html),
@@ -136,9 +142,37 @@ if (check) {
     process.exit(1);
   }
   if (current.trim() !== body.trim()) {
+    // Say *which* file drifted, and by how much. "Algo ha cambiado" sends whoever reads the CI
+    // log diffing a 40 KB generated file by hand.
+    const registrados = new Map(
+      [...current.matchAll(/^\| `([^`]+)` \|.*\| `([0-9a-f]{64})` \|$/gm)].map((m) => [m[1], m[2]]),
+    );
+
+    const drift = rows
+      .filter((r) => registrados.has(r.name) && registrados.get(r.name) !== r.sha256)
+      .map((r) => {
+        const anotado = registrados.get(r.name);
+        return `  ${r.name}\n    en MANIFEST.md: ${anotado}\n    en disco:       ${r.sha256}`;
+      });
+
     console.error(
-      '[manifest] MANIFEST.md está desactualizado o algún fichero de docs/reference ha cambiado.\n' +
-        'Si el cambio es intencionado, regenera con: node scripts/reference-manifest.mjs\n' +
+      '[manifest] MANIFEST.md está desactualizado o algún fichero de docs/reference ha cambiado.',
+    );
+
+    if (drift.length > 0) {
+      console.error(`\nFicheros cuyo SHA-256 ya no coincide:\n${drift.join('\n')}`);
+      console.error(
+        '\nSi los hashes cuadran en tu máquina y fallan en CI, casi siempre son los finales de\n' +
+          'línea: git convierte CRLF a LF al hacer commit salvo que el fichero esté marcado como\n' +
+          '`-text`. Compruébalo con:\n' +
+          '  git ls-files --eol docs/reference/\n' +
+          'La columna i/ es lo que guarda el repositorio y w/ lo que hay en tu disco. Si difieren,\n' +
+          'el repositorio NO contiene el documento original y el manifiesto no prueba nada.',
+      );
+    }
+
+    console.error(
+      '\nSi el cambio es intencionado, regenera con: node scripts/reference-manifest.mjs\n' +
         'Si no lo es, alguien ha alterado documentación oficial que debe permanecer intacta.',
     );
     process.exit(1);
