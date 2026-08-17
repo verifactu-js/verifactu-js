@@ -20,16 +20,15 @@ import {
   VerifactuXmlError,
   type VerifactuXmlErrorCode,
   writeRegistroAlta,
+  writeRegistroAnulacion,
   XmlWriter,
 } from '../src/index.js';
 import {
   altaMinima,
   altaPrevia,
   anulacionMinima,
+  documento,
   documentoConAlta,
-  fragmentoAlta,
-  fragmentoAnulacion,
-  remision,
   SISTEMA,
 } from './helpers/documentos.js';
 import { ordenDeElementos, textoDe, todosLosTextosDe } from './helpers/leer.js';
@@ -96,12 +95,12 @@ describe('RegistroAlta validates against the official XSD', () => {
       },
     );
 
-    await esperarValido(remision([fragmentoAlta(registro)]));
+    await esperarValido(documento([registro]));
   });
 
   it('chained to a previous record', async () => {
     const registro = await altaMinima({ previous: await altaPrevia() });
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
 
     await esperarValido(xml);
     expect(xml).toContain('<sf:RegistroAnterior>');
@@ -121,7 +120,7 @@ describe('RegistroAlta validates against the official XSD', () => {
         ],
       },
     );
-    await esperarValido(remision([fragmentoAlta(registro)]));
+    await esperarValido(documento([registro]));
   });
 
   it('with the twelve breakdown lines the schema allows', async () => {
@@ -134,7 +133,7 @@ describe('RegistroAlta validates against the official XSD', () => {
     };
     const registro = await altaMinima({}, { Desglose: Array.from({ length: 12 }, () => linea) });
 
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
     await esperarValido(xml);
     expect(todosLosTextosDe(xml, 'sf:BaseImponibleOimporteNoSujeto')).toHaveLength(12);
   });
@@ -158,7 +157,7 @@ describe('RegistroAlta validates against the official XSD', () => {
         ],
       },
     );
-    await esperarValido(remision([fragmentoAlta(registro)]));
+    await esperarValido(documento([registro]));
   });
 
   it('with a producer identified by IDOtro instead of NIF', async () => {
@@ -171,13 +170,13 @@ describe('RegistroAlta validates against the official XSD', () => {
         },
       },
     );
-    await esperarValido(remision([fragmentoAlta(registro)]));
+    await esperarValido(documento([registro]));
   });
 });
 
 describe('RegistroAnulacion validates against the official XSD', () => {
   it('with only the mandatory elements', async () => {
-    await esperarValido(remision([fragmentoAnulacion(await anulacionMinima())]));
+    await esperarValido(documento([await anulacionMinima()]));
   });
 
   it('with every optional element present', async () => {
@@ -191,19 +190,19 @@ describe('RegistroAnulacion validates against the official XSD', () => {
         Generador: EXTRANJERO,
       },
     );
-    await esperarValido(remision([fragmentoAnulacion(registro)]));
+    await esperarValido(documento([registro]));
   });
 
   it('chained to a previous record', async () => {
     const registro = await anulacionMinima({ previous: await altaPrevia() });
-    const xml = remision([fragmentoAnulacion(registro)]);
+    const xml = documento([registro]);
 
     await esperarValido(xml);
     expect(xml).toContain('<sf:RegistroAnterior>');
   });
 
   it('uses the Anulada suffixes, which are different element names', async () => {
-    const xml = remision([fragmentoAnulacion(await anulacionMinima())]);
+    const xml = documento([await anulacionMinima()]);
 
     expect(xml).toContain('<sf:IDEmisorFacturaAnulada>');
     expect(xml).toContain('<sf:NumSerieFacturaAnulada>');
@@ -215,7 +214,7 @@ describe('RegistroAnulacion validates against the official XSD', () => {
     // `RechazoPrevioAnulacionType` enumerates only S and N. The type forbids it too; this checks
     // that the schema agrees, because the two live under the same element name.
     const registro = await anulacionMinima({}, { RechazoPrevio: 'X' as unknown as 'S' });
-    const errores = await esperarInvalido(remision([fragmentoAnulacion(registro)]));
+    const errores = await esperarInvalido(documento([registro]));
     expect(errores.join(' ')).toContain('RechazoPrevio');
   });
 });
@@ -240,7 +239,7 @@ describe('the literals in the XML still reproduce the Huella', () => {
 
   it('for a first record', async () => {
     const registro = await altaMinima();
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
 
     expect(await huellaRecalculadaAlta(xml)).toBe(registro.eslabon.huella);
     expect(textoDe(xml, 'sf:TipoHuella')).toBe('01');
@@ -248,14 +247,14 @@ describe('the literals in the XML still reproduce the Huella', () => {
 
   it('for a chained record', async () => {
     const registro = await altaMinima({ previous: await altaPrevia() });
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
 
     expect(await huellaRecalculadaAlta(xml)).toBe(registro.eslabon.huella);
   });
 
   it('for an anulación', async () => {
     const registro = await anulacionMinima();
-    const xml = remision([fragmentoAnulacion(registro)]);
+    const xml = documento([registro]);
 
     const recalculada = await hashRegistroAnulacion({
       IDEmisorFacturaAnulada: textoDe(xml, 'sf:IDEmisorFacturaAnulada'),
@@ -273,7 +272,7 @@ describe('the literals in the XML still reproduce the Huella', () => {
     // XML must carry it as `&amp;`. If escaping and hashing ever disagreed, this is where it
     // would show.
     const registro = await altaMinima({ NumSerieFactura: 'A&B/2024' });
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
 
     expect(xml).toContain('<sf:NumSerieFactura>A&amp;B/2024</sf:NumSerieFactura>');
     expect(textoDe(xml, 'sf:NumSerieFactura')).toBe('A&B/2024');
@@ -283,7 +282,7 @@ describe('the literals in the XML still reproduce the Huella', () => {
 
   it('writes the eslabón huella, not a recomputed one', async () => {
     const registro = await altaMinima();
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
     const huellas = todosLosTextosDe(xml, 'sf:Huella');
 
     expect(huellas).toEqual([registro.eslabon.huella]);
@@ -301,7 +300,7 @@ describe('the chaining block cannot contradict what was hashed', () => {
   it('a chained record writes the previous digest, taken from the hashed field', async () => {
     const anterior = await altaPrevia();
     const registro = await altaMinima({ previous: anterior });
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
 
     expect(todosLosTextosDe(xml, 'sf:Huella')).toEqual([anterior.huella, registro.eslabon.huella]);
     expect(registro.eslabon.fields.Huella).toBe(anterior.huella);
@@ -374,7 +373,7 @@ describe('the chaining block cannot contradict what was hashed', () => {
       eslabon: { ...registro.eslabon, registroAnterior: null },
     };
 
-    expect(codigoDe(() => fragmentoAnulacion(manipulado)(new XmlWriter()))).toBe(
+    expect(codigoDe(() => writeRegistroAnulacion(new XmlWriter(), manipulado))).toBe(
       'ENCADENAMIENTO_INCOHERENTE',
     );
   });
@@ -479,7 +478,7 @@ describe('a party must be identified', () => {
       {},
       { Destinatarios: [{ NombreRazon: 'SIN CENSAR', IDOtro: { IDType: '07', ID: 'X-1' } }] },
     );
-    const xml = remision([fragmentoAlta(registro)]);
+    const xml = documento([registro]);
 
     expect(xml).toContain('<sf:IDOtro><sf:IDType>07</sf:IDType><sf:ID>X-1</sf:ID></sf:IDOtro>');
     await esperarValido(xml);
@@ -550,7 +549,7 @@ describe('values the caller does not get to choose', () => {
       },
     };
 
-    const xml = remision([fragmentoAlta(conIntento)]);
+    const xml = documento([conIntento]);
     expect(textoDe(xml, 'sf:TipoHuella')).toBe('01');
   });
 });
@@ -561,7 +560,7 @@ describe('element order follows the schema sequence', () => {
       { previous: await altaPrevia() },
       { RefExterna: 'X', Macrodato: 'N', NumRegistroAcuerdoFacturacion: 'A-1' },
     );
-    const orden = ordenDeElementos(remision([fragmentoAlta(registro)]));
+    const orden = ordenDeElementos(documento([registro]));
 
     const desde = orden.indexOf('sf:RegistroAlta');
     expect(orden.slice(desde, desde + 8)).toEqual([

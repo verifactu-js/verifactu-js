@@ -1,12 +1,24 @@
 /**
  * `@verifactu-js/xml` — serialisation to the official AEAT schema and the SOAP envelope.
  *
- * Work in progress. Currently exports the namespace constants, the XML writer and the two record
- * serialisers; the batch envelope, the SOAP envelope and the response parser land next.
+ * Covers the whole submission round trip: build the records from the canonical links `core`
+ * produces, batch them, wrap them in the SOAP envelope, and read the response back without
+ * normalising a single character on the way.
+ *
+ * Deliberately out of scope for now: `ds:Signature` (XAdES), the `ConsultaFactuSistemaFacturacion`
+ * query service, the event records, and the AEAT's business validations — which belong in
+ * `@verifactu-js/validation`, so that installing `core` alone can still get them.
  *
  * The specification, with a citation per claim, is in `docs/spec-notes.md`.
  */
 
+export type {
+  Cabecera,
+  PersonaES,
+  RemisionRequerimiento,
+  RemisionVoluntaria,
+} from './cabecera.js';
+export { writeCabecera } from './cabecera.js';
 export type { VerifactuXmlErrorCode } from './errors.js';
 export { VerifactuXmlError } from './errors.js';
 export {
@@ -17,6 +29,8 @@ export {
   NS_SUMINISTRO_LR,
   PREFIX,
 } from './namespaces.js';
+export type { XmlElement } from './parser.js';
+export { hijo, hijos, parsearXml, textoDeHijo } from './parser.js';
 export type {
   DatosAlta,
   DatosAnulacion,
@@ -31,5 +45,21 @@ export type {
   SistemaInformatico,
 } from './registro.js';
 export { writeRegistroAlta, writeRegistroAnulacion } from './registro.js';
+export type { RegistroFactura, Remision } from './remision.js';
+export { serializarRemision, writeRemision } from './remision.js';
+export type {
+  DatosPresentacion,
+  EstadoEnvio,
+  EstadoRegistro,
+  EstadoRegistroDuplicado,
+  IDFacturaRespuesta,
+  OperacionRespuesta,
+  RegistroDuplicado,
+  RespuestaLinea,
+  RespuestaRemision,
+} from './respuesta.js';
+export { parsearRespuesta } from './respuesta.js';
+export type { Destino, Entorno, Servicio, TipoCertificado } from './soap.js';
+export { endpoint, SOAP_ACTION, SOAP_CONTENT_TYPE, serializarSobreSoap } from './soap.js';
 export type { XmlAttribute } from './writer.js';
 export { escapeAttribute, escapeText, XmlWriter } from './writer.js';

@@ -17,19 +17,13 @@ import {
 } from '@verifactu-js/core';
 
 import {
-  NS_SUMINISTRO_INFORMACION,
-  NS_SUMINISTRO_LR,
-  PREFIX,
+  type Cabecera,
   type RegistroAlta,
   type RegistroAnulacion,
+  type RegistroFactura,
   type SistemaInformatico,
-  writeRegistroAlta,
-  writeRegistroAnulacion,
-  XmlWriter,
+  serializarRemision,
 } from '../../src/index.js';
-
-/** Writes a fragment into the document being built. */
-export type Fragmento = (writer: XmlWriter) => void;
 
 /**
  * A chain with a frozen clock, so every fixture is byte-identical between runs.
@@ -123,58 +117,23 @@ export async function altaPrevia(): Promise<EslabonAltaCanonico> {
   });
 }
 
-/** Turns a record into a fragment. */
-export function fragmentoAlta(registro: RegistroAlta): Fragmento {
-  return (w) => {
-    writeRegistroAlta(w, registro);
-  };
+/** The header every fixture uses. Its NIF is the one the fixture records are issued under. */
+export const CABECERA: Cabecera = {
+  ObligadoEmision: { NombreRazon: 'EMPRESA DE PRUEBA SL', NIF: '89890001K' },
+};
+
+/** Serialises a batch with the default header. */
+export function documento(
+  registros: readonly RegistroFactura[],
+  cabecera: Cabecera = CABECERA,
+): string {
+  return serializarRemision({ cabecera, registros });
 }
 
-/** Turns a cancellation record into a fragment. */
-export function fragmentoAnulacion(registro: RegistroAnulacion): Fragmento {
-  return (w) => {
-    writeRegistroAnulacion(w, registro);
-  };
-}
-
-/**
- * Wraps record fragments in a `RegFactuSistemaFacturacion` with its `Cabecera`.
- *
- * Scaffolding: the real `Cabecera` and batch serialiser are the next step of the work order.
- * Until then this exists so records can be validated against the XSD, which only accepts whole
- * documents.
- */
-export function remision(registros: readonly Fragmento[]): string {
-  const { sfLR, sf } = PREFIX;
-  const w = new XmlWriter();
-
-  w.declaration();
-  w.open(`${sfLR}:RegFactuSistemaFacturacion`, [
-    { name: `xmlns:${sfLR}`, value: NS_SUMINISTRO_LR },
-    { name: `xmlns:${sf}`, value: NS_SUMINISTRO_INFORMACION },
-  ]);
-
-  w.open(`${sfLR}:Cabecera`);
-  w.open(`${sf}:ObligadoEmision`);
-  w.element(`${sf}:NombreRazon`, 'EMPRESA DE PRUEBA SL');
-  w.element(`${sf}:NIF`, '89890001K');
-  w.close();
-  w.close();
-
-  for (const registro of registros) {
-    w.open(`${sfLR}:RegistroFactura`);
-    registro(w);
-    w.close();
-  }
-
-  w.close();
-  return w.toString();
-}
-
-/** Serialises one alta inside a minimal remision. */
+/** Serialises one alta as a whole submission. */
 export async function documentoConAlta(
   overrides: Partial<AltaRequest> = {},
   datos: Partial<RegistroAlta['datos']> = {},
 ): Promise<string> {
-  return remision([fragmentoAlta(await altaMinima(overrides, datos))]);
+  return documento([await altaMinima(overrides, datos)]);
 }

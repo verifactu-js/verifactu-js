@@ -36,7 +36,7 @@ import type {
   RegistroAnulacionHashInput,
 } from '@verifactu-js/core';
 
-import { VerifactuXmlError } from './errors.js';
+import { assertCardinalidad, VerifactuXmlError } from './errors.js';
 import { PREFIX } from './namespaces.js';
 import type { XmlWriter } from './writer.js';
 
@@ -204,26 +204,6 @@ const MAX_DETALLE = 12;
 
 /** `IDFacturaRectificada`, `IDFacturaSustituida` and `IDDestinatario` — `maxOccurs="1000"`. */
 const MAX_LISTA = 1000;
-
-function assertCardinalidad(nombre: string, longitud: number, maximo: number): void {
-  if (longitud >= 1 && longitud <= maximo) return;
-
-  throw new VerifactuXmlError({
-    code: 'CARDINALIDAD_INVALIDA',
-    message: `«${nombre}» debe tener entre 1 y ${maximo} elementos; se han recibido ${longitud}.`,
-    causaProbable:
-      longitud === 0
-        ? 'Se ha pasado una lista vacía. El esquema declara el elemento contenedor como opcional, ' +
-          'pero su contenido no: un contenedor vacío es inválido, y el error de la AEAT apuntaría ' +
-          'al contenedor y no a la lista.'
-        : `El esquema declara maxOccurs="${maximo}" para ese elemento.`,
-    accionSugerida:
-      longitud === 0
-        ? `Omite «${nombre}» por completo en lugar de pasar una lista vacía.`
-        : `Reparte el contenido de «${nombre}» o revisa por qué se han generado ${longitud} entradas.`,
-    referencia: 'SuministroInformacion.xsd',
-  });
-}
 
 /**
  * Writes the `Encadenamiento` block, deriving the choice from the record's own hashed `Huella`.

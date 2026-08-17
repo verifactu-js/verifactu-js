@@ -18,7 +18,17 @@ export type VerifactuXmlErrorCode =
   /** The chaining block contradicts the `Huella` the record was hashed with. */
   | 'ENCADENAMIENTO_INCOHERENTE'
   /** A repeating element appears fewer or more times than the schema allows. */
-  | 'CARDINALIDAD_INVALIDA';
+  | 'CARDINALIDAD_INVALIDA'
+  /** The header combines blocks the AEAT declares mutually exclusive. */
+  | 'CABECERA_INCOHERENTE'
+  /** The batch is not a contiguous, ordered segment of one chain. */
+  | 'LOTE_NO_CONTIGUO'
+  /** A record's issuer is not the party the header declares as obliged. */
+  | 'EMISOR_DISTINTO_DEL_OBLIGADO'
+  /** The document handed in is not well-formed XML. */
+  | 'XML_MAL_FORMADO'
+  /** The document is well-formed but is not the response the service documents. */
+  | 'RESPUESTA_INESPERADA';
 
 /** Base error for every failure raised by `@verifactu-js/xml`. */
 export class VerifactuXmlError extends Error {
@@ -55,6 +65,33 @@ export function errorDocumento(message: string, accionSugerida: string): Verifac
     causaProbable:
       'El XmlWriter se ha usado en un orden que no puede producir un documento bien formado.',
     accionSugerida,
+  });
+}
+
+/**
+ * Checks that a repeating element appears between once and `maximo` times.
+ *
+ * An empty container is the interesting case: the schema declares the *container* optional but
+ * its content is not, so `<FacturasRectificadas/>` is invalid and the AEAT's error would point at
+ * the container rather than at the empty list that caused it.
+ */
+export function assertCardinalidad(nombre: string, longitud: number, maximo: number): void {
+  if (longitud >= 1 && longitud <= maximo) return;
+
+  throw new VerifactuXmlError({
+    code: 'CARDINALIDAD_INVALIDA',
+    message: `«${nombre}» debe tener entre 1 y ${maximo} elementos; se han recibido ${longitud}.`,
+    causaProbable:
+      longitud === 0
+        ? 'Se ha pasado una lista vacía. El esquema declara el elemento contenedor como opcional, ' +
+          'pero su contenido no: un contenedor vacío es inválido, y el error de la AEAT apuntaría ' +
+          'al contenedor y no a la lista.'
+        : `El esquema declara maxOccurs="${maximo}" para ese elemento.`,
+    accionSugerida:
+      longitud === 0
+        ? `Omite «${nombre}» por completo en lugar de pasar una lista vacía.`
+        : `Reparte el contenido de «${nombre}» o revisa por qué se han generado ${longitud} entradas.`,
+    referencia: 'SuministroInformacion.xsd',
   });
 }
 
