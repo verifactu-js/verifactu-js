@@ -1,9 +1,26 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
+    // No `rootDir` here on purpose: it only shapes output layout, this config emits nothing, and
+    // setting it would reject `core`'s source files below for living outside this package.
+    // `tsconfig.build.json`, which does emit, keeps it.
     "noEmit": true,
-    "types": []
+    "types": [],
+
+    // Typecheck against `core`'s **source**, not against its built `dist/index.d.ts`.
+    //
+    // Without this, `pnpm typecheck` only works if someone happened to run `pnpm build` first:
+    // a fresh clone fails, and CI fails, because the Build step runs after Typecheck. Worse than
+    // failing, it can *pass* against a stale `dist` and typecheck this package against types that
+    // no longer match the source next door.
+    //
+    // The published contract is not left unchecked: `pnpm build` compiles `tsconfig.build.json`,
+    // which deliberately has no `paths`, so the emitted declarations are still resolved through
+    // `core`'s real `exports` map. The runtimes matrix imports the built bundle on five runtimes,
+    // and `publint` + `attw` run at release.
+    "paths": {
+      "@verifactu-js/core": ["../core/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
 }
