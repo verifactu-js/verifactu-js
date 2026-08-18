@@ -19,6 +19,12 @@ export type { CategoriaError, CodigoAeat, ExplicacionCodigo } from './errores-ae
 export { CODIGOS_AEAT, explicarCodigo, FUENTE_CODIGOS } from './errores-aeat.js';
 export type { VerifactuClientErrorCode } from './errors.js';
 export { VerifactuClientError } from './errors.js';
+export type { DesfaseReloj } from './medido.js';
+export {
+  desfaseDeReloj,
+  MARGEN_RELOJ_AEAT_SEGUNDOS,
+  TIEMPO_ESPERA_ENVIO_INICIAL_SEGUNDOS,
+} from './medido.js';
 export type { Credenciales, PeticionHttp, RespuestaHttp, Transporte } from './transporte.js';
 export {
   decodificarXml,

@@ -241,12 +241,24 @@ El CLI es el vehículo de difusión: `npx verifactu verify` es algo que la gente
 La causa más frecuente de discrepancia entre la huella local y la que recalcula la AEAT es el campo
 de fecha-hora de generación del registro con huso horario.
 
-- Formato ISO 8601 con **offset explícito**, nunca `Z` implícito ni hora local ambigua. `[VERIFICAR formato exacto]`
+- Formato ISO 8601 con **offset explícito**, nunca `Z` implícito ni hora local ambigua.
+  **Medido el 18/08/2026 contra preproducción** (sonda S-2, `docs/spec-notes.md` §22): el offset es
+  exactamente `±hh:mm`. Fracciones de segundo, `+01:00:00` y `+0100` los rechaza la AEAT con el
+  código 1244. `Z` en cambio lo **acepta** — y lo hashea tal cual, lo que demuestra que la AEAT no
+  normaliza el `xs:dateTime` antes de calcular la huella. Aun así seguimos emitiendo `±hh:mm`.
 - **Caso Canarias:** el autor está en `Atlantic/Canary` (UTC+0 / UTC+1 en verano), **no** en hora peninsular.
   La librería no debe asumir `Europe/Madrid` en ningún sitio. Tests explícitos para ambos husos
   y para el cambio de hora (DST) en las dos zonas.
+  **[PENDIENTE DE MEDIR:** si `+00:00` explícito se acepta igual que `Z`. Es exactamente este
+  caso. Sonda S-2b, un envío.**]**
 - La función que obtiene la hora debe ser **inyectable** para que los tests sean deterministas.
-- Añade a `doctor` una comprobación de desfase del reloj del sistema.
+- Añade a `doctor` una comprobación de desfase del reloj del sistema. **El umbral está medido: 240
+  segundos**, que es lo que la AEAT interpola en el texto del código 2004 y no publica en ninguna
+  parte. Pasarse no rechaza el registro: lo **acepta con error**, lo almacena y obliga a subsanarlo,
+  así que un reloj desincronizado produce facturas defectuosas sin que salte nada.
+  Está en `MARGEN_RELOJ_AEAT_SEGUNDOS` y `desfaseDeReloj()` de `@verifactu-js/client`, con su
+  procedencia. Se puede comprobar **sin enviar nada**: cualquier respuesta HTTP de la AEAT trae
+  cabecera `Date`, y cada respuesta aceptada trae su `TimestampPresentacion`.
 
 ### 6.3 Modo VERI\*FACTU vs. sistema NO VERIFICABLE
 

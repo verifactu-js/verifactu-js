@@ -211,8 +211,10 @@ const ACCIONES: Readonly<Record<string, string>> = {
   '2004':
     'FechaHoraHusoGenRegistro se aparta demasiado de la hora del sistema de la AEAT. El mensaje ' +
     'oficial termina en dos puntos porque la AEAT interpola ahí el margen que aplica en ese ' +
-    'momento: léelo en DescripcionErrorRegistro, no lo supongas. Causa habitual: un registro que ' +
-    'se generó hace rato y se ha quedado esperando en una cola.',
+    'momento: léelo en DescripcionErrorRegistro, no lo supongas. El 18/08/2026 eran 240 s ' +
+    '(MARGEN_RELOJ_AEAT_SEGUNDOS). Dos causas habituales, y la primera es la mala: el reloj del ' +
+    'sistema está desincronizado y TODAS tus facturas salen así, o un registro se generó hace ' +
+    'rato y se quedó esperando en una cola. Comprueba lo primero con desfaseDeReloj().',
   '2005':
     'ImporteTotal no cuadra, pero el registro se ha almacenado. Se subsana. ' +
     '@verifactu-js/validation lo detecta antes de enviar.',
