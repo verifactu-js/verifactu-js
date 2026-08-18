@@ -25,6 +25,8 @@
     "check:readmes": "node scripts/check-readmes.mjs",
     "check:manifest": "node scripts/reference-manifest.mjs --check",
     "manifest": "node scripts/reference-manifest.mjs",
+    "check:codigos": "node scripts/generar-codigos-aeat.mjs --check",
+    "codigos": "node scripts/generar-codigos-aeat.mjs",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",

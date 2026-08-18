@@ -84,6 +84,13 @@ jobs:
       - name: Reference documents unaltered
         run: pnpm check:manifest
 
+      # The AEAT error table ships compiled into @verifactu-js/client. It is generated, never
+      # typed by hand: 247 accented Spanish messages that have to match the AEAT's word for word,
+      # because they are what a user googles when a record is rejected. This catches both a
+      # hand-edit of the generated file and a table the AEAT changed under us.
+      - name: AEAT error codes in sync
+        run: pnpm check:codigos
+
       # Sibling packages are linked from this repository only while the local version satisfies
       # the declared range. When it stops doing so, pnpm quietly installs the published copy and
       # the suite starts testing against npm instead of against this code.

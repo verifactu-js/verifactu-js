@@ -44,6 +44,14 @@
       "url": "https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/FAQs-Desarrolladores.pdf",
       "publisher": "AEAT"
     },
+    "AEAT_errores.properties": {
+      "title": "Tabla de códigos de error del servicio web (errores.properties)",
+      "version": null,
+      "documentDate": null,
+      "url": "https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/errores.properties",
+      "publisher": "AEAT",
+      "note": "Descargado el 2026-08-18 por la sonda S-1, después que el resto. Es un .properties de Java: **ISO-8859-1**, no UTF-8 (JLS §3.3 y javadoc de java.util.Properties). Leído como UTF-8 sale ilegible. Además no es latin1 puro: el código 1214 lleva un «ú» codificado en UTF-8 (bytes C3 BA) dentro de un fichero latin1, un defecto del origen que se conserva en el byte y se repara al decodificar. Se guarda sin modificar, como todo lo demás de esta carpeta. La ruta hermana sin `V1.0` sirve una versión ANTERIOR (24.892 bytes, sin 1290-1293 ni 2009): ver docs/spec-notes.md §21."
+    },
     "SistemaFacturacion.wsdl": {
       "title": "WSDL del servicio de remisión de registros de facturación",
       "version": "1.0",

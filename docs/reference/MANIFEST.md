@@ -52,6 +52,7 @@ tests no tiene acceso a red.
 |---|---|---|---|---|---|
 | `AEAT_descripcion_servicio_web.pdf` | Sistemas Informáticos de Facturación · Remisión voluntaria (descripción del servicio web) | 1.0.3 | — | 1672.8 KB | `b3570f6a308ce98a5f52001a0dc427310ad6cf7bccd60a9ee98720a59e553c02` |
 | `AEAT_DsRegistroVeriFactu.xlsx` | Diseños de registro de facturación (diccionario de datos) | 1.0 | 2024-10-28 | 58.5 KB | `40ce191aa1def6e44a5f1e86d7ece727258745b34e3fe4d6abe1468252dac2ca` |
+| `AEAT_errores.properties` | Tabla de códigos de error del servicio web (errores.properties) | — | — | 24.6 KB | `06519ceb23422bd6b0ad3bfb659e3007615050da4920781d12cff536481d5902` |
 | `AEAT_FAQs_desarrolladores.pdf` | Aclaraciones a dudas de los desarrolladores | 1.3 | 2025-12-04 | 675.3 KB | `73906dc8afbbb9da35f6cb489980352b42aed66d48828fd62a00168883c09d5e` |
 | `AEAT_huella_hash.pdf` | Detalle de las especificaciones técnicas para generación de la huella o hash de los registros de facturación | 0.1.2 | 2024-08-27 | 1146.6 KB | `f4334c254bb875b417247b54315199f89d75a8c4814dfd1e86efec562653d7de` |
 | `AEAT_QR.pdf` | Detalle de las especificaciones técnicas del código «QR» de la factura y de la «URL» del servicio de cotejo | 0.5.0 | 2025-12-10 | 768.1 KB | `f86b3c260d8a4963dbc18c5007732b53199156c5d1db63242e68db71501b49eb` |
@@ -75,6 +76,7 @@ tests no tiene acceso a red.
 |---|---|---|
 | `AEAT_descripcion_servicio_web.pdf` | AEAT | https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/Veri-Factu_Descripcion_SWeb.pdf |
 | `AEAT_DsRegistroVeriFactu.xlsx` | AEAT | https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/DsRegistroVeriFactu.xlsx |
+| `AEAT_errores.properties` | AEAT | https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/errores.properties |
 | `AEAT_FAQs_desarrolladores.pdf` | AEAT | https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/FAQs-Desarrolladores.pdf |
 | `AEAT_huella_hash.pdf` | AEAT | https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/Veri-Factu_especificaciones_huella_hash_registros.pdf |
 | `AEAT_QR.pdf` | AEAT | https://www.agenciatributaria.es/static_files/AEAT_Desarrolladores/EEDD/IVA/VERI-FACTU/DetalleEspecificacTecnCodigoQRfactura.pdf |
@@ -92,6 +94,8 @@ tests no tiene acceso a red.
 | `SuministroLR.xsd` | AEAT | https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/SuministroLR.xsd |
 | `xmldsig-core-schema.xsd` | W3C | https://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd |
 
+> **`AEAT_errores.properties`** — Descargado el 2026-08-18 por la sonda S-1, después que el resto. Es un .properties de Java: **ISO-8859-1**, no UTF-8 (JLS §3.3 y javadoc de java.util.Properties). Leído como UTF-8 sale ilegible. Además no es latin1 puro: el código 1214 lleva un «ú» codificado en UTF-8 (bytes C3 BA) dentro de un fichero latin1, un defecto del origen que se conserva en el byte y se repara al decodificar. Se guarda sin modificar, como todo lo demás de esta carpeta. La ruta hermana sin `V1.0` sirve una versión ANTERIOR (24.892 bytes, sin 1290-1293 ni 2009): ver docs/spec-notes.md §21.
+>
 > **`SistemaFacturacion.wsdl`** — Byte a byte idéntico al servido desde www2.agenciatributaria.gob.es
 >
 > **`xmldsig-core-schema.xsd`** — SuministroInformacion.xsd lo importa por URL remota. Se vendoriza porque el validador WASM no tiene red. Licencia W3C Document Notice.
