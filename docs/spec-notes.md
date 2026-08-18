@@ -1155,6 +1155,14 @@ antes de declarar `0.1.0` estable.
   **Actualización (16/08/2026):** deja de ser un bloqueo estructural. El fichero está en
   `prewww2.aeat.es`, y ese host admite cualquier certificado electrónico cualificado (ver I-27),
   luego es descargable con el mismo certificado que se use para los tests de integración.
+  **CERRADA (18/08/2026).** Descargado por la sonda S-1 contra **preproducción**
+  (`prewww2.aeat.es`, ruta `tikeV1.0`), HTTP 200, 25 232 bytes,
+  `sha256 06519ceb23422bd6b0ad3bfb659e3007615050da4920781d12cff536481d5902`. **247 códigos** en
+  tres secciones. El fichero está en `docs/reference/AEAT_errores.properties` con su hash en el
+  manifiesto, y compilado en `@verifactu-js/client` (`CODIGOS_AEAT`, `explicarCodigo`). El
+  análisis y lo que cambia está en **§21**. Resultó no requerir certificado —se sirve en abierto—,
+  pero el marcado «Con certificado» de la sede no era falso: lo que hay detrás del certificado es
+  la *página* que lo enlaza, no el fichero.
 - **I-16 — Estructura completa de `Cabecera` y `RespuestaSuministro`.**
   **Auditada campo a campo el 16/08/2026** contra `RespuestaSuministro.xsd` y
   `SuministroInformacion.xsd`. Resultado: cinco divergencias entre lo que documenta F4 y lo que
@@ -1228,7 +1236,7 @@ Lo que sí está condicionado, según la clasificación de §11:
 | Publicar `0.1.0` como **preestreno** (con las salvedades en el README) | **ninguna** |
 | Declarar `0.1.0` **estable** | I-01, I-02, I-03, I-04, I-05, I-07, I-08, I-09 (`BLOQUEA-ESTABLE`) |
 | Cerrar fase 2 (`xml` + `qr`) | I-10, I-11, I-14 |
-| Cerrar fase 3 (`client`) | I-15 |
+| Cerrar fase 3 (`client`) | ~~I-15~~ (cerrada 18/08/2026, §21) |
 
 Las ocho `BLOQUEA-ESTABLE` afectan a casos borde (Unicode, signos, decimales exóticos, formato
 del offset) y **todas** se aíslan en un único módulo de canonicalización, de modo que resolverlas
@@ -1902,3 +1910,161 @@ rechazo es visible y la decisión de enviar de todas formas es del usuario.
 
 La línea es: **lo que hace que el documento se contradiga a sí mismo va en `xml`; lo que depende
 del criterio de la AEAT sobre el contenido de la factura va en `validation`.**
+
+
+## 21. La tabla de errores de la AEAT (I-15, cerrada el 18/08/2026)
+
+Descargada por la sonda S-1 contra **preproducción**, `prewww2.aeat.es`, ruta `tikeV1.0`.
+HTTP 200, 25 232 bytes, `sha256 06519ceb…d5902`, **247 códigos**. El fichero vive sin modificar en
+`docs/reference/AEAT_errores.properties`, con su hash en `MANIFEST.md`, y se compila en
+`@verifactu-js/client` mediante `scripts/generar-codigos-aeat.mjs`.
+
+### 21.1 Es ISO-8859-1, y leerlo mal lo destruye
+
+Un `.properties` de Java es **ISO-8859-1 por especificación** (javadoc de
+`java.util.Properties#load(InputStream)`). La primera descarga usó `body.text()` de undici, que
+decodifica como UTF-8, y guardó **184 U+FFFD sobre 186 bytes altos**. No quedó feo: quedó
+**destruido**, porque de un U+FFFD no se recupera si era `ó`, `í` o `á`. Se pudo rehacer solo
+porque el fichero se sirve en abierto; una respuesta a un envío real no se puede volver a pedir.
+
+De ahí salen tres cambios:
+
+1. `scripts/properties.mjs` decodifica en latin1, resuelve `\uXXXX` (hoy hay 0, se implementa
+   igual porque el formato los admite) y repara la doble codificación de §21.2.
+2. S-1 guarda `.bin` **antes** de decodificar. La regla de «guardar en crudo» ya estaba en S-2…S-4
+   para peticiones y respuestas; faltaba aquí.
+3. `transporteNode` deja de usar `body.text()` y honra la codificación declarada en el prólogo XML
+   (`decodificarXml`). El mismo fallo sobre una `DescripcionErrorRegistro` sería irreversible.
+
+### 21.2 El fichero de la AEAT no es latin1 puro
+
+El código 1214 trae la `ú` codificada en **UTF-8** (bytes `C3 BA`) dentro de un fichero por lo
+demás ISO-8859-1. En latin1 estricto sale `nÃºmerico`. La reparación es deliberadamente estrecha:
+solo la secuencia `Ã` + continuación que vuelva a ser **una** letra Latin-1. No puede dispararse
+sobre castellano legítimo, porque ninguna palabra castellana contiene `Ã`.
+
+El texto oficial de ese mismo código dice `númerico`, con la tilde cambiada de sitio. Es una
+errata de la AEAT y **se conserva tal cual**: el valor de esta tabla está en poder citarla
+literalmente, y «corregirla» la haría inbuscable para quien reciba ese mensaje.
+
+### 21.3 Las tres secciones, y por qué la categoría no es el primer dígito
+
+| Sección | Códigos | Qué significa |
+|---|:--:|---|
+| «rechazo del envío completo» | 44 | **Nada** del lote se ha registrado. La cadena no avanza |
+| «rechazo de la factura (o de la petición completa si el error se produce en la cabecera)» | 193 | Ese registro **no** se ha almacenado. La cadena no avanza |
+| «aceptación del registro […] (posteriormente deben ser subsanados)» | 10 | El registro **sí** está almacenado y cuenta. Se subsana, **no se reenvía** |
+
+La tercera fila es la que hay que no confundir: reenviar lo que la AEAT ya guardó produce un
+duplicado (3000) y deja el original mal igual.
+
+**La categoría se parsea de las cabeceras del fichero, no se infiere del número.** Inferirla
+fallaría hoy mismo: `3500`–`3503` son 3xxx y están en la sección de envío, mientras `3000`–`3004`
+son 3xxx y están en la de registro.
+
+### 21.4 El oráculo de S-2 deja de ser una inferencia
+
+> **2000 = El cálculo de la huella suministrada es incorrecta.**
+
+Está en la sección de **aceptado con errores**. Eso convierte la lectura de S-2 de inferencia
+(«AceptadoConErrores debe de significar que recalculó otra huella») en lectura literal: si una
+variante de fecha vuelve con **2000**, la AEAT admitió el literal pero hasheó otra cosa, es decir
+**normalizó la fecha antes de hashear**. Ese es exactamente el fallo silencioso que este proyecto
+existe para evitar.
+
+Los otros códigos que S-2 puede encontrarse, y que ahora se distinguen entre sí:
+
+| Código | Texto oficial | Qué significaría |
+|---|---|---|
+| 2000 | El cálculo de la huella suministrada es incorrecta. | Normalizó la fecha antes de hashear |
+| 1244 | El campo FechaHoraHusoGenRegistro tiene un formato incorrecto. | Rechazo por forma, sin llegar a la huella |
+| 1268 | La longitud del campo FechaHoraHusoGenRegistro no cumple con las especificaciones. | Rechazo por **tamaño** — distinto de 1244, y probable en los casos de offset |
+| 1243 | Error técnico al obtener el cálculo de la fecha del huso horario. | Fallo interno de la AEAT, no medida |
+| 4106 / 1145 | El formato de fecha es incorrecto. / Formato de fecha incorrecto. | Fechas `dd-mm-aaaa`, no este campo |
+| 2004 | …debe ser la fecha actual del sistema de la AEAT, admitiéndose un margen de error de: | Ver §21.7 |
+
+### 21.5 I-28 (S-3) también gana un oráculo, y con la lista literal
+
+> **1287 = El valor del campo %s contiene carácteres no validos (<, >, ", ', =).**
+
+Dos cosas importantes. La primera: la lista de prohibidos es literalmente `<`, `>`, `"`, `'`, `=`,
+y **el `&` no está en ella**, lo que confirma por escrito lo que §18 sostiene por diseño — el
+separador de la cadena canónica viaja sin escapar y no hay ambigüedad que explotar.
+
+La segunda: el `%s` es un hueco que la AEAT rellena con **el nombre del campo infractor**. Es
+decir, el caso 3 de S-3 (anulación con `=`) no devolverá un sí/no: devolverá el nombre del campo,
+y con eso **§18.4 queda cerrada en un solo envío**. Existe además `1130` («El campo
+NumSerieFactura contiene caracteres no permitidos»), específico del alta.
+
+### 21.6 D-16 (S-4) pasa de «probablemente no concluyente» a legible
+
+El plan daba S-4 por poco fiable, porque un rechazo podía deberse a la incompatibilidad de bloques
+o a que la `RefRequerimiento` inventada no existe. La tabla desempata:
+
+| Código | Lectura |
+|---|---|
+| 4126 «RefRequerimiento solo debe informarse en… la contestación a requerimientos» | **D-16 confirmada.** Gana F3 sobre el XSD |
+| 4127 «la remisión voluntaria solo debe informarse en sistemas VERIFACTU» | **D-16 confirmada** |
+| 4122 / 4133 / 4125 (valor incorrecto, no alfanumérico, obligatorio) | **NO CONCLUYENTE.** Rechazó la referencia antes de mirar la combinación |
+| cualquier otro | **NO CONCLUYENTE** |
+
+Y 4126 aporta algo que no estaba en F3 con esa claridad: la exclusión va por **endpoint**, no solo
+por cabecera. El bloque de requerimiento pertenece al servicio de contestación a requerimientos.
+
+### 21.7 Lo que cambia en el diseño del cliente (fase 3d)
+
+- **2004** — `FechaHoraHusoGenRegistro` tiene que caer dentro de una ventana alrededor de la hora
+  del sistema de la AEAT. El mensaje oficial **termina en dos puntos** porque el margen se
+  interpola en tiempo de respuesta: hay que leerlo de `DescripcionErrorRegistro`, no suponerlo.
+  Esto es una restricción directa sobre la cola: un registro generado y encolado demasiado pronto
+  se acepta *con error*. La cola no puede sellar la fecha al encolar y enviar mucho después.
+- **4141** — suspensión temporal del acceso. **Nunca reintentar**; el propio mensaje dice que se
+  resuelve escribiendo a `verifactu@correo.aeat.es`. Cualquier backoff tiene que reconocerlo.
+- **4113 / 4114** — dos códigos distintos para los límites de tamaño. Confirman que el tope de
+  1000 `RegistroFactura` que ya impone `xml` se valida también en destino.
+- **Reintentar**: ningún código de esta tabla es reintentable con la misma carga, salvo los
+  técnicos de la AEAT (`1129`, `1241`, `1243`, `1256`, `1288`, `3500`, `3501`, `4103`, `4108`,
+  `4110`, `4111`, `4118`, `4128`). Llegan en un HTTP 200 bien formado, así que el backoff por red
+  y 5xx no los ve. Se marcan con `reenviable` en `explicarCodigo`.
+- **4119 / 4138** — codificación de la petición. Refuerzan que el sobre va en UTF-8 de extremo a
+  extremo.
+
+### 21.8 Hallazgo que obliga a corregir las sondas: el código 2007
+
+> **2007 = No debe informarse como primer registro, existen facturas emitidas con el obligado
+> emisión y el sistema informático actual.**
+
+El plan mandaba cada caso «en su propia cadena, como `PrimerRegistro`». Con 2007 sobre la mesa eso
+no funciona: en cuanto el primer caso queda almacenado, todos los siguientes que se declaren
+primeros de cadena con el **mismo** sistema informático disparan 2007.
+
+Y `CodigoErrorRegistro` es `maxOccurs="1"` en `RespuestaSuministro.xsd` — **un código por
+registro**. Un 2007 podría por tanto **tapar al 2000**, que es justo lo que S-2 va a medir. Se
+habrían gastado cinco registros contra un NIF real para no medir nada.
+
+La salida no es un truco, es la definición del campo. El diccionario de datos de la AEAT dice de
+`NumeroInstalacion`: «Deberá distinguirlo de otros posibles SIF utilizados […] de otras posibles
+instalaciones de SIF pasadas, presentes o futuras […] **incluso aunque en dichas instalaciones se
+emplee el mismo SIF de un productor**». Cada caso de sonda es una instalación distinta, luego cada
+uno empieza legítimamente su propia cadena. Implementado en `datos({ instalacion })`.
+
+De paso arregla una variable de confusión que el plan tenía sin darse cuenta: antes el control iba
+«en limpio» y las cinco variantes no. Ahora los seis parten del mismo estado.
+
+Si aun así saliera 2007, la lectura sigue siendo limpia: significaría que la AEAT no separa las
+cadenas por `NumeroInstalacion`, y el código lo diría. Ese caso quedaría **sin medir**, y así se
+anotaría.
+
+### 21.9 Las dos rutas `tike` sirven tablas distintas
+
+| Ruta | Bytes | Códigos | Diferencia |
+|---|--:|--:|---|
+| `…/tikeV1.0/cont/ws/errores.properties` | 25 232 | 247 | **La buena.** Añade 1290-1293 y 2009 |
+| `…/tike/cont/ws/errores.properties` | 24 892 | 243 | Anterior. Sin IPSI en 1245/1260 |
+
+Es la misma trampa de §8.3 en otra forma. Además hay un detalle que no es cosmético: la regla «la
+huella del registro anterior debe ser distinta de la actual» es **1278 (rechazo de la factura)**
+en la ruta vieja y **2008 (aceptado con errores)** en la nueva. La misma regla cambió de severidad
+entre versiones, que es exactamente el tipo de cosa que este documento existe para registrar.
+
+S-1 compara el `sha256` descargado contra la copia de `docs/reference/` y avisa si difieren.
