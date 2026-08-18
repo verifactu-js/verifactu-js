@@ -46,6 +46,7 @@ export {
   formatFechaHoraHusoGenRegistro,
   inspectFechaHoraHuso,
   offsetForInstant,
+  VEREDICTO_AEAT,
 } from './datetime.js';
 export type { VerifactuErrorCode } from './errors.js';
 export {

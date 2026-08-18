@@ -24,6 +24,31 @@
  *
  * Rejecting on read what we refuse to write would break every historic chain we are meant to
  * be able to check.
+ *
+ * ## Medido contra preproducción el 18/08/2026 (sonda S-2)
+ *
+ * Seis altas idénticas salvo por este literal. Lo que contestó la AEAT:
+ *
+ * | Literal enviado | Respuesta | Lectura |
+ * |---|---|---|
+ * | `2026-08-18T17:19:06+02:00` | `Correcto` | La forma que emitimos |
+ * | `2026-08-18T17:19:06.123+02:00` | **1244** | Fracciones de segundo: **rechazadas** (I-07) |
+ * | `2026-08-18T15:21:06Z` | **`Correcto`** | `Z`: **aceptado** (I-08) |
+ * | `2026-08-18T17:19:06+02:00:00` | **1244** | Offset con segundos: **rechazado** (I-09) |
+ * | `2026-08-18T17:19:06+0200` | **1244** | Offset sin dos puntos: **rechazado** (I-09) |
+ *
+ * El caso `Z` es el importante, y no por el `Z`. Volvió `Correcto`, lo que significa que la AEAT
+ * calculó **la misma huella que nosotros sobre ese literal**. Si hubiera normalizado el
+ * `xs:dateTime` a `+00:00` antes de hashear, su digest habría sido otro y habría contestado 2000
+ * («El cálculo de la huella suministrada es incorrecta»). No lo hizo.
+ *
+ * Eso cierra el miedo de fondo de toda la incógnita: **la AEAT hashea el literal tal y como
+ * llega**. Y por eso {@link inspectFechaHoraHuso} no puede tratar `Z` como un error — una cadena
+ * histórica que lo lleve es válida, verificable, y su huella cuadra.
+ *
+ * Sigue abierto si `+00:00` explícito se acepta igual que `Z`, que es el caso de Canarias en
+ * invierno. El caso de S-2 que debía medirlo estaba mal construido y midió otra cosa. Ver
+ * docs/spec-notes.md §22.
  */
 
 import { VerifactuError } from './errors.js';
@@ -49,23 +74,68 @@ export interface FormatFechaHoraHusoOptions {
 
 /** Something noticed about a stored `FechaHoraHusoGenRegistro` during verification. */
 export type FechaHoraHusoWarning =
-  /** Uses the `Z` designator rather than an explicit `+00:00` (I-08). */
+  /**
+   * Uses the `Z` designator rather than an explicit `+00:00`.
+   *
+   * **La AEAT lo acepta** y hashea el literal con la `Z` dentro (medido, S-2, 18/08/2026). Es un
+   * aviso y no un defecto: se señala porque no es lo que esta librería genera, no porque haya
+   * nada malo en el valor. Una cadena histórica con `Z` es válida y su huella cuadra.
+   */
   | 'HUSO_Z'
-  /** Carries no offset at all, so the instant is ambiguous. */
+  /** Carries no offset at all, so the instant is ambiguous. Sin medir contra la AEAT. */
   | 'SIN_HUSO'
-  /** Carries fractional seconds, which the documented format does not contemplate (I-07). */
+  /** Fractional seconds. **La AEAT los rechaza** con el código 1244 (medido, S-2). */
   | 'FRACCION_DE_SEGUNDO'
-  /** Offset includes seconds, e.g. `+01:00:00` (I-09). */
+  /** Offset with seconds, `+01:00:00`. **La AEAT lo rechaza** con 1244 (medido, S-2). */
   | 'OFFSET_CON_SEGUNDOS'
-  /** Does not look like ISO 8601 at all. */
+  /**
+   * Offset written without the colon, `+0100`.
+   *
+   * **La AEAT lo rechaza** con 1244 (medido, S-2). Existe como aviso propio desde esa medición:
+   * antes caía en el hueco de «no es la forma estricta» sin decir por qué, y ahora sabemos que
+   * es un rechazo seguro y no una diferencia de estilo.
+   */
+  | 'OFFSET_SIN_DOS_PUNTOS'
+  /** Does not look like ISO 8601 at all. Sin medir contra la AEAT. */
   | 'FORMATO_DESCONOCIDO';
+
+/**
+ * What the AEAT was measured to do with each finding.
+ *
+ * `true` aceptado, `false` rechazado, ausente si no se ha medido. Sale de la sonda S-2 contra
+ * preproducción el 18/08/2026; el crudo está en docs/probe-results y el análisis en
+ * docs/spec-notes.md §22.
+ *
+ * Exportado porque la diferencia entre «esto no es lo que generamos» y «esto la AEAT lo rechaza»
+ * es la que decide si hay que rehacer un registro o no, y adivinarla a partir del nombre del
+ * aviso sería justo el tipo de suposición que este proyecto no se permite.
+ */
+export const VEREDICTO_AEAT: Readonly<Partial<Record<FechaHoraHusoWarning, boolean>>> = {
+  HUSO_Z: true,
+  FRACCION_DE_SEGUNDO: false,
+  OFFSET_CON_SEGUNDOS: false,
+  OFFSET_SIN_DOS_PUNTOS: false,
+};
 
 /** Result of inspecting a stored `FechaHoraHusoGenRegistro`. */
 export interface FechaHoraHusoInspection {
   /** The literal exactly as stored. Never normalised: the hash was computed over this. */
   readonly value: string;
-  /** `true` when the value matches what {@link formatFechaHoraHusoGenRegistro} would emit. */
+  /**
+   * `true` when the value matches what {@link formatFechaHoraHusoGenRegistro} would emit.
+   *
+   * Es una pregunta sobre **nuestra** forma estricta, no sobre la validez del valor. Un literal
+   * con `Z` sale `ok: false` y sin embargo la AEAT lo acepta y lo hashea tal cual. Para decidir
+   * si un registro histórico está bien, la pregunta es {@link aceptadoPorLaAeat}.
+   */
   readonly ok: boolean;
+  /**
+   * Whether the AEAT is known to accept this literal.
+   *
+   * `true` medido aceptado, `false` medido rechazado, `null` sin medir. Se deriva de
+   * {@link VEREDICTO_AEAT}, y un solo aviso rechazado basta para que sea `false`.
+   */
+  readonly aceptadoPorLaAeat: boolean | null;
   /** Everything noticed. Empty when `ok` is `true`. */
   readonly warnings: readonly FechaHoraHusoWarning[];
   /** The instant, when it could be recovered; `null` otherwise. */
@@ -184,10 +254,15 @@ export function offsetForInstant(instant: Date, timeZone: string): string {
  * drops milliseconds, because neither `Z` nor fractional seconds appear in any official
  * example and both would change the hash.
  *
- * TODO(verify: I-07) — fractional seconds: undocumented whether the AEAT accepts them.
- * TODO(verify: I-08) — `Z` versus `+00:00`: undocumented. Relevant for the Canary Islands in
- * winter, where the offset is zero. See docs/spec-notes.md §11.
- * TODO(verify: I-09) — offsets with seconds: undocumented.
+ * **La medición de S-2 no relaja nada de esto, y en dos casos lo confirma.** Las fracciones de
+ * segundo (I-07) y los offsets con segundos o sin dos puntos (I-09) los rechaza la AEAT con el
+ * código 1244: emitirlos habría sido un fallo, no una diferencia de estilo. Que además acepte
+ * `Z` (I-08) no es motivo para empezar a emitirlo — la forma `±hh:mm` está medida como buena,
+ * es la que usa la propia AEAT en su `TimestampPresentacion`, y cambiar lo que se genera solo
+ * puede restar.
+ *
+ * TODO(verify: I-08) — queda por medir si `+00:00` explícito se acepta igual que `Z`. Es el caso
+ * de Canarias en invierno, y es justo lo que esta función emite allí. Ver docs/spec-notes.md §22.
  *
  * @example
  * ```ts
@@ -236,7 +311,13 @@ export function inspectFechaHoraHuso(value: string): FechaHoraHusoInspection {
   const warnings: FechaHoraHusoWarning[] = [];
 
   if (typeof value !== 'string' || !LOOSE_PATTERN.test(value)) {
-    return { value, ok: false, warnings: ['FORMATO_DESCONOCIDO'], instant: null };
+    return {
+      value,
+      ok: false,
+      aceptadoPorLaAeat: veredicto(['FORMATO_DESCONOCIDO']),
+      warnings: ['FORMATO_DESCONOCIDO'],
+      instant: null,
+    };
   }
 
   const match = LOOSE_PATTERN.exec(value) as RegExpExecArray;
@@ -247,7 +328,12 @@ export function inspectFechaHoraHuso(value: string): FechaHoraHusoInspection {
   if (fraction !== undefined) warnings.push('FRACCION_DE_SEGUNDO');
   if (zone === undefined) warnings.push('SIN_HUSO');
   else if (zone === 'Z') warnings.push('HUSO_Z');
-  else if (offsetSeconds !== undefined) warnings.push('OFFSET_CON_SEGUNDOS');
+  else {
+    if (offsetSeconds !== undefined) warnings.push('OFFSET_CON_SEGUNDOS');
+    // `+0200` en vez de `+02:00`. Es un aviso propio porque la AEAT lo rechaza con 1244, y
+    // antes de medirlo solo se notaba como «no es la forma estricta», sin decir por qué.
+    if (!zone.includes(':')) warnings.push('OFFSET_SIN_DOS_PUNTOS');
+  }
 
   const parsed = Date.parse(offsetSeconds === undefined ? value : value.slice(0, -3));
   const instant = Number.isNaN(parsed) ? null : new Date(parsed);
@@ -256,7 +342,22 @@ export function inspectFechaHoraHuso(value: string): FechaHoraHusoInspection {
   return {
     value,
     ok: warnings.length === 0 && STRICT_PATTERN.test(value),
+    aceptadoPorLaAeat: veredicto(warnings),
     warnings,
     instant,
   };
+}
+
+/**
+ * Folds the per-warning verdicts into one answer.
+ *
+ * Un solo aviso rechazado manda: da igual qué más traiga el literal, la AEAT no lo va a admitir.
+ * Y basta un aviso sin medir para que la respuesta sea `null` en vez de `true`, porque afirmar
+ * que algo se acepta sin haberlo enviado nunca es exactamente lo que no se hace aquí.
+ */
+function veredicto(warnings: readonly FechaHoraHusoWarning[]): boolean | null {
+  if (warnings.length === 0) return true;
+  if (warnings.some((w) => VEREDICTO_AEAT[w] === false)) return false;
+  if (warnings.some((w) => VEREDICTO_AEAT[w] === undefined)) return null;
+  return true;
 }

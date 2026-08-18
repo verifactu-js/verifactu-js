@@ -12,6 +12,7 @@ import {
   formatFechaHoraHusoGenRegistro,
   inspectFechaHoraHuso,
   offsetForInstant,
+  VEREDICTO_AEAT,
   VerifactuError,
 } from '../src/index.js';
 
@@ -201,6 +202,7 @@ describe('inspectFechaHoraHuso — verification is lenient (spec-notes §5.2)', 
     ['SIN_HUSO', '2024-01-01T19:20:30'],
     ['FRACCION_DE_SEGUNDO', '2024-01-01T19:20:30.123+01:00'],
     ['OFFSET_CON_SEGUNDOS', '2024-01-01T19:20:30+01:00:00'],
+    ['OFFSET_SIN_DOS_PUNTOS', '2024-01-01T19:20:30+0100'],
   ])('flags %s without throwing', (warning, value) => {
     const report = inspectFechaHoraHuso(value);
     expect(report.ok).toBe(false);
@@ -228,6 +230,58 @@ describe('inspectFechaHoraHuso — verification is lenient (spec-notes §5.2)', 
   it('preserves the original literal so the hash can be recomputed verbatim', () => {
     const stored = '2024-01-01T19:20:30.123+01:00';
     expect(inspectFechaHoraHuso(stored).value).toBe(stored);
+  });
+});
+
+describe('aceptadoPorLaAeat — lo medido en preproducción, no lo supuesto (spec-notes §22)', () => {
+  it('acepta el huso Z, que es el hallazgo de S-2', () => {
+    // Volvió `Correcto`, luego la AEAT calculó la misma huella sobre el literal con la `Z`
+    // dentro. Si hubiera normalizado a +00:00 antes de hashear habría contestado 2000.
+    const report = inspectFechaHoraHuso('2024-01-01T19:20:30Z');
+
+    expect(report.warnings).toEqual(['HUSO_Z']);
+    expect(report.aceptadoPorLaAeat).toBe(true);
+    // `ok` sigue siendo false: no es la forma que generamos. Son preguntas distintas, y
+    // confundirlas haría que una cadena histórica válida pareciese rota.
+    expect(report.ok).toBe(false);
+  });
+
+  it.each([
+    ['fracción de segundo (I-07)', '2024-01-01T19:20:30.123+01:00'],
+    ['offset con segundos (I-09)', '2024-01-01T19:20:30+01:00:00'],
+    ['offset sin dos puntos (I-09)', '2024-01-01T19:20:30+0100'],
+  ])('rechaza %s, medido con el código 1244', (_etiqueta, value) => {
+    expect(inspectFechaHoraHuso(value).aceptadoPorLaAeat).toBe(false);
+  });
+
+  it('dice null, y no true, cuando no se ha medido', () => {
+    // Un literal sin huso no se ha enviado nunca. Afirmar que se acepta sería inventárselo.
+    expect(inspectFechaHoraHuso('2024-01-01T19:20:30').aceptadoPorLaAeat).toBeNull();
+    expect(inspectFechaHoraHuso('ayer por la tarde').aceptadoPorLaAeat).toBeNull();
+  });
+
+  it('un solo aviso rechazado manda sobre los demás', () => {
+    // Fracción de segundo Y huso Z: el rechazo pesa más que la aceptación.
+    const report = inspectFechaHoraHuso('2024-01-01T19:20:30.123Z');
+
+    expect(report.warnings).toEqual(expect.arrayContaining(['FRACCION_DE_SEGUNDO', 'HUSO_Z']));
+    expect(report.aceptadoPorLaAeat).toBe(false);
+  });
+
+  it('la forma estricta se da por aceptada sin avisos', () => {
+    expect(inspectFechaHoraHuso('2024-01-01T19:20:30+01:00').aceptadoPorLaAeat).toBe(true);
+  });
+
+  it('VEREDICTO_AEAT solo contiene lo que se ha enviado de verdad', () => {
+    expect(VEREDICTO_AEAT).toEqual({
+      HUSO_Z: true,
+      FRACCION_DE_SEGUNDO: false,
+      OFFSET_CON_SEGUNDOS: false,
+      OFFSET_SIN_DOS_PUNTOS: false,
+    });
+    // Sin medir: no aparecen. Que falten es la información.
+    expect(VEREDICTO_AEAT).not.toHaveProperty('SIN_HUSO');
+    expect(VEREDICTO_AEAT).not.toHaveProperty('FORMATO_DESCONOCIDO');
   });
 });
 
