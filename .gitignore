@@ -12,3 +12,6 @@ coverage/
 .env
 .env.*
 !.env.example
+# Peticiones y respuestas de las sondas: llevan el NIF real del certificado (ver su README).
+docs/probe-results/*
+!docs/probe-results/README.md

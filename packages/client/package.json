@@ -1,0 +1,78 @@
+{
+  "name": "@verifactu-js/client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Envío de registros VERI*FACTU a la AEAT con certificado cliente (mTLS). Capa HTTP inyectable, Node por defecto. / Submission of Spanish VERI*FACTU records to the AEAT over mTLS. Injectable HTTP layer, Node by default.",
+  "keywords": [
+    "verifactu",
+    "veri-factu",
+    "aeat",
+    "facturacion",
+    "soap",
+    "mtls",
+    "spain",
+    "invoicing",
+    "tax"
+  ],
+  "license": "MIT",
+  "author": "",
+  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/client#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/verifactu-js/verifactu-js.git",
+    "directory": "packages/client"
+  },
+  "bugs": {
+    "url": "https://github.com/verifactu-js/verifactu-js/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@verifactu-js/core": "^0.2.0",
+    "@verifactu-js/validation": "^0.1.0",
+    "@verifactu-js/xml": "^0.1.0",
+    "undici": "^8.10.0"
+  },
+  "scripts": {
+    "build": "tsup && tsc -p tsconfig.build.json && node ../../scripts/emit-cts-types.mjs dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "probe:s1": "node probes/s1-errores.mjs",
+    "probe:s2": "node probes/s2-fechas.mjs",
+    "probe:s3": "node probes/s3-caracteres.mjs",
+    "probe:s4": "node probes/s4-cabecera.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0"
+  }
+}

@@ -58,6 +58,14 @@ interface Ventana {
   readonly hasta?: number;
 }
 
+/**
+ * Whether a date falls inside a window.
+ *
+ * Coverage note: the `desde === undefined` half is a defensive branch. Every window in the two
+ * tables below either has both bounds or only `hasta`, so it is reachable in principle but not
+ * from the current data. It stays because a future rate window may well be open-ended, and a
+ * missing bound must mean "no bound", never "excluded".
+ */
 function dentroDe(fecha: number | null, ventana: Ventana): boolean {
   if (fecha === null) return true; // Unparseable dates are another rule's problem.
   if (ventana.desde !== undefined && fecha < ventana.desde) return false;
@@ -273,6 +281,10 @@ export const REGLAS_LINEA: readonly Regla<Linea>[] = [
         registro.datos.TipoRectificativa === 'I' ||
         registro.fields.TipoFactura === 'R2' ||
         registro.fields.TipoFactura === 'R3';
+      // Coverage note: `problemas` is empty here in every case the suite reaches, because a
+      // rectificativa exempt from the arithmetic normally carries both rate and cuota. The
+      // non-empty half stays deliberate: the exemption is from the *sum*, not from
+      // «TipoImpositivo: campo obligatorio», and dropping those findings would be wrong.
       if (exento) return problemas.length > 0 ? problemas : undefined;
 
       const usaCoste = detalle.BaseImponibleACoste !== undefined;
