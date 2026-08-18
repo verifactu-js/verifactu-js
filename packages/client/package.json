@@ -69,6 +69,7 @@
     "typecheck": "tsc --noEmit",
     "probe:s1": "node probes/s1-errores.mjs",
     "probe:s2": "node probes/s2-fechas.mjs",
+    "probe:s2b": "node probes/s2b-offset-cero.mjs",
     "probe:s3": "node probes/s3-caracteres.mjs",
     "probe:s4": "node probes/s4-cabecera.mjs"
   },

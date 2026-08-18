@@ -23,6 +23,7 @@
 import {
   canonicalizeRegistroAlta,
   createSifChain,
+  formatFechaHoraHusoGenRegistro,
   hashRegistroAlta,
   inspectFechaHoraHuso,
 } from '@verifactu-js/core';
@@ -67,12 +68,32 @@ async function eslabonCon(serie, fechaHora) {
   return { tipo: 'alta', fields, huella: await hashRegistroAlta(input), registroAnterior: null };
 }
 
+/**
+ * Las variantes, cada una a partir de un literal **recién generado**.
+ *
+ * ## Dos trampas que esta sonda pisó en su primera ejecución
+ *
+ * La primera: el literal base se calculaba una vez, al principio, y las cinco variantes lo
+ * reutilizaban. Entre envío y envío se espera el `TiempoEsperaEnvio` de la AEAT (60 s), así que
+ * el quinto caso salía con una hora ya vieja de más de cinco minutos — por encima del margen de
+ * 240 s que la AEAT admite (código 2004). No mordió de milagro: los tres casos intermedios los
+ * rechazó antes la validación de formato. Ahora `base` se genera justo antes de cada envío.
+ *
+ * La segunda, en `offset-cero`: sustituir el offset dejando la hora de pared **cambia el
+ * instante**. `17:19:06+02:00` y `17:19:06+00:00` no son el mismo momento, van dos horas
+ * separados. Ese caso midió desfase de reloj y no validez de `+00:00`, que era lo que buscaba.
+ * Ahora convierte el instante en vez de reescribir el sufijo.
+ *
+ * Las dos son la misma lección: el literal de fecha es a la vez el dato que se mide **y** algo
+ * que la AEAT contrasta contra su reloj. Tocarlo sin querer cambia la pregunta.
+ */
 const VARIANTES = [
   ['fraccion', (base) => base.replace(/(\d{2}:\d{2}:\d{2})/, '$1.123'), 'I-07 · fracción de segundo'],
-  ['huso-z', () => `${new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')}`, 'I-08 · «Z» en vez de +00:00'],
+  ['huso-z', (base) => `${new Date(base).toISOString().replace(/\.\d{3}Z$/, 'Z')}`, 'I-08 · «Z» en vez de +00:00'],
   ['offset-segundos', (base) => `${base}:00`, 'I-09 · offset con segundos'],
   ['offset-sin-dos-puntos', (base) => base.replace(/([+-]\d{2}):(\d{2})$/, '$1$2'), 'I-09 · offset sin dos puntos'],
-  ['offset-cero', (base) => base.replace(/[+-]\d{2}:\d{2}$/, '+00:00'), 'I-08 · control, +00:00 explícito'],
+  // Mismo INSTANTE, escrito con offset cero. No es lo mismo que cambiarle el sufijo a la hora.
+  ['offset-cero', (base) => `${new Date(base).toISOString().slice(0, 19)}+00:00`, 'I-08 · +00:00 explícito'],
 ];
 
 console.log('S-2 · seis envíos. El primero es el control positivo.\n');
@@ -94,12 +115,16 @@ exigirControl(rControl);
 console.log('\n   Control correcto. Las cinco variantes son ahora interpretables.\n');
 
 // ── Casos 2-6: variantes del literal. ─────────────────────────────────────────────────────────
-const baseFecha = control.fields.FechaHoraHusoGenRegistro;
-const hallazgos = [{ caso: 'control', literal: baseFecha, ...rControl, resultado: undefined }];
+const hallazgos = [
+  { caso: 'control', literal: control.fields.FechaHoraHusoGenRegistro, ...rControl, resultado: undefined },
+];
 
 for (const [nombreCaso, transformar, etiqueta] of VARIANTES) {
   await esperar(Number(rControl.tiempoEsperaEnvio ?? '60'), 'TiempoEsperaEnvio de la AEAT');
 
+  // Recién generado, no el del control: entre caso y caso pasa un minuto, y el margen de la AEAT
+  // son 240 s. Reutilizar el de hace cinco minutos mediría el reloj en vez del formato.
+  const baseFecha = formatFechaHoraHusoGenRegistro(new Date(), { timeZone: 'Europe/Madrid' });
   const literal = transformar(baseFecha);
   const inspeccion = inspectFechaHoraHuso(literal);
   console.log(`\n   ${etiqueta}`);

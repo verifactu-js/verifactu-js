@@ -1,6 +1,6 @@
 # Plan de sondas contra preproducción — fase 3
 
-> **Estado: S-1 hecha (0 envíos). S-2, S-3 y S-4 pendientes. No se ha enviado ningún registro.**
+> **Estado: S-1 y S-2 hechas (6 registros). Pendientes: S-2b, S-3 y S-4.**
 >
 > Redactado el 18/08/2026, corregido el mismo día con las observaciones al diseño experimental, y
 > **corregido otra vez tras S-1**: la tabla de códigos obligó a cambiar cómo se aíslan las cadenas
@@ -94,8 +94,66 @@ sonda en literal**, porque la tabla trae el código exacto:
 
 Antes había que inferir «AceptadoConErrores ⇒ recalculó otra huella». Ya no: el código lo dice.
 
+### Resultado (18/08/2026)
+
+| Caso | Literal | Envío | Registro | Código |
+|---|---|---|---|:--:|
+| control | `2026-08-18T17:19:06+02:00` | Correcto | **Correcto** | — |
+| fracción | `2026-08-18T17:19:06.123+02:00` | Incorrecto | Incorrecto | **1244** |
+| huso Z | `2026-08-18T15:21:06Z` | Correcto | **Correcto** | — |
+| offset con segundos | `2026-08-18T17:19:06+02:00:00` | Incorrecto | Incorrecto | **1244** |
+| offset sin dos puntos | `2026-08-18T17:19:06+0200` | Incorrecto | Incorrecto | **1244** |
+| offset cero | `2026-08-18T17:19:06+00:00` | ParcialmenteCorrecto | AceptadoConErrores | **2004** |
+
+**I-07 e I-09 cerradas:** el offset es exactamente `±hh:mm`, y las fracciones se rechazan. La
+mitigación de fase 1 era correcta y se mantiene.
+
+**I-08, el hallazgo grande:** `Z` volvió `Correcto`, luego la AEAT calculó **la misma huella sobre
+ese literal**. Si hubiera normalizado `Z` a `+00:00` antes de hashear habría contestado 2000. No lo
+hizo. Queda medido que **la AEAT no normaliza el `xs:dateTime` antes de calcular la huella**, que
+era el miedo de fondo de las tres incógnitas.
+
+**I-08 sigue abierta en su parte importante**, y por un fallo de diseño de la propia sonda. Ver
+S-2b. Análisis completo en `spec-notes.md` §22.
+
+**Dos constantes medidas que no están publicadas en ningún sitio:** el margen de reloj de la AEAT
+son **240 s** (interpolado por ella en el texto del 2004), y `TiempoEsperaEnvio` fue **60 s** en las
+seis respuestas.
+
 La 5 debería morir en validación estructural (el XSD), no en la huella. Sirve para confirmar que el
 XSD se aplica de verdad antes que las validaciones de negocio.
+
+---
+
+## S-2b · `+00:00` explícito (I-08, lo que queda) — **1 registro**
+
+El caso `offset-cero` de S-2 estaba mal construido y midió otra cosa. Llevaba **dos** defectos
+independientes, y cualquiera bastaba para estropearlo:
+
+1. **Cambió el instante, no la forma de escribirlo.** Sustituía el sufijo dejando la hora de pared:
+   `17:19:06+02:00` → `17:19:06+00:00`. Eso mueve el momento dos horas al futuro. Se envió 17:19:06
+   UTC cuando la AEAT marcaba 15:24 UTC.
+2. **El literal venía del control, ya rancio.** Las cinco variantes derivaban del literal generado
+   al principio, y entre envíos se esperan 60 s. `offset-cero` salió **301 s** después de la hora
+   que llevaba escrita — fuera del margen de 240 s incluso sin el defecto anterior.
+
+Volvió **2004**, que mide desfase de reloj y no validez de `+00:00`. Los dos defectos están
+arreglados en `s2-fechas.mjs`; esta sonda repite **solo ese caso**.
+
+**Qué se envía:** un alta con el instante de *ahora mismo* escrito con offset cero
+(`2026-08-18T15:19:06+00:00`), `NumeroInstalacion` nueva. Es el caso de **Canarias en invierno**,
+que es lo que `formatFechaHoraHusoGenRegistro` emite allí.
+
+**Comprueba el reloj antes de gastar el registro**, leyendo la cabecera `Date` de un host de la
+AEAT: cero envíos. Si está fuera de margen, no envía nada y lo dice.
+
+| Respuesta | Lectura |
+|---|---|
+| `Correcto` | **I-08 cerrada.** `+00:00` vale y se hashea tal cual |
+| `2000` | Normalizó antes de hashear. **Contradiría** lo medido con `Z`: parar y revisar |
+| `1244` | La AEAT exige `Z` para huso cero. Habría que cambiar lo que genera `core` |
+| `2004` | **No mide nada.** Reloj desfasado: sincronizar y repetir |
+| `2007` | **No mide nada.** La AEAT no separa cadenas por `NumeroInstalacion` |
 
 ---
 
@@ -158,14 +216,17 @@ abierta — no se fuerza una conclusión.
 | Sonda | Envíos | Registros | Incógnitas |
 |---|:--:|:--:|---|
 | S-1 `errores.properties` ✅ | 0 | 0 | I-15 **cerrada** |
-| S-2 fechas | 6 | 6 | I-07, I-08, I-09 |
+| S-2 fechas ✅ | 6 | 6 | I-07 **cerrada**, I-09 **cerrada**, I-08 a medias |
+| S-2b `+00:00` | 1 | 1 | I-08, lo que queda |
 | S-3 caracteres | 3 | 3 | I-28 |
 | S-4 cabecera | 1 | 1 | D-16 |
-| **Total** | **10** | **10** | |
+| **Total** | **11** | **11** | |
 
-**Orden y paradas:** S-1 ✅ → *parada, revisar la tabla de códigos* ✅ → S-2 → *parada, revisar las
-tres incógnitas que bloquean el estable* → S-3 → S-4. Las dos paradas están impresas por los
-propios scripts al terminar.
+**Orden y paradas:** S-1 ✅ → *parada, tabla de códigos* ✅ → S-2 ✅ → *parada, las tres
+incógnitas* ✅ → **S-2b** → S-3 → S-4.
+
+El total sube de 10 a 11 registros: el envío de más es el reintento de I-08, y sale de un fallo de
+diseño de S-2, no de un cambio de alcance.
 
 Entre envío y envío se respeta el `TiempoEsperaEnvio` que devuelva la propia AEAT. Con el valor
 inicial documentado (60 s), los diez envíos ocupan unos diez minutos.
@@ -213,6 +274,7 @@ export VERIFACTU_NOMBRE=...
 
 pnpm --filter @verifactu-js/client probe:s1   # 0 envíos. PARADA.
 pnpm --filter @verifactu-js/client probe:s2   # 6 envíos. PARADA.
+pnpm --filter @verifactu-js/client probe:s2b  # 1 envío  (reintento de I-08)
 pnpm --filter @verifactu-js/client probe:s3   # 3 envíos
 pnpm --filter @verifactu-js/client probe:s4   # 1 envío
 ```

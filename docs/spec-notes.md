@@ -1113,17 +1113,29 @@ antes de declarar `0.1.0` estable.
   la AEAT. F3 lo menciona tres veces sin cuantificarlo. La FAQ F6 cita un umbral de **1 minuto**
   pero referido a otra cosa (comparación entre el registro anterior y el actual, art. 7.i.2º de la
   Orden), no a la comparación contra el reloj de la AEAT. **Sin confirmar.**
-- **I-07 `BLOQUEA-ESTABLE` — Fracciones de segundo.** `xs:dateTime` las admite; el formato documentado
-  `YYYY-MM-DDThh:mm:ssTZD` no las contempla. No consta si `2024-01-01T19:20:30.123+01:00` se
-  acepta ni cómo entraría en la huella. **Propuesta: prohibirlas. Sin confirmar.**
-- **I-08 `BLOQUEA-ESTABLE` — Offset `Z` vs `+00:00`.** Para Canarias en invierno el offset es cero. No consta si la
-  AEAT acepta `Z` o exige `+00:00`. La huella daría resultados distintos. **Sin confirmar.**
-  Afecta al caso Canarias del brief (`VERIFACTU-BRIEF.md` §6.2). Hay que probarlo contra
-  preproducción; ahora es viable (ver I-27).
-  **Mitigación en fase 1:** emitir siempre `+00:00`, nunca `Z`, y rechazar `Z` en la entrada.
-- **I-09 `BLOQUEA-ESTABLE` — Offsets con segundos** (`+01:00:00`) o sin dos puntos (`+0100`): permitidos por
-  `xs:dateTime` el primero, no el segundo. **Sin confirmar.**
-  **Mitigación en fase 1:** emitir y exigir siempre `±hh:mm`.
+- **I-07 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (18/08/2026) — Fracciones de segundo.** `xs:dateTime` las
+  admite; el formato documentado `YYYY-MM-DDThh:mm:ssTZD` no las contempla.
+  **Medida en preproducción (sonda S-2):** `2026-08-18T17:19:06.123+02:00` →
+  **`Incorrecto`, código 1244** «El campo FechaHoraHusoGenRegistro tiene un formato incorrecto».
+  La AEAT las **rechaza**. La mitigación de fase 1 era correcta y se mantiene. Ver §22.
+- **I-08 `BLOQUEA-ESTABLE` — Offset `Z` vs `+00:00`. PARCIALMENTE RESUELTA (18/08/2026).**
+  Para Canarias en invierno el offset es cero.
+  **Medido:** `2026-08-18T15:21:06Z` → **`Correcto`**. La AEAT acepta `Z` **y hashea el literal tal
+  y como llega**: si hubiera normalizado a `+00:00` antes de calcular la huella, su digest habría
+  diferido del nuestro y habría contestado 2000. No lo hizo. Eso cierra el miedo de fondo de toda
+  la incógnita — **la AEAT no normaliza el `xs:dateTime` antes de hashear** — y obliga a que la
+  inspección no trate `Z` como defecto: una cadena histórica que lo lleve es válida y verificable.
+  **Sigue abierto** si `+00:00` explícito se acepta igual, que es justo el caso de Canarias y lo
+  que emitimos allí. El caso de S-2 que debía medirlo estaba mal construido y midió desfase de
+  reloj (§22.3). Reintento pendiente: sonda **S-2b**, un envío.
+  Afecta al caso Canarias del brief (`VERIFACTU-BRIEF.md` §6.2).
+  **Mitigación en fase 1, que se mantiene:** emitir siempre `+00:00`, nunca `Z`, y rechazar `Z` en
+  la entrada. Que `Z` sea válido no es motivo para empezar a emitirlo.
+- **I-09 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (18/08/2026) — Offsets con segundos** (`+01:00:00`) **o sin
+  dos puntos** (`+0100`): permitidos por `xs:dateTime` el primero, no el segundo.
+  **Medidos en preproducción (sonda S-2):** los dos → **`Incorrecto`, código 1244**. El offset es
+  **exactamente `±hh:mm`**, ni más ni menos. La mitigación de fase 1 era correcta y se mantiene.
+  Nótese que la AEAT usa esa misma forma en su propio `TimestampPresentacion`. Ver §22.
 
 ### QR
 
@@ -1234,7 +1246,7 @@ Lo que sí está condicionado, según la clasificación de §11:
 |---|---|
 | Empezar a implementar `@verifactu/core` | **ninguna** |
 | Publicar `0.1.0` como **preestreno** (con las salvedades en el README) | **ninguna** |
-| Declarar `0.1.0` **estable** | I-01, I-02, I-03, I-04, I-05, I-07, I-08, I-09 (`BLOQUEA-ESTABLE`) |
+| Declarar `0.1.0` **estable** | I-01, I-02, I-03, I-04, I-05, ~~I-07~~, **I-08** (a medias), ~~I-09~~ — ver §22 |
 | Cerrar fase 2 (`xml` + `qr`) | I-10, I-11, I-14 |
 | Cerrar fase 3 (`client`) | ~~I-15~~ (cerrada 18/08/2026, §21) |
 
@@ -1491,7 +1503,21 @@ Al **verificar**, la cadena ya existe. Su huella se calculó sobre el literal qu
 momento, que puede venir de otro sistema o de una versión anterior de este. Rechazarlo haría
 inútil la verificación, que es justo la función que da valor al paquete. Así que
 `inspectFechaHoraHuso` no lanza nunca, devuelve el literal intacto y adjunta avisos
-(`HUSO_Z`, `SIN_HUSO`, `FRACCION_DE_SEGUNDO`, `OFFSET_CON_SEGUNDOS`, `FORMATO_DESCONOCIDO`).
+(`HUSO_Z`, `SIN_HUSO`, `FRACCION_DE_SEGUNDO`, `OFFSET_CON_SEGUNDOS`, `OFFSET_SIN_DOS_PUNTOS`,
+`FORMATO_DESCONOCIDO`).
+
+**Actualización (18/08/2026), tras medir.** La decisión aguanta y gana una pieza. Ahora sabemos
+que `Z` la AEAT lo **acepta** y que las fracciones y los offsets raros los **rechaza**, así que un
+aviso ya no es una categoría única: hay avisos que solo dicen «esto no es lo que generamos» y
+avisos que dicen «esto la AEAT no lo admite». Esa diferencia decide si un registro hay que
+rehacerlo, de modo que se expone aparte y no se deduce del nombre:
+
+- `VEREDICTO_AEAT` — qué contestó la AEAT a cada aviso. Lo no medido **no aparece**, y que falte
+  es la información.
+- `FechaHoraHusoInspection.aceptadoPorLaAeat` — `true` / `false` / `null` (sin medir).
+
+`ok` sigue significando lo que significaba: «coincide con la forma estricta que emitimos». Un
+literal con `Z` sale `ok: false` y `aceptadoPorLaAeat: true`, y las dos cosas son ciertas.
 
 Rechazar al leer lo que nos negamos a escribir rompería toda cadena histórica que se supone que
 debemos poder comprobar.
@@ -2068,3 +2094,129 @@ en la ruta vieja y **2008 (aceptado con errores)** en la nueva. La misma regla c
 entre versiones, que es exactamente el tipo de cosa que este documento existe para registrar.
 
 S-1 compara el `sha256` descargado contra la copia de `docs/reference/` y avisa si difieren.
+
+
+## 22. `FechaHoraHusoGenRegistro` medida contra el servicio (S-2, 18/08/2026)
+
+Seis altas contra **preproducción**, idénticas salvo por este literal, cada una en su propia
+cadena y con su propia `NumeroInstalacion`. Crudo completo en `docs/probe-results/s2-*`.
+
+| Caso | Literal enviado | Envío | Registro | Código |
+|---|---|---|---|:--:|
+| control | `2026-08-18T17:19:06+02:00` | Correcto | **Correcto** | — |
+| fracción | `2026-08-18T17:19:06.123+02:00` | Incorrecto | Incorrecto | **1244** |
+| huso Z | `2026-08-18T15:21:06Z` | Correcto | **Correcto** | — |
+| offset con segundos | `2026-08-18T17:19:06+02:00:00` | Incorrecto | Incorrecto | **1244** |
+| offset sin dos puntos | `2026-08-18T17:19:06+0200` | Incorrecto | Incorrecto | **1244** |
+| offset cero | `2026-08-18T17:19:06+00:00` | ParcialmenteCorrecto | AceptadoConErrores | **2004** |
+
+`TiempoEsperaEnvio` = `60` en las seis respuestas, aceptadas y rechazadas.
+
+### 22.1 El hallazgo: la AEAT hashea el literal tal y como llega
+
+El caso `Z` volvió **`Correcto`**. Eso no es un detalle sobre la letra `Z`: es la respuesta a la
+pregunta que había debajo de I-07, I-08 e I-09 desde el principio.
+
+Si la AEAT normalizase el `xs:dateTime` antes de calcular la huella —pasando `Z` a `+00:00`, que
+es la normalización obvia y la que haría cualquier parser de XML Schema— su digest habría sido
+distinto del nuestro y habría contestado **2000** («El cálculo de la huella suministrada es
+incorrecta»), que es la categoría de *aceptado con errores*. No lo hizo. Aceptó el registro sin
+una sola queja, luego calculó el mismo SHA-256 que nosotros sobre la cadena canónica que contenía
+`FechaHoraHusoGenRegistro=2026-08-18T15:21:06Z`.
+
+**La AEAT no normaliza antes de hashear.** El literal es el dato.
+
+Crudo, del envío y de la respuesta:
+
+```
+<sf:FechaHoraHusoGenRegistro>2026-08-18T15:21:06Z</sf:FechaHoraHusoGenRegistro>
+<sf:Huella>3710B1E7E31DA3A00CD7F55A0992A2A25E49A3FBE06974FDC601B80C90392F7C</sf:Huella>
+```
+```
+<tikR:CSV>A-5LDM92G53JYSRM</tikR:CSV>
+<tik:TimestampPresentacion>2026-08-18T17:21:06+02:00</tik:TimestampPresentacion>
+<tikR:EstadoEnvio>Correcto</tikR:EstadoEnvio>
+<tikR:EstadoRegistro>Correcto</tikR:EstadoRegistro>
+```
+
+Consecuencia directa en código: `inspectFechaHoraHuso` **no puede** tratar `HUSO_Z` como defecto.
+Una cadena histórica con `Z` es válida, verificable y su huella cuadra. Ver §16.
+
+### 22.2 El offset es exactamente `±hh:mm` (I-07 e I-09, cerradas)
+
+Los tres casos que se salían de esa forma volvieron **1244**, rechazo de registro: fracciones de
+segundo, offset con segundos y offset sin dos puntos. Ninguno llegó a la huella — la validación de
+formato los paró antes, que es lo que dice el propio mensaje.
+
+Esto **confirma la mitigación de fase 1** en vez de relajarla. Emitir `+01:00:00` porque
+`xs:dateTime` lo permite habría producido registros rechazados. Y hay una confirmación de segunda
+mano: la AEAT usa esa misma forma en su propio `TimestampPresentacion`.
+
+Que además acepte `Z` no es motivo para empezar a emitirlo. `±hh:mm` está medido como bueno, es lo
+que usa la AEAT, y cambiar lo que se genera solo puede restar.
+
+### 22.3 El caso que midió otra cosa, y por qué
+
+`offset-cero` debía responder la pregunta que importa —¿vale `+00:00` explícito, el caso de
+Canarias en invierno?— y no la respondió. Volvió **2004**, que mide desfase de reloj.
+
+Llevaba **dos** defectos independientes, y cualquiera de los dos bastaba:
+
+1. **Cambió el instante, no la forma de escribirlo.** El caso sustituía el sufijo dejando la hora
+   de pared: `17:19:06+02:00` → `17:19:06+00:00`. Eso no reescribe un instante, lo mueve dos horas
+   al futuro. Se envió 17:19:06 UTC cuando la AEAT marcaba 15:24 UTC.
+2. **El literal venía del control, ya rancio.** Las cinco variantes derivaban del literal generado
+   al principio de la ejecución, y entre envío y envío se esperan 60 s. `offset-cero` se envió
+   **301 s** después de la hora que llevaba escrita — por encima del margen, incluso sin el
+   defecto anterior.
+
+El segundo no mordió en los otros casos de puro azar: la validación de formato los rechazaba antes
+de llegar al reloj. Los dos están arreglados en `s2-fechas.mjs`, y el reintento va como **S-2b**,
+un envío, que además comprueba el reloj **antes** de gastar el registro leyendo la cabecera `Date`
+de un host de la AEAT — cero registros.
+
+La lección es que el literal de fecha es a la vez el dato que se mide **y** algo que la AEAT
+contrasta contra su reloj. Tocarlo sin querer cambia la pregunta.
+
+### 22.4 Constante medida: el margen de reloj son **240 segundos**
+
+```
+El valor del campo FechaHoraHusoGenRegistro debe ser la fecha actual del sistema de la AEAT,
+admitiéndose un margen de error de: 240 segundos.
+```
+
+**No está publicado en ningún sitio.** No aparece en F3, ni en F4, ni en el diccionario de datos.
+El texto del código 2004 en `errores.properties` termina en dos puntos precisamente porque el
+número se interpola en tiempo de respuesta; solo se ve enviando algo fuera de plazo.
+
+Lo que hace peligroso al 2004 es su categoría: **aceptado con errores**. El registro **queda
+almacenado** y cuenta, con un error que hay que subsanar después. No falla ruidosamente.
+
+Dos consecuencias de diseño para la fase 3d:
+
+1. **La cola no puede sellar la fecha al encolar y enviar mucho más tarde.** Cuatro minutos es muy
+   poco margen para un reintento con espera: si `TiempoEsperaEnvio` son 60 s, cuatro reintentos ya
+   agotan la ventana. El sellado tiene que ir junto al envío, no junto al encolado.
+2. **Un reloj de sistema desincronizado produce facturas defectuosas en silencio.** Comprobarlo
+   antes de empezar vale más que cualquier reintento, y sale gratis: la AEAT devuelve su hora en
+   `DatosPresentacion.TimestampPresentacion` en **cada respuesta aceptada**, y cualquier respuesta
+   HTTP suya trae cabecera `Date` para comprobarlo sin enviar nada.
+
+En código: `MARGEN_RELOJ_AEAT_SEGUNDOS = 240` y `desfaseDeReloj()` en
+`packages/client/src/medido.ts`, con la procedencia pegada. Es el umbral de aviso que le toca al
+`doctor` del CLI (`VERIFACTU-BRIEF.md` §7). El valor de la respuesta manda siempre: si la AEAT lo
+cambia, lo dirá en `DescripcionErrorRegistro` antes que nosotros.
+
+### 22.5 `TiempoEsperaEnvio` = 60 s
+
+Idéntico en las seis respuestas, incluidas las rechazadas. Se documenta como punto de partida
+razonable cuando todavía no hay respuesta que leer (`TIEMPO_ESPERA_ENVIO_INICIAL_SEGUNDOS`), no
+como constante del servicio: la AEAT lo sube cuando quiere frenar a alguien, y **el valor de la
+respuesta manda siempre**.
+
+### 22.6 De propina: `DatosPresentacion`
+
+La respuesta aceptada trae `NIFPresentador` y `TimestampPresentacion`, que `@verifactu-js/xml` ya
+parseaba y nadie usaba. `TimestampPresentacion` es **el reloj de la AEAT**, y llega en cada envío
+aceptado: comprobar el desfase no cuesta nada extra. Las respuestas rechazadas (1244) **no** traen
+el bloque, lo cual tiene sentido — no hubo presentación que sellar.
