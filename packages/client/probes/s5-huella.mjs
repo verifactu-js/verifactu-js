@@ -22,13 +22,33 @@
  *
  * ## Qué se salta la validación de `core`
  *
- * **Solo el caso 1.** `core` lanza `ESPACIO_AMBIGUO_EN_BORDE` ante el NBSP al borde, que es la
- * decisión de spec-notes §1.3.1 y es correcta: se niega a elegir por el usuario cuando no sabe qué
- * huella calculará la AEAT. El objeto de la medición es precisamente lo que se niega a construir,
- * así que ese caso arma su cadena canónica a mano y la hashea aquí. Está marcado abajo y no toca
- * la librería.
+ * **Los casos 1 y 3**, cada uno con su motivo, declarado en `motivoSalto`:
+ *
+ * - **1** — `ESPACIO_AMBIGUO_EN_BORDE`. `core` se niega a elegir en la zona gris de I-01 cuando no
+ *   sabe qué huella calculará la AEAT. Es la decisión de spec-notes §1.3.1 y es correcta.
+ * - **3** — `CARACTER_NO_PERMITIDO`. `core` restringe la serie a ASCII 32-126 (F3 §3.1.3.1).
+ *
+ * En los dos, el objeto de la medición es precisamente lo que la librería se niega a construir.
+ * Arman su cadena canónica a mano y la hashean aquí, en este fichero, sin tocar la librería.
  *
  * Los otros cinco son entradas legales que `core` acepta sin más.
+ *
+ * ## Comprobación en seco antes de enviar nada
+ *
+ * Los siete casos se construyen enteros **antes** del primer envío. La primera ejecución de esta
+ * sonda se estrelló en el caso 3 —el plan daba por hecho que pasaba por `core` y no era verdad—
+ * después de haber gastado dos registros contra un NIF real. Un fallo de construcción es local,
+ * gratis y detectable de antemano: no hay excusa para descubrirlo a mitad de camino.
+ *
+ * ## Reanudar
+ *
+ * Se pueden pasar los casos a enviar como argumentos, para no repetir los ya medidos:
+ *
+ *     node packages/client/probes/s5-huella.mjs unicode-nfd decimal-dos decimal-uno
+ *
+ * Y `--seco` construye los siete casos y para, sin enviar nada:
+ *
+ *     node packages/client/probes/s5-huella.mjs --seco
  *
  *   node packages/client/probes/s5-huella.mjs
  */
@@ -105,6 +125,7 @@ const CASOS = [
     etiqueta: 'NBSP (U+00A0) al final de NumSerieFactura',
     serie: `S5-NBSP-${marca}${NBSP}`,
     saltaCore: true,
+    motivoSalto: 'ESPACIO_AMBIGUO_EN_BORDE: core se niega a elegir en la zona gris de I-01',
     lectura: {
       correcto: 'La AEAT no recorta más allá de U+0020, igual que String.trim(). I-01 medida.',
       dosMil:
@@ -123,14 +144,33 @@ const CASOS = [
     },
   },
   {
+    // **Se salta `core`, y el plan decía que no.** Fue un error: `core` restringe
+    // `NumSerieFactura` a ASCII 32-126 (`CARACTER_NO_PERMITIDO`, F3 §3.1.3.1), así que cualquier
+    // carácter combinante lo rechaza antes de hashear. La primera ejecución de S-5 se estrelló
+    // aquí, después de gastar dos registros.
+    //
+    // Y al arreglarlo cambia lo que este caso mide. `NumSerieFactura` es el **único** campo de
+    // texto libre que entra en la huella del alta —los demás son NIF, fecha, enum, decimal o
+    // hex—, así que si la AEAT también restringe la serie a ASCII, entonces **ningún carácter
+    // que la normalización Unicode pueda tocar entra jamás en una huella**, e I-03 pasa a ser
+    // inalcanzable por construcción igual que I-01.
+    //
+    // La pregunta primaria pasa a ser: ¿la AEAT admite no-ASCII en la serie? La de normalización
+    // solo existe si la respuesta es que sí.
     id: 'unicode-nfd',
     incognita: 'I-03',
     etiqueta: 'e + acento combinante (NFD) en NumSerieFactura',
     serie: `S5-CAF${E_NFD}-${marca}`,
+    saltaCore: true,
+    motivoSalto: 'CARACTER_NO_PERMITIDO: core restringe la serie a ASCII 32-126',
     lectura: {
-      correcto: 'La AEAT no normaliza Unicode. I-03 CERRADA.',
+      correcto:
+        'La AEAT ADMITE no-ASCII en la serie y no normaliza Unicode. Dos consecuencias: I-03 ' +
+        'cerrada, y core es MÁS ESTRICTO que la AEAT — estaría rechazando series legales con Ñ ' +
+        'o acentos, que en España no es un caso raro. Hay que decidir si se afloja.',
       dosMil:
-        'La AEAT normaliza a NFC. I-03 cerrada, y core tiene que normalizar antes de hashear.',
+        'La AEAT admite no-ASCII pero normaliza a NFC. I-03 cerrada, y core tendría que ' +
+        'normalizar antes de hashear.',
     },
   },
   {
@@ -201,13 +241,8 @@ const legible = (texto) =>
     .replaceAll('\u0301', '<U+0301>')
     .replaceAll('  ', '<SP><SP>');
 
-const hallazgos = [];
-let espera = 0;
-
-for (const caso of CASOS) {
-  if (espera > 0) await esperar(espera, 'TiempoEsperaEnvio de la AEAT');
-
-  const sello = selloNuevo();
+/** Construye el eslabón de un caso con el sello que se le pase. Sin efectos: no envía nada. */
+async function construir(caso, sello) {
   const negativo = caso.rectificativa === true;
 
   const entrada = {
@@ -217,47 +252,101 @@ for (const caso of CASOS) {
     TipoFactura: negativo ? 'R1' : 'F1',
     CuotaTotal: caso.importes?.CuotaTotal ?? '21.00',
     ImporteTotal: caso.importes?.ImporteTotal ?? '121.00',
-    previous: null,
+    Huella: null,
+    FechaHoraHusoGenRegistro: sello,
   };
+
+  if (caso.saltaCore === true) {
+    // Lo que `core` se niega a construir, que es justo el objeto de la medición. El motivo va
+    // declarado en el caso, para que nadie tenga que deducirlo del código.
+    return {
+      entrada,
+      eslabon: {
+        tipo: 'alta',
+        fields: entrada,
+        huella: sha256(cadenaAlta(entrada)),
+        registroAnterior: null,
+      },
+    };
+  }
+
+  const { fields } = canonicalizeRegistroAlta(entrada);
+  return {
+    entrada,
+    eslabon: {
+      tipo: 'alta',
+      fields,
+      huella: await hashRegistroAlta(entrada),
+      registroAnterior: null,
+    },
+  };
+}
+
+// ── Comprobación en seco: los siete casos, antes de enviar ninguno ────────────────────────────
+//
+// Un fallo de construcción es local y gratis. Descubrirlo a mitad de la tanda cuesta registros
+// contra un NIF real, y ya pasó una vez.
+const selloDePrueba = selloNuevo();
+const rotos = [];
+
+for (const caso of CASOS) {
+  try {
+    await construir(caso, selloDePrueba);
+  } catch (error) {
+    rotos.push(`  ${caso.id} (${caso.incognita}): ${error.code ?? ''} ${error.message}`);
+  }
+}
+
+if (rotos.length > 0) {
+  console.error(
+    `\nLa comprobación en seco ha fallado en ${rotos.length} caso(s), sin enviar nada:\n` +
+      `${rotos.join('\n')}\n\n` +
+      'Si el caso debe saltarse la validación de core, márcalo con saltaCore y di por qué en\n' +
+      'motivoSalto. Si no, el literal está mal construido. Arréglalo antes de gastar un registro.',
+  );
+  process.exitCode = 1;
+  throw new Error('S-5 no arranca: hay casos que no se pueden construir.');
+}
+
+console.log(`Comprobación en seco: los ${CASOS.length} casos se construyen. Cero envíos hasta aquí.`);
+
+const argumentos = process.argv.slice(2);
+
+// `--seco` para aquí. Existe porque la comprobación en seco es lo único de esta sonda que se
+// puede ejercitar sin gastar registros, y sin una forma de pararla habría que llegar hasta el
+// envío para saber si funciona — que es exactamente lo que se quiere evitar.
+if (argumentos.includes('--seco')) {
+  console.log('\n--seco: se para aquí. No se ha enviado nada y no se va a enviar nada.');
+  process.exit(0);
+}
+
+// ── Envío ─────────────────────────────────────────────────────────────────────────────────────
+const soloEstos = argumentos.filter((a) => !a.startsWith('--'));
+const aEnviar = soloEstos.length === 0 ? CASOS : CASOS.filter((c) => soloEstos.includes(c.id));
+
+if (soloEstos.length > 0) {
+  const desconocidos = soloEstos.filter((id) => !CASOS.some((c) => c.id === id));
+  if (desconocidos.length > 0) throw new Error(`Casos desconocidos: ${desconocidos.join(', ')}`);
+  console.log(`Reanudando: solo ${aEnviar.length} de ${CASOS.length} casos.`);
+}
+
+console.log(`\nVan ${aEnviar.length} envíos.`);
+
+const hallazgos = [];
+let espera = 0;
+
+for (const caso of aEnviar) {
+  if (espera > 0) await esperar(espera, 'TiempoEsperaEnvio de la AEAT');
+
+  // Sello nuevo para el envío de verdad: el de la comprobación en seco ya está viejo.
+  const sello = selloNuevo();
+  const { entrada, eslabon } = await construir(caso, sello);
+  const negativo = caso.rectificativa === true;
 
   console.log(`\n── ${caso.incognita} · ${caso.etiqueta}`);
   console.log(`   serie:   ${legible(entrada.NumSerieFactura)}`);
   console.log(`   importe: ${entrada.ImporteTotal}   sello: ${sello}`);
-
-  let eslabon;
-  if (caso.saltaCore === true) {
-    // ── El único caso que se salta la validación de `core`. ──────────────────────────────────
-    // `core` lanza ESPACIO_AMBIGUO_EN_BORDE ante el NBSP, y hace bien: no sabe qué huella
-    // calculará la AEAT, así que se niega a elegir por el usuario. Medir esa respuesta exige
-    // construir aquí lo que la librería no construye. Vive en este fichero y no la toca.
-    const campos = {
-      IDEmisorFactura: entrada.IDEmisorFactura,
-      NumSerieFactura: entrada.NumSerieFactura,
-      FechaExpedicionFactura: entrada.FechaExpedicionFactura,
-      TipoFactura: entrada.TipoFactura,
-      CuotaTotal: entrada.CuotaTotal,
-      ImporteTotal: entrada.ImporteTotal,
-      Huella: null,
-      FechaHoraHusoGenRegistro: sello,
-    };
-    console.log('   (se salta la validación de core: ESPACIO_AMBIGUO_EN_BORDE. A propósito.)');
-    eslabon = {
-      tipo: 'alta',
-      fields: campos,
-      huella: sha256(cadenaAlta(campos)),
-      registroAnterior: null,
-    };
-  } else {
-    const conSello = { ...entrada, Huella: null, FechaHoraHusoGenRegistro: sello };
-    const { fields } = canonicalizeRegistroAlta(conSello);
-    eslabon = {
-      tipo: 'alta',
-      fields,
-      huella: await hashRegistroAlta(conSello),
-      registroAnterior: null,
-    };
-  }
-
+  if (caso.saltaCore === true) console.log(`   (se salta core — ${caso.motivoSalto})`);
   console.log(`   huella:  ${eslabon.huella}`);
 
   const extra = {
