@@ -7,9 +7,10 @@
  * therefore a parameter: the default is Node over undici, and anything else is a function you
  * pass in.
  *
- * Current state: **minimal, and pointed at preproduction only**. It builds the envelope, sends
- * it, parses the answer, and explains the AEAT's error codes. The queue and the backoff come
- * after the probes measure what the service actually does.
+ * Current state: **complete for preproduction, and pointed at preproduction only**. It builds the
+ * envelope, sends it, parses the answer, explains the AEAT's error codes, and sequences batches
+ * through a queue that honours the service's own throttle. Every constant it applies was measured
+ * against the live service, never assumed.
  *
  * ## Antes de escribir una cola sobre esto
  *
@@ -22,12 +23,28 @@
  * De ahí que la cola sea estrictamente secuencial: no se puede preparar el registro siguiente sin
  * la huella del anterior, y no se conoce hasta haberlo enviado.
  *
- * El contrato completo que tiene que cumplir la cola está en `docs/diseno-cola-3d.md`, escrito
- * antes de implementarla y con la medición de la que sale cada restricción.
+ * {@link crearCola} respeta esa restricción por construcción: encola datos de factura y **rechaza**
+ * una entrada que traiga un eslabón ya firmado. El contrato completo está en
+ * `docs/diseno-cola-3d.md`, escrito antes de implementarla y con la medición de la que sale cada
+ * restricción.
  */
 
 export type { Cliente, ConfiguracionCliente, ResultadoEnvio } from './cliente.js';
 export { crearClientePruebas } from './cliente.js';
+export type {
+  AltaEnCola,
+  AnulacionEnCola,
+  Cola,
+  ConfiguracionCola,
+  DecisionReintento,
+  EntradaCola,
+  EnvioRealizado,
+  Incidencia,
+  MotivoParada,
+  Parada,
+  ResultadoCola,
+} from './cola.js';
+export { crearCola, esperaTrasRespuesta, procedeReintentar } from './cola.js';
 export { cargarP12, cargarPem } from './credenciales.js';
 export type { CategoriaError, CodigoAeat, ExplicacionCodigo } from './errores-aeat.js';
 export { CODIGOS_AEAT, explicarCodigo, FUENTE_CODIGOS } from './errores-aeat.js';

@@ -1,16 +1,16 @@
 /**
  * The minimal client: build the envelope, send it, read the answer.
  *
- * Nothing else. No queue, no backoff, no retries, no error-code map — those come once the probes
- * against preproduction have measured what the service actually does, and writing them before
- * measuring would be inventing behaviour.
+ * Nothing else, on purpose. This is the primitive: one batch in, one parsed answer out, no
+ * waiting and no retrying. The queue that sequences batches, honours `TiempoEsperaEnvio` and
+ * decides when a retry is legitimate is {@link crearCola} in `cola.ts`, and it is built on top of
+ * this — so a caller who wants to drive the timing themselves still can.
  *
  * ## It refuses to talk to production
  *
- * On purpose, and not as a formality. Nothing here has ever been sent to the AEAT, the
- * `TiempoEsperaEnvio` throttle is not implemented yet, and a submission to production is a **real
- * tax filing** under a real NIF that cannot be taken back. The guard comes off in the step after
- * the probes, deliberately and with the queue in place.
+ * On purpose, and not as a formality. A submission to production is a **real tax filing** under a
+ * real NIF that cannot be taken back, and nothing here has ever been sent to production. Every
+ * measurement this package carries was taken against preproduction.
  */
 
 import {

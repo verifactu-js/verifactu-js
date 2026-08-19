@@ -14,7 +14,13 @@ export type VerifactuClientErrorCode =
   /** No answer arrived: DNS, TLS, timeout, connection reset. */
   | 'SIN_RESPUESTA'
   /** An answer arrived, but not one that can be read as a VERI*FACTU response. */
-  | 'RESPUESTA_HTTP_INESPERADA';
+  | 'RESPUESTA_HTTP_INESPERADA'
+  /** A queue entry carried an already-signed link. The chain is built at send time (R-1). */
+  | 'ESLABON_EN_LA_COLA'
+  /** Two `procesar()` running at once over the same chain. There is no parallelism (R-2). */
+  | 'COLA_EN_CURSO'
+  /** The batch size asked for is outside 1..1000 (R-6). */
+  | 'TAMANO_DE_LOTE_INVALIDO';
 
 /** Base error for every failure raised by `@verifactu-js/client`. */
 export class VerifactuClientError extends Error {
