@@ -14,7 +14,7 @@ Núcleo sin dependencias en runtime e isomórfico.
 | [`@verifactu-js/xml`](https://www.npmjs.com/package/@verifactu-js/xml) | `0.1.0` | Serialización al esquema oficial, envoltorio SOAP y lectura de la respuesta |
 | [`@verifactu-js/validation`](https://www.npmjs.com/package/@verifactu-js/validation) | `0.1.0` | Validaciones de negocio de la AEAT, cada regla citada y versionada |
 | [`@verifactu-js/client`](https://www.npmjs.com/package/@verifactu-js/client) | `0.1.0` | Envío con mTLS, cola de `TiempoEsperaEnvio`, mapa de los 247 códigos |
-| `@verifactu-js/cli` | sin publicar | `doctor` y `verify` en la línea de comandos |
+| [`@verifactu-js/cli`](https://www.npmjs.com/package/@verifactu-js/cli) | `0.1.0` | `doctor` y `verify` en la línea de comandos |
 
 Los cuatro primeros son **isomórficos y sin dependencias de terceros**. `client` no lo es:
 necesita un socket TLS con certificado cliente, y eso no existe igual en todas partes.
@@ -187,7 +187,7 @@ Las fuentes oficiales están descargadas en [`docs/reference/`](docs/reference/)
 | 1b | `qr`: URL de cotejo, medida contra el servicio real | ✅ publicada |
 | 2 | `xml` + `validation`: esquema oficial, SOAP, respuesta, reglas de negocio | ✅ publicada |
 | 3 | `client`: envío con mTLS, sondas contra preproducción y cola | ✅ publicada |
-| 4 | `cli`: `doctor` y `verify`, y tres ejemplos ejecutables | 🔧 lista, sin publicar |
+| 4 | `cli`: `doctor` y `verify`, y tres ejemplos ejecutables | ✅ publicada |
 | 5 | Consulta, eventos | no empezada |
 | 6 | XAdES para el flujo no VERI\*FACTU | no empezada |
 
