@@ -1075,24 +1075,29 @@ Afectan a casos borde (Unicode, signos, decimales exóticos), **no** al camino p
 La estrategia es aislarlas tras la API (`canonicalize.ts`) y resolverlas contra preproducción
 antes de declarar `0.1.0` estable.
 
-- **I-01 `BLOQUEA-ESTABLE` — Semántica exacta de «espacios» en el trim.** F1 dice «eliminando los espacios al inicio
+- **I-01 ~~`BLOQUEA-ESTABLE`~~ `NO BLOQUEA` (19/08/2026) — Semántica exacta de «espacios» en el trim.** Sin medir y **sin poder medirse por esta vía**: el NBSP se rechaza con el código 1130 antes de llegar a comparar huellas (S-5). Como `NumSerieFactura` es el único campo de texto libre que entra en la huella y está restringido a ASCII en los dos extremos, ningún carácter de la zona gris alcanza nunca una huella. Inalcanzable por construcción. Ver §24.2 y §24.6.
+  Texto original: F1 dice «eliminando los espacios al inicio
   y al final de cada valor». La referencia Java usa `String.trim()` (recorta `<= U+0020`).
   No consta si la AEAT, al recalcular, aplica esa misma semántica o un trim Unicode.
   Impacto: valores con NBSP/tab/newline en los bordes. **Propuesta: replicar Java. Sin confirmar.**
-- **I-02 `BLOQUEA-ESTABLE` — Espacios interiores.** El ejemplo `12345678 / G33` demuestra que se conservan, pero
+- **I-02 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (19/08/2026) — Espacios interiores.** Medida en S-5: una serie con dos espacios seguidos vuelve `Correcto` (CSV `A-TDPEZN6FG2CYFE`). La AEAT **no los colapsa** y calcula la misma huella. Ver §24.1.
+  Texto original: El ejemplo `12345678 / G33` demuestra que se conservan, pero
   no consta si la AEAT colapsa espacios interiores múltiples al recalcular
   (XML `xs:string` no normaliza, pero algunos parsers sí). **Sin confirmar.**
-- **I-03 `BLOQUEA-ESTABLE` — Normalización Unicode.** No consta si la cadena debe estar en NFC antes de codificar a
+- **I-03 ~~`BLOQUEA-ESTABLE`~~ `NO BLOQUEA` (19/08/2026) — Normalización Unicode.** Sin medir y **sin poder medirse por esta vía**: la AEAT rechaza el no-ASCII en la serie con el código 1130 (S-5, acento combinante `U+0301`; antes el NBSP). Mismo razonamiento que I-01 — ningún carácter que la normalización pueda tocar entra en una huella. De paso confirma que `core` **no** es más estricto que la AEAT al restringir a ASCII 32-126. Ver §24.6.
+  Texto original: No consta si la cadena debe estar en NFC antes de codificar a
   UTF-8. Un `NombreRazon` o un `NumSerieFactura` con `é` precompuesta vs. descompuesta produce
   bytes distintos. Ningún documento lo menciona. **Sin confirmar.** (Nota: `NumSerieFactura` es
   el único campo de texto libre que entra en la huella del alta, y el QR limita `numserie` a
   ASCII 32-126 — pero la huella no impone esa restricción explícitamente.)
-- **I-04 `BLOQUEA-ESTABLE` — Mecanismo de tolerancia decimal de la AEAT.** F1 dice que `123.1` y `123.10` son
+- **I-04 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (19/08/2026) — Mecanismo de tolerancia decimal de la AEAT.** Medida en S-5: `121.10` y `121.1` —el mismo importe, dos escrituras— vuelven los dos `Correcto`, cada uno con su huella sobre su propio literal. **No hay que normalizar nada antes de hashear.** Queda un matiz que el par no separa —si la AEAT hashea el literal o prueba variantes— y que no cambia ninguna decisión: ver §24.7.
+  Texto original: F1 dice que `123.1` y `123.10` son
   «igualmente válidos». No consta **cómo**: ¿la AEAT prueba ambas variantes?, ¿normaliza a 2
   decimales?, ¿normaliza quitando ceros a la derecha? Tampoco consta el comportamiento con
   `123` (sin punto), `123.` (punto sin decimales, que el XSD permite: `(\.\d{0,2})?`),
   `+123.45` (signo explícito, permitido por el XSD) o `-0.00`. **Sin confirmar. Alto riesgo.**
-- **I-05 `BLOQUEA-ESTABLE` — Importes negativos y signo.** El XSD permite `(\+|-)?`. No hay ningún ejemplo oficial
+- **I-05 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (19/08/2026) — Importes negativos y signo.** Medida en S-5: `+121.00` y `-121.00` vuelven los dos `Correcto`, con las huellas sobre esos literales. El `+` explícito viaja y entra en la huella tal cual, y el negativo de una rectificativa por diferencias también. **La huella no es función del importe sino de cómo se escriba.** Ver §24.8.
+  Texto original: El XSD permite `(\+|-)?`. No hay ningún ejemplo oficial
   de huella con importe negativo (facturas rectificativas por diferencias). No consta si el `+`
   explícito se conserva en la cadena de la huella. **Sin confirmar.**
 
@@ -1249,17 +1254,19 @@ Lo que sí está condicionado, según la clasificación de §11:
 |---|---|
 | Empezar a implementar `@verifactu/core` | **ninguna** |
 | Publicar `0.1.0` como **preestreno** (con las salvedades en el README) | **ninguna** |
-| Declarar `0.1.0` **estable** | I-02, I-03, I-04, I-05 · cerradas ~~I-07~~ ~~I-08~~ ~~I-09~~ (§22) ~~I-28~~ (§23) · I-01 degradada · ver §12.2 |
+| Declarar `0.1.0` **estable** | **ninguna** (19/08/2026) · ver §12.2 |
 | Cerrar fase 2 (`xml` + `qr`) | I-10, I-11, I-14 |
 | Cerrar fase 3 (`client`) | ~~I-15~~ (cerrada 18/08/2026, §21) |
 
-Las `BLOQUEA-ESTABLE` afectan a casos borde (Unicode, signos, decimales exóticos, formato del
-offset) y **todas** se aíslan en un único módulo de canonicalización, de modo que resolverlas más
-adelante no obliga a rediseñar la API. Cada una lleva su `TODO(verify: I-XX)` en el código y su
-test correspondiente marcado como pendiente.
+Las `BLOQUEA-ESTABLE` afectaban a casos borde (Unicode, signos, decimales exóticos, formato del
+offset) y **todas** se aislaron en un único módulo de canonicalización, de modo que resolverlas más
+adelante no obligara a rediseñar la API. Esa apuesta salió bien: **ninguna obligó a cambiar la API**,
+y la única que habría cambiado el comportamiento —si la AEAT hubiera normalizado antes de hashear—
+resultó no darse.
 
-Todas ellas se resuelven con **un certificado electrónico cualificado real** y una batería de
-pruebas contra preproducción (§13).
+**Todas resueltas o degradadas el 19/08/2026**, con un certificado electrónico cualificado real y
+**dieciocho registros** contra preproducción (§13, §21-§24). El código ya no tiene ningún
+`TODO(verify:)` de los que bloqueaban: solo queda I-25, que no bloquea nada.
 
 ### 12.2 Qué queda para declarar `core` estable (revisado el 19/08/2026)
 
@@ -1272,15 +1279,34 @@ respuesta dice si la AEAT calculó lo mismo.
 
 | Incógnita | ¿Abierta? | ¿Bloquea estable? | Coste de cerrarla |
 |---|:--:|:--:|---|
-| **I-01** trim de espacios | sí | **no** — ver abajo | *medida sin concluir (§24.2)* |
-| **I-02** espacios interiores múltiples | ~~sí~~ **CERRADA** (§24.1) | no | — |
-| **I-03** normalización Unicode (NFC/NFD) | sí | **sí** | 1 registro (§24.3) |
-| **I-04** tolerancia decimal | sí | **sí** | 2 registros |
-| **I-05** signo en importes | sí | **sí** | 2 registros |
+| **I-01** trim de espacios | en el papel | **no** | Inalcanzable por construcción (§24.2, §24.6) |
+| **I-02** espacios interiores múltiples | **CERRADA** | no | Medida: no los colapsa (§24.1) |
+| **I-03** normalización Unicode (NFC/NFD) | en el papel | **no** | Inalcanzable por construcción (§24.6) |
+| **I-04** tolerancia decimal | **CERRADA** | no | Medida: no normaliza (§24.7) |
+| **I-05** signo en importes | **CERRADA** | no | Medida: el signo entra tal cual (§24.8) |
 
-> **Actualizado el 19/08/2026 con la primera tanda de S-5.** I-02 cerrada: la AEAT conserva los
-> espacios interiores múltiples. I-01 sigue degradada y ahora con una medición que la respalda.
-> I-03 cambia de pregunta — ver §24.
+> **Cerrado el 19/08/2026 con S-5.** Ya no queda ninguna incógnita bloqueando declarar `0.1.0`
+> estable. Tres medidas y cerradas; dos que siguen abiertas en el papel y que **no pueden afectar a
+> ninguna huella** producida ni verificada por esta librería.
+
+#### Por qué I-01 e I-03 no bloquean aunque sigan abiertas
+
+Las dos preguntan qué hace la AEAT con caracteres que **no pueden llegar a una huella**.
+`NumSerieFactura` y `NumSerieFacturaAnulada` son los únicos campos de texto libre que entran en las
+huellas del alta y de la anulación —los demás son NIF, fecha, enum, decimal y hex— y los dos están
+restringidos a ASCII 32-126 en los dos extremos: `core` por `assertSerieValida`, y la AEAT por
+medición (código 1130, sobre `U+00A0` y sobre `U+0301`).
+
+Ni el recorte de espacios exóticos ni la normalización Unicode pueden cambiar una huella. Siguen
+anotadas porque afectan a **verificar** cadenas ajenas que sí los lleven, y ahí lo honesto es decir
+que no se puede determinar.
+
+#### Lo que S-5 no resolvió, y por qué da igual
+
+El par de I-04 no separa «la AEAT hashea el literal» de «la AEAT prueba variantes y acepta si alguna
+coincide». Bajo las dos hipótesis, `121.10` y `121.1` vuelven `Correcto`. Bajo las dos, lo correcto
+es lo que `core` ya hace. El detalle está en §24.7, con el envío que lo separaría si algún día
+importara.
 
 #### I-01 se degrada: sigue abierta, pero ya no bloquea
 
@@ -2542,10 +2568,14 @@ no se puede volver a pedir.** Arreglado en la sonda, y también en la librería 
 justo cuando más falta hace y cuando más fácil es perderlo.
 
 
-## 24. S-5, primera tanda: I-02 cerrada y el alcance real de I-01 e I-03
+## 24. S-5: las cuatro que bloqueaban el estable (19/08/2026)
 
-> **Parcial.** Se enviaron dos de los siete casos y la sonda paró en el tercero por un error de
-> construcción, local, antes de enviarlo. Los cinco que faltan siguen pendientes.
+> **Completa: siete registros, en dos tandas.** La primera paró en el tercer caso por un error de
+> construcción —local, antes de enviarlo— que se explica en §24.4. La segunda envió los cinco que
+> faltaban.
+>
+> **Resultado: I-02, I-04 e I-05 cerradas. I-01 e I-03 inalcanzables por construcción.**
+> Con eso no queda ninguna incógnita bloqueando declarar `0.1.0` estable.
 
 | # | Caso | `NumSerieFactura` | Envío | Registro | Código |
 |---|---|---|---|---|:--:|
@@ -2628,3 +2658,87 @@ explícita y no algo que haya que deducir leyendo el código:
 | 3 · NFD | `CARACTER_NO_PERMITIDO` — `core` restringe la serie a ASCII 32-126 |
 
 Es el mismo principio que §22.9 y §23.5: **lo que cuesta registros se comprueba antes de gastarlos**.
+
+---
+
+### 24.5 Segunda tanda: I-04 e I-05 cerradas, I-03 inalcanzable
+
+Cinco envíos, reanudando sin repetir los dos ya medidos.
+
+| Caso | `ImporteTotal` enviado | Envío | Registro | Código | CSV |
+|---|---|---|---|:--:|---|
+| `unicode-nfd` | — | Incorrecto | Incorrecto | **1130** | — |
+| `decimal-dos` | `121.10` | Correcto | **Correcto** | — | `A-5P4FLP7VZBVTPF` |
+| `decimal-uno` | `121.1` | Correcto | **Correcto** | — | `A-TW2XNG7A7GWZEH` |
+| `signo-mas` | `+121.00` | Correcto | **Correcto** | — | `A-QDUDCB8SD7MFVF` |
+| `importe-negativo` | `-121.00` | Correcto | **Correcto** | — | `A-BW2EGNA3QJ8WS6` |
+
+Las cuatro huellas aceptadas se han **recalculado desde el XML guardado** y coinciden con la que
+viajó, así que en los cuatro casos la AEAT dio por buena una huella computada sobre exactamente el
+literal que aparecía en el documento.
+
+### 24.6 I-03: inalcanzable por construcción, y `core` no es más estricto que la AEAT
+
+El acento combinante (`U+0301`) volvió con **1130**, el mismo código que el NBSP. Son dos
+caracteres de familias distintas —uno de espaciado, otro una marca combinante— y los dos rechazados
+por la misma regla de campo.
+
+**La pregunta de normalización queda sin medir y deja de importar.** `NumSerieFactura` y
+`NumSerieFacturaAnulada` son los únicos campos de texto libre que entran en las huellas, y están
+restringidos a ASCII en los dos extremos: `core` por `assertSerieValida`, y la AEAT por lo medido.
+Ningún carácter que la normalización Unicode pueda tocar llega jamás a una huella.
+
+Y contesta la pregunta incómoda que planteaba §24.3: **`core` no es más estricto que la AEAT.** El
+riesgo era estar rechazando series legales con `Ñ` o acentos; no las hay, la AEAT también las
+rechaza. La restricción a ASCII 32-126 de F3 §3.1.3.1 queda confirmada por medición.
+
+I-03 pasa al mismo estado que I-01: **abierta en el papel, inalcanzable en la práctica, sin
+bloquear nada.**
+
+### 24.7 I-04 cerrada, con un matiz que estos dos casos no resuelven
+
+`121.10` y `121.1` —el mismo importe, dos escrituras— volvieron los dos `Correcto`, cada uno con su
+huella sobre su propio literal. El control positivo cumplió su función: `121.10` cuadró primero, así
+que el resultado de `121.1` es legible.
+
+**Lo que queda medido:** se puede escribir un importe con uno o con dos decimales, y la huella
+calculada sobre esa escritura se acepta. La tolerancia que promete F1 es real y no hay que
+normalizar nada antes de hashear.
+
+**Lo que estos dos casos NO distinguen**, y conviene decirlo porque F1 lo planteaba como pregunta
+abierta: siguen vivas dos hipótesis.
+
+- **(a) La AEAT hashea el literal que recibe.**
+- **(b) La AEAT prueba varias normalizaciones y acepta si alguna coincide.**
+
+Bajo las dos, `121.10` y `121.1` vuelven `Correcto`. El par no las separa.
+
+Lo que sí puede decirse: **(a) es la explicación parsimoniosa y compatible con los trece registros
+enviados**, incluido el `Z` de S-2 —que bajo (b) obligaría a que la estrategia de «probar variantes»
+se aplicara también a fechas—. Pero parsimonia no es medición.
+
+**Y la distinción no cambia ninguna decisión.** Bajo (a) y bajo (b), lo correcto es lo que `core`
+ya hace: serializar una vez y usar esa misma cadena para el XML y para la huella (§1.7, §1.3.1). El
+mecanismo interno de la AEAT es curiosidad, no requisito.
+
+Si algún día se quisiera separar: **un registro** en el que el literal del XML y la entrada de la
+huella discrepen a propósito —XML con `121.10`, huella sobre `121.1`—. Bajo (a) devolvería 2000;
+bajo (b), `Correcto`. Es justo lo que §1.3.1 prohíbe construir con la librería, así que tendría que
+armarse a mano, como los casos 1 y 3.
+
+### 24.8 I-05 cerrada: el signo entra en la huella tal cual
+
+`+121.00` y `-121.00` volvieron los dos `Correcto`, con las huellas sobre esos literales. El `+`
+explícito **viaja** —no lo tumba el XSD ni lo quita la AEAT— y el negativo de una rectificativa por
+diferencias también.
+
+De ahí sale una frase que merece estar escrita sin rodeos, porque es contraintuitiva y es el origen
+de la mitad de los errores de huella que este proyecto existe para evitar:
+
+> **La huella no es función del importe. Es función de cómo se escriba el importe.**
+
+`121.00` y `+121.00` son el mismo dinero y **huellas distintas**, las dos válidas. Quien serialice
+de dos formas distintas en dos sitios del código producirá registros irreproducibles sin que nada
+falle en el momento. Por eso `core` obliga a pasar el importe ya serializado y `xml` escribe
+exactamente lo que se hasheó.
+

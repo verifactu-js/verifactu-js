@@ -1,8 +1,9 @@
 # Plan de sondas contra preproducción — fase 3
 
-> **Estado: S-1, S-2, S-2b, S-3, S-4 y 2 de los 7 casos de S-5 hechas (13 registros).**
-> **Cerradas: I-07, I-08, I-09, I-15, I-28, D-16 e I-02.** Quedan I-03, I-04 e I-05.
-> I-01 degradada, y ahora con una medición que la respalda (§24.2).
+> **Estado: TODAS HECHAS. 18 registros contra preproducción.**
+> **Cerradas: I-02, I-04, I-05, I-07, I-08, I-09, I-15, I-28 y D-16.**
+> I-01 e I-03 inalcanzables por construcción (§24.6).
+> **Ya no queda ninguna incógnita bloqueando declarar `0.1.0` estable.**
 >
 > Redactado el 18/08/2026, corregido el mismo día con las observaciones al diseño experimental, y
 > **corregido otra vez tras S-1**: la tabla de códigos obligó a cambiar cómo se aíslan las cadenas
@@ -231,7 +232,7 @@ abierta — no se fuerza una conclusión.
 
 ---
 
-## S-5 · Las cuatro que bloquean el estable (I-01…I-05) — **7 registros** · ⏸ 2 de 7
+## S-5 · Las cuatro que bloqueaban el estable (I-01…I-05) — **7 registros** · ✅ HECHA
 
 > **Aprobada en principio. No enviada.** Va después de S-3 y S-4.
 
@@ -262,10 +263,15 @@ Ver §24.
 por la que texto libre entra en una huella. Si la AEAT restringe igual, I-03 es inalcanzable por
 construcción como I-01. Si **no** restringe, `core` es más estricto que la AEAT y estaría
 rechazando series legales con `Ñ` o acentos. Esa es ahora la pregunta primaria.
-| 4 | **I-04** | `ImporteTotal` = `121.10` — **control positivo del par** | La forma que emite `core` cuadra | **PARA**: el problema no son los decimales |
-| 5 | **I-04** | `ImporteTotal` = `121.1`, el mismo importe | Hashea el literal dado | Normaliza a dos decimales |
-| 6 | **I-05** | `ImporteTotal` con `+` explícito: `+121.00` | Conserva el signo en la cadena | Lo quita al recalcular |
-| 7 | **I-05** | Rectificativa por diferencias, importes negativos | El `-` entra en la huella tal cual | Otra cosa |
+| 4 ✅ | **I-04** | `ImporteTotal` = `121.10` — control positivo | **Correcto**, control cumplido | — |
+| 5 ✅ | **I-04** | `ImporteTotal` = `121.1`, el mismo importe | **Correcto**: no normaliza | — |
+| 6 ✅ | **I-05** | `ImporteTotal` con `+` explícito: `+121.00` | **Correcto**: el `+` viaja | — |
+| 7 ✅ | **I-05** | Rectificativa por diferencias, importes negativos | **Correcto**: el `-` entra tal cual | — |
+
+**Resultado (19/08/2026).** I-04 e I-05 cerradas. El caso 3 volvió **1130** como el caso 1: la AEAT
+rechaza el no-ASCII en la serie, así que I-03 es inalcanzable por construcción y `core` **no** es
+más estricto que la AEAT. Las cuatro huellas aceptadas se recalcularon desde el XML guardado y
+coinciden. Análisis en `spec-notes.md` §24.
 
 **I-04 va en par, y ese es el cambio respecto al plan anterior.** Un solo caso con `121.1` distingue
 «hashea el literal» de «normaliza», pero no dice nada si falla por otro motivo. Con `121.10` delante
@@ -354,12 +360,13 @@ Cinco envíos, los que faltan.
 | S-2b `+00:00` ✅ | 1 | 1 | I-08 **cerrada** |
 | S-3 caracteres ✅ | 3 | 3 | I-28 **cerrada** |
 | S-4 cabecera ✅ | 1 | 1 | D-16 **confirmada** |
-| S-5 huella ⏸ | 2 de 7 | 2 de 7 | I-02 **cerrada** · faltan I-03, I-04, I-05 |
-| **Total enviado** | **13** | **13** | |
-| **Total previsto** | **18** | **18** | |
+| S-5 huella ✅ | 7 | 7 | I-02, I-04, I-05 **cerradas** · I-01, I-03 inalcanzables |
+| **Total** | **18** | **18** | |
 
 **Orden y paradas:** S-1 ✅ → *parada, tabla de códigos* ✅ → S-2 ✅ → *parada, las tres
-incógnitas* ✅ → S-2b ✅ → S-3 ✅ → S-4 ✅ → *parada, plan de S-5* ✅ → **S-5**.
+incógnitas* ✅ → S-2b ✅ → S-3 ✅ → S-4 ✅ → *parada, plan de S-5* ✅ → S-5 ✅.
+
+**Fase de medición cerrada.** Dieciocho registros, ninguno contra producción.
 
 El total sube de 10 a 11 registros: el envío de más es el reintento de I-08, y sale de un fallo de
 diseño de S-2, no de un cambio de alcance.
