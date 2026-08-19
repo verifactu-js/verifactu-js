@@ -28,7 +28,17 @@ import {
   inspectFechaHoraHuso,
 } from '@verifactu-js/core';
 
-import { cabecera, cliente, datos, enviarCaso, entorno, esperar, exigirControl, sufijo } from './comun.mjs';
+import {
+  cabecera,
+  cliente,
+  datos,
+  enviarCaso,
+  entorno,
+  esperar,
+  exigirControl,
+  fechaDeExpedicion,
+  sufijo,
+} from './comun.mjs';
 
 const { credenciales, nif, nombre } = await entorno();
 const cli = cliente(credenciales);
@@ -45,8 +55,9 @@ const CAB = cabecera({ nif, nombre });
  */
 const datosDe = (caso) => datos({ nif, nombre, instalacion: `S2-${caso}-${marca}` });
 
-const hoy = new Date();
-const fechaExpedicion = `${String(hoy.getDate()).padStart(2, '0')}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${hoy.getFullYear()}`;
+// Misma zona que el huso del registro. Si salen de zonas distintas pueden discrepar en
+// un día entero, que es la trampa de Canarias. Ver fechaDeExpedicion() en comun.mjs.
+const fechaExpedicion = fechaDeExpedicion(new Date(), 'Europe/Madrid');
 
 /** Los seis campos que no cambian entre casos. */
 function comunes(serie) {

@@ -43,7 +43,15 @@ import { request } from 'undici';
 
 import { desfaseDeReloj, MARGEN_RELOJ_AEAT_SEGUNDOS } from '@verifactu-js/client';
 
-import { cabecera, cliente, datos, enviarCaso, entorno, sufijo } from './comun.mjs';
+import {
+  cabecera,
+  cliente,
+  datos,
+  enviarCaso,
+  entorno,
+  fechaDeExpedicion,
+  sufijo,
+} from './comun.mjs';
 
 /** Fichero público de la AEAT. Solo se usa por la cabecera `Date`: no descarga nada útil aquí. */
 const RELOJ =
@@ -99,8 +107,9 @@ if (horaAeat === undefined) {
 // Es el mismo momento, en la forma que genera la librería en Atlantic/Canary en invierno.
 const literal = `${new Date().toISOString().slice(0, 19)}+00:00`;
 
-const hoy = new Date();
-const fecha = `${String(hoy.getDate()).padStart(2, '0')}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${hoy.getFullYear()}`;
+// Misma zona que el huso del registro. Si salen de zonas distintas pueden discrepar en
+// un día entero, que es la trampa de Canarias. Ver fechaDeExpedicion() en comun.mjs.
+const fecha = fechaDeExpedicion(new Date(), 'UTC');
 
 const entrada = {
   IDEmisorFactura: nif,

@@ -27,15 +27,16 @@ import { parsearRespuesta, SOAP_ACTION, SOAP_CONTENT_TYPE, serializarSobreSoap }
 
 import { transporteNode } from '@verifactu-js/client';
 
-import { cliente, datos, entorno, guardar, sufijo } from './comun.mjs';
+import { cliente, datos, entorno, fechaDeExpedicion, guardar, sufijo } from './comun.mjs';
 
 const { credenciales, nif, nombre } = await entorno();
 const cli = cliente(credenciales);
 const marca = sufijo();
 const DAT = datos({ nif, nombre, instalacion: `S4-cabecera-${marca}` });
 
-const hoy = new Date();
-const fecha = `${String(hoy.getDate()).padStart(2, '0')}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${hoy.getFullYear()}`;
+// Misma zona que el huso del registro. Si salen de zonas distintas pueden discrepar en
+// un día entero, que es la trampa de Canarias. Ver fechaDeExpedicion() en comun.mjs.
+const fecha = fechaDeExpedicion(new Date(), 'Europe/Madrid');
 
 const eslabon = await createSifChain({ timeZone: 'Europe/Madrid' }).alta({
   IDEmisorFactura: nif,

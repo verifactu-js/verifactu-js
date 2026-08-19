@@ -77,6 +77,34 @@ export function sufijo() {
   return new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
 }
 
+/**
+ * `FechaExpedicionFactura` derived from the same instant and the same zone as the timestamp.
+ *
+ * Parece una tontería y no lo es. El registro lleva dos fechas —la de expedición, `dd-mm-aaaa`, y
+ * la de generación con huso— y si cada una sale de una zona distinta pueden discrepar en un día
+ * entero. Le pasó a S-2b: expedición `19-08-2026` (hora peninsular) con generación
+ * `2026-08-18T23:36:50+00:00`, que en UTC es todavía el día 18. La AEAT lo aceptó, pero solo
+ * porque su propia fecha era también el 19 y la única regla candidata —1112, «FechaExpedicion
+ * Factura es superior a la fecha actual»— no podía saltar. No es algo en lo que apoyarse.
+ *
+ * Y es exactamente la forma que toma el problema de Canarias: una hora de diferencia con la
+ * Península convierte «qué día es» en una pregunta con dos respuestas.
+ *
+ * @param instante - El mismo `Date` con el que se genera `FechaHoraHusoGenRegistro`.
+ * @param zona - La misma zona IANA. `'UTC'` cuando el registro va con offset cero.
+ */
+export function fechaDeExpedicion(instante, zona) {
+  const partes = new Intl.DateTimeFormat('en-CA', {
+    timeZone: zona,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(instante);
+
+  const de = (tipo) => partes.find((parte) => parte.type === tipo)?.value ?? '';
+  return `${de('day')}-${de('month')}-${de('year')}`;
+}
+
 /** The header, with the real obligated party. */
 export function cabecera({ nif, nombre }) {
   return { ObligadoEmision: { NombreRazon: nombre, NIF: nif } };

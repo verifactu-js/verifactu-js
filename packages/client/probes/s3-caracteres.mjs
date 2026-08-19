@@ -31,6 +31,7 @@ import {
   entorno,
   esperar,
   exigirControl,
+  fechaDeExpedicion,
   sha256,
   sufijo,
 } from './comun.mjs';
@@ -43,8 +44,9 @@ const CAB = cabecera({ nif, nombre });
 /** Una instalación de SIF por caso, para que ninguno arrastre un 2007. Ver comun.mjs. */
 const datosDe = (caso) => datos({ nif, nombre, instalacion: `S3-${caso}-${marca}` });
 
-const hoy = new Date();
-const fecha = `${String(hoy.getDate()).padStart(2, '0')}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${hoy.getFullYear()}`;
+// Misma zona que el huso del registro. Si salen de zonas distintas pueden discrepar en
+// un día entero, que es la trampa de Canarias. Ver fechaDeExpedicion() en comun.mjs.
+const fecha = fechaDeExpedicion(new Date(), 'Europe/Madrid');
 
 console.log('S-3 · tres envíos. El primero (serie con «&») es legal y hace de control.\n');
 
