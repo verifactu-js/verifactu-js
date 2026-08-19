@@ -1096,7 +1096,8 @@ antes de declarar `0.1.0` estable.
   de huella con importe negativo (facturas rectificativas por diferencias). No consta si el `+`
   explícito se conserva en la cadena de la huella. **Sin confirmar.**
 
-- **I-28 `BLOQUEA-ESTABLE` — Separadores sin escapar dentro de los valores.** La cadena canónica
+- **I-28 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (19/08/2026) — Separadores sin escapar dentro de los valores.** Medida en la sonda S-3: el `&` vuelve `Correcto` y la AEAT calcula la misma huella. El texto oficial del código 1287 enumera `<`, `>`, `"`, `'` y `=`, y **no incluye el `&`**. La decisión de permitirlo queda confirmada por medición. §18.4 también cerrada: la restricción alcanza a la anulación, aunque el `%s` devuelva un nombre genérico. Ver §23.
+  Texto original de la incógnita: La cadena canónica
   usa `&` y `=` como separadores y **no escapa nada** dentro de los valores. Si
   `NumSerieFactura` valiera `A&B`, la cadena queda visualmente ambigua:
   `…&NumSerieFactura=A&B&FechaExpedicionFactura=…`
@@ -1248,7 +1249,7 @@ Lo que sí está condicionado, según la clasificación de §11:
 |---|---|
 | Empezar a implementar `@verifactu/core` | **ninguna** |
 | Publicar `0.1.0` como **preestreno** (con las salvedades en el README) | **ninguna** |
-| Declarar `0.1.0` **estable** | I-02, I-03, I-04, I-05 · ~~I-07~~ ~~I-08~~ ~~I-09~~ cerradas (§22) · I-01 degradada · ver §12.2 |
+| Declarar `0.1.0` **estable** | I-02, I-03, I-04, I-05 · cerradas ~~I-07~~ ~~I-08~~ ~~I-09~~ (§22) ~~I-28~~ (§23) · I-01 degradada · ver §12.2 |
 | Cerrar fase 2 (`xml` + `qr`) | I-10, I-11, I-14 |
 | Cerrar fase 3 (`client`) | ~~I-15~~ (cerrada 18/08/2026, §21) |
 
@@ -2014,7 +2015,7 @@ rechazo es visible y la decisión de enviar de todas formas es del usuario.
 | Lote contiguo y ordenado (§19.6) | Aritmética local sobre las huellas del propio lote |
 | `IDEmisorFactura` = `ObligadoEmision/NIF` (§19.4) | Regla citada, comprobable sin contexto, y su incumplimiento parte el lote |
 | Cardinalidades 1..12 / 1..1000 | Estructura del esquema, no negocio |
-| `RemisionVoluntaria` XOR `RemisionRequerimiento` (D-16) | El XSD lo admite y la AEAT no; sin esto el documento sale mal formado de fábrica |
+| `RemisionVoluntaria` XOR `RemisionRequerimiento` (D-16) | **Medido (S-4, 19/08/2026): código 4126.** La exclusión va por endpoint, no por cabecera. Ver §23.3 |
 
 La línea es: **lo que hace que el documento se contradiga a sí mismo va en `xml`; lo que depende
 del criterio de la AEAT sobre el contenido de la factura va en `validation`.**
@@ -2418,3 +2419,120 @@ restricción que más forma le da a la cola de la fase 3d:
 margen: pasándole el `TimestampPresentacion` de la AEAT dice si la máquina va mal, y pasándole el
 sello del propio registro dice cuánto ha envejecido. El texto de `aviso` está redactado para el
 primer caso; para el segundo, lo que se mira es `segundos` y `dentroDelMargen`.
+
+
+## 23. I-28 y D-16 medidas contra el servicio (S-3 y S-4, 19/08/2026)
+
+### 23.1 El `&` viaja sin escapar, y la AEAT calcula la misma huella (I-28, cerrada)
+
+| Caso | `NumSerieFactura` | Envío | Registro | Código |
+|---|---|---|---|:--:|
+| 1 | `S3-A&B-…` | Correcto | **Correcto** | — |
+| 2 | `S3-A=B-…` | Incorrecto | Incorrecto | **1287** |
+| 3 | anulación con `=` | Incorrecto | Incorrecto | **1287** |
+
+El caso 1 volvió `Correcto` con CSV `A-VFVXAT4FXN9JUR`. Eso significa que la AEAT calculó **la misma
+huella** sobre una cadena canónica que contenía un `&` dentro de un valor:
+
+```
+IDEmisorFactura=…&NumSerieFactura=S3-A&B-20260819…&FechaExpedicionFactura=…
+```
+
+**Queda medido lo que §18 sostenía por diseño.** La discusión era si permitir el `&` o rechazarlo
+por precaución: la cadena canónica usa `&` como separador y no escapa nada, así que un valor con `&`
+la vuelve visualmente ambigua. La decisión fue permitirlo, porque la ambigüedad es aparente y no
+real —el número de campos es fijo y su orden también, de modo que un parser posicional nunca se
+confunde—. Ahora está confirmado por medición y no por razonamiento.
+
+Y el texto oficial del código 1287 lo dice por escrito:
+
+> El valor del campo %s contiene carácteres no validos (`<`, `>`, `"`, `'`, `=`).
+
+**Cinco caracteres, y el `&` no está entre ellos.** Rechazarlo habría sido más estricto que la AEAT,
+y habría rechazado series legales de usuarios reales.
+
+### 23.2 §18.4 cerrada, con un matiz sobre el `%s`
+
+La pregunta abierta era si la restricción de caracteres alcanza también a la anulación, donde el
+campo se llama `NumSerieFacturaAnulada`. **Sí la alcanza**: el caso 3 volvió rechazado con 1287.
+
+Pero el `%s` **no** trae el nombre real del campo. La respuesta a una anulación con `=` en
+`NumSerieFacturaAnulada` fue, literal:
+
+```
+El valor del campo NumSerieFactura contiene carácteres no validos (<, >, ", ', =).
+```
+
+El registro enviado no contiene ningún elemento llamado `NumSerieFactura` —una anulación lleva
+`IDEmisorFacturaAnulada`, `NumSerieFacturaAnulada` y `FechaExpedicionFacturaAnulada`—, así que la
+AEAT rellena el `%s` con un **nombre genérico o normalizado**, no con el nombre del elemento XML.
+
+Lo que sí queda medido y lo que no:
+
+- **Medido:** la restricción se aplica a la anulación. El registro se rechaza.
+- **Medido:** el `%s` no es un identificador fiable del elemento infractor cuando el registro es una
+  anulación.
+- **No medido:** si la AEAT normaliza el nombre («Anulada» fuera) o si simplemente usa una etiqueta
+  fija para la familia. Con un solo campo candidato en el registro no se puede distinguir, y
+  distinguirlo costaría otro registro para responder algo que no cambia ninguna decisión.
+
+Consecuencia práctica: **no ramificar sobre el `%s`.** Sirve para enseñárselo a una persona, no para
+que un programa deduzca qué campo corregir. `core` ya rechaza el `=` en los dos campos, que es lo
+correcto sea cual sea el nombre que devuelva la AEAT.
+
+### 23.3 D-16 confirmada, y la exclusión va **por endpoint** (S-4)
+
+La cabecera con `RemisionVoluntaria` y `RemisionRequerimiento` a la vez volvió con **4126**:
+
+> Codigo[4126].Error en la cabecera: el campo RefRequerimiento solo debe informarse en sistemas en
+> remisiones al endpoint del servicio a usar para la contestación a requerimientos de registros de
+> facturación.
+
+D-16 queda confirmada: gana F3 sobre el XSD. Pero el mensaje dice **más** que F3, y es lo importante
+del hallazgo.
+
+F3 §3.1.1 presenta los dos bloques como excluyentes *dentro de la cabecera*. La AEAT no habla de la
+cabecera: habla del **endpoint**. `RefRequerimiento` pertenece al servicio de contestación a
+requerimientos, y en el endpoint de remisión voluntaria sobra siempre — con `RemisionVoluntaria`
+delante o sin ella.
+
+**Y eso explica el XSD.** La pregunta que quedaba en §19 era por qué el esquema declara los dos
+bloques como opcionales independientes si son excluyentes. La respuesta es que el esquema **es común
+a los dos endpoints**: `SuministroLR.xsd` describe la forma del documento, y la restricción no vive
+en la forma sino en el servicio que lo recibe. Un esquema por endpoint habría podido expresarlo; uno
+compartido, no. No es un descuido de la AEAT, es una consecuencia de compartir esquema.
+
+Para la librería no cambia nada: `writeCabecera` sigue rechazando la combinación con
+`CABECERA_INCOHERENTE`, que ahora está medido como correcto. Cambia el **motivo** que se documenta:
+no es «F3 lo prohíbe», es «este bloque pertenece a otro servicio».
+
+### 23.4 Un error de cabecera llega como SOAP Fault, no como respuesta de negocio
+
+S-4 preguntaba por D-16 y contestó de paso algo que no estaba probado. El 4126 **no llegó** en una
+`RespuestaLinea` con su `CodigoErrorRegistro`: llegó como **SOAP Fault**, con el código embebido en
+el `faultstring` con la forma `Codigo[4126].`.
+
+Tiene sentido — un error de cabecera tumba el envío entero y no hay línea de la que colgarlo — pero
+significa que **hay dos caminos por los que llega un código de la AEAT**, y hasta ahora solo uno
+estaba tratado. El código quedaba dentro de una frase y `explicarCodigo()` no lo veía nunca.
+
+Corregido:
+
+- `@verifactu-js/xml` extrae el código del `faultstring` y lo expone en
+  `VerifactuXmlError.codigoAeat`. Si el patrón no aparece, devuelve `undefined`: inventarse un
+  código sería peor que no tenerlo.
+- `@verifactu-js/client` lo propaga a `VerifactuClientError.codigoAeat`, y su `accionSugerida`
+  remite a `explicarCodigo()`.
+- Los dos caminos dan **el mismo objeto** de explicación. Quien integra no debería tener que saber
+  por cuál llegó.
+
+### 23.5 Y un defecto de la sonda: el cuerpo del fault se perdió
+
+S-4 declaraba la respuesta HTTP dentro del `try`. Cuando `parsearRespuesta` lanzó sobre el fault, el
+cuerpo se descartó y el fichero quedó con `(no hubo respuesta)`. La conclusión se salvó **solo
+porque el mensaje del error llevaba el texto dentro**, lo cual es suerte y no diseño.
+
+Es el mismo principio de §22.9 aplicado a otra cosa: **una respuesta de la AEAT a un registro real
+no se puede volver a pedir.** Arreglado en la sonda, y también en la librería —
+`VerifactuClientError.cuerpo` lleva ahora el cuerpo entero cuando no se ha podido parsear, que es
+justo cuando más falta hace y cuando más fácil es perderlo.

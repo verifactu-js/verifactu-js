@@ -10,6 +10,20 @@
  * Current state: **minimal, and pointed at preproduction only**. It builds the envelope, sends
  * it, parses the answer, and explains the AEAT's error codes. The queue and the backoff come
  * after the probes measure what the service actually does.
+ *
+ * ## Antes de escribir una cola sobre esto
+ *
+ * **La cadena se construye al enviar, no al encolar.** `FechaHoraHusoGenRegistro` entra en la
+ * huella, y la huella de cada registro es un campo del siguiente: re-sellar un registro para
+ * ponerlo al día invalida toda la cadena que cuelgue detrás. Un registro encolado con su huella ya
+ * calculada es inmutable, y la AEAT lo compara contra su reloj con un margen de 240 s —pasarse no
+ * lo rechaza, lo **acepta con errores** y hay que subsanarlo—.
+ *
+ * De ahí que la cola sea estrictamente secuencial: no se puede preparar el registro siguiente sin
+ * la huella del anterior, y no se conoce hasta haberlo enviado.
+ *
+ * El contrato completo que tiene que cumplir la cola está en `docs/diseno-cola-3d.md`, escrito
+ * antes de implementarla y con la medición de la que sale cada restricción.
  */
 
 export type { Cliente, ConfiguracionCliente, ResultadoEnvio } from './cliente.js';

@@ -96,8 +96,14 @@ const enviar = transporteNode(credenciales);
 let resultado;
 let error;
 
+// `http` vive fuera del try a propósito. La primera versión lo declaraba dentro, y cuando
+// `parsearRespuesta` lanzó sobre el SOAP Fault el cuerpo se perdió: quedó «(no hubo respuesta)»
+// en el fichero y la conclusión se salvó solo porque el mensaje del error llevaba el texto. Una
+// respuesta de la AEAT a un registro real no se puede volver a pedir.
+let http;
+
 try {
-  const http = await enviar({
+  http = await enviar({
     url: cli.url,
     metodo: 'POST',
     cabeceras: { 'Content-Type': SOAP_CONTENT_TYPE, SOAPAction: SOAP_ACTION },
@@ -117,7 +123,13 @@ try {
   error = e;
 }
 
-const base = await guardar('s4', 'dos-bloques', { peticion: conLosDos, resultado, error });
+// El cuerpo va aparte porque aquí lo lanza `xml` y no el cliente, así que el error no lo trae.
+const base = await guardar('s4', 'dos-bloques', {
+  peticion: conLosDos,
+  resultado,
+  error,
+  cuerpo: http?.cuerpo,
+});
 
 console.log(`\n${'='.repeat(78)}`);
 if (resultado === undefined) {

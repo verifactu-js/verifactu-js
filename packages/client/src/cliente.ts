@@ -103,6 +103,35 @@ export function crearClientePruebas(configuracion: ConfiguracionCliente): Client
 }
 
 /**
+ * What to do about a body that could not be parsed.
+ *
+ * El orden importa. Un SOAP Fault con código de la AEAT es un diagnóstico concreto y gana a
+ * cualquier consejo genérico: los errores de cabecera llegan por ahí y no por `RespuestaLinea`.
+ */
+function accionPara(estado: number, error: unknown): string {
+  const codigoAeat = (error as { codigoAeat?: unknown } | null)?.codigoAeat;
+  if (typeof codigoAeat === 'string') {
+    return (
+      `La AEAT ha contestado con un SOAP Fault que trae su código ${codigoAeat}, disponible en ` +
+      '«codigoAeat». Pásalo por explicarCodigo(): la explicación es la misma que si hubiera ' +
+      'llegado en una RespuestaLinea.'
+    );
+  }
+
+  if (estado === 401 || estado === 403) {
+    return (
+      'Ese estado con certificado cliente casi siempre es el certificado: caducado, no admitido ' +
+      'por el endpoint, o de sello enviado al host que no es.'
+    );
+  }
+
+  return (
+    'Guarda el cuerpo entero antes de reintentar nada. Si es HTML, es una página de error de la ' +
+    'sede y el problema no está en el XML.'
+  );
+}
+
+/**
  * Parses the body, or explains why it could not be.
  *
  * A non-2xx status is **not** short-circuited: a SOAP Fault arrives with a 500 and carries the
@@ -119,13 +148,10 @@ function leer(http: RespuestaHttp, url: string): RespuestaRemision {
       // `String(error)` rather than reading `.message`: it keeps the error's name, and it cannot
       // produce `undefined` for something thrown that is not an Error.
       causaProbable: String(error),
-      accionSugerida:
-        http.estado === 401 || http.estado === 403
-          ? 'Ese estado con certificado cliente casi siempre es el certificado: caducado, no ' +
-            'admitido por el endpoint, o de sello enviado al host que no es.'
-          : 'Guarda el cuerpo entero antes de reintentar nada. Si es HTML, es una página de ' +
-            'error de la sede y el problema no está en el XML.',
+      accionSugerida: accionPara(http.estado, error),
       estado: http.estado,
+      // El cuerpo entero, no un resumen: es lo que hay que poder releer sin volver a enviar.
+      cuerpo: http.cuerpo,
       cause: error,
     });
   }

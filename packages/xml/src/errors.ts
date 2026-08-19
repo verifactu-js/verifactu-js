@@ -40,6 +40,19 @@ export class VerifactuXmlError extends Error {
   readonly accionSugerida: string;
   /** Pointer to the relevant section of `docs/spec-notes.md`, when there is one. */
   readonly referencia: string | undefined;
+  /**
+   * The AEAT's own error code, when the failure came from the service and carried one.
+   *
+   * Un error de cabecera no llega como respuesta de negocio con su `CodigoErrorRegistro`: llega
+   * como **SOAP Fault**, y el código va embebido en el `faultstring` con la forma `Codigo[4126]`.
+   * Medido en la sonda S-4 el 19/08/2026.
+   *
+   * Extraerlo aquí es lo que permite tratar los dos caminos igual: `explicarCodigo()` de
+   * `@verifactu-js/client` da la misma explicación venga de una `RespuestaLinea` o de un fault.
+   * Sin esto, el código quedaba dentro de una frase y había que sacarlo con una expresión regular
+   * en cada sitio que lo necesitara.
+   */
+  readonly codigoAeat: string | undefined;
 
   constructor(args: {
     code: VerifactuXmlErrorCode;
@@ -47,6 +60,7 @@ export class VerifactuXmlError extends Error {
     causaProbable: string;
     accionSugerida: string;
     referencia?: string;
+    codigoAeat?: string;
   }) {
     super(args.message);
     this.name = 'VerifactuXmlError';
@@ -54,6 +68,7 @@ export class VerifactuXmlError extends Error {
     this.causaProbable = args.causaProbable;
     this.accionSugerida = args.accionSugerida;
     this.referencia = args.referencia;
+    this.codigoAeat = args.codigoAeat;
   }
 }
 

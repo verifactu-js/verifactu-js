@@ -213,14 +213,16 @@ export function resumen(resultado) {
  * Every submission is expensive — a real record under a real NIF against an AEAT system — so
  * nothing is thrown away. A probe that surprises has to be re-readable without re-sending.
  */
-export async function guardar(sonda, caso, { peticion, resultado, error }) {
+export async function guardar(sonda, caso, { peticion, resultado, error, cuerpo }) {
   await mkdir(RESULTADOS, { recursive: true });
   const base = join(RESULTADOS, `${sonda}-${caso}`);
 
   await writeFile(`${base}.request.xml`, peticion ?? '(no se llegó a construir)', 'utf8');
+  // `error.cuerpo` es el rescate: si la respuesta llegó pero no se pudo parsear —un SOAP Fault,
+  // por ejemplo— sigue siendo la única copia que existe de lo que contestó la AEAT.
   await writeFile(
     `${base}.response.xml`,
-    resultado?.cuerpoRespuesta ?? '(no hubo respuesta)',
+    resultado?.cuerpoRespuesta ?? error?.cuerpo ?? cuerpo ?? '(no hubo respuesta)',
     'utf8',
   );
   await writeFile(
@@ -233,7 +235,14 @@ export async function guardar(sonda, caso, { peticion, resultado, error }) {
         ...(resultado === undefined ? {} : resumen(resultado)),
         ...(error === undefined
           ? {}
-          : { error: { code: error.code, message: error.message, causaProbable: error.causaProbable } }),
+          : {
+              error: {
+                code: error.code,
+                message: error.message,
+                causaProbable: error.causaProbable,
+                ...(error.codigoAeat === undefined ? {} : { codigoAeat: error.codigoAeat }),
+              },
+            }),
       },
       null,
       2,

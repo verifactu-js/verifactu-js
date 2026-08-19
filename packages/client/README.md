@@ -15,9 +15,11 @@ Envío de registros VERI\*FACTU a la AEAT con certificado cliente.
 
 Construye el sobre, lo envía y parsea la respuesta. Nada más.
 
-No hay cola, ni backoff, ni reintentos, ni mapa de códigos de error. Eso llega cuando las sondas
-contra preproducción hayan medido qué hace el servicio de verdad; escribirlo antes sería
-inventarse el comportamiento.
+No hay cola, ni backoff, ni reintentos. Eso llega cuando las sondas contra preproducción terminen
+de medir qué hace el servicio de verdad; escribirlo antes sería inventarse el comportamiento.
+
+Sí hay **mapa de los 247 códigos de error** de la AEAT (`explicarCodigo`), con el texto oficial y
+qué hacer con cada uno; y las **constantes medidas** contra el servicio, con su procedencia.
 
 **Y no hay forma de apuntarlo a producción.** No es una formalidad: aquí todavía no se ha enviado
 nada nunca a la AEAT, `TiempoEsperaEnvio` no está implementado, y un envío a producción es una
@@ -38,6 +40,66 @@ const { respuesta, estadoHttp, duracionMs } = await cliente.enviar(remision);
 
 console.log(respuesta.EstadoEnvio, respuesta.TiempoEsperaEnvio, estadoHttp, duracionMs);
 ```
+
+## La cadena se construye al enviar, no al encolar
+
+**Si vas a encolar registros, lee esto antes de escribir la cola.** Es la restricción de diseño más
+importante del paquete, no se deduce de la documentación de la AEAT, y descubrirla en producción
+sale caro.
+
+`FechaHoraHusoGenRegistro` se sella cuando se **genera** el registro, pero la AEAT no lo compara
+contra la fecha de la factura: lo compara contra **su propio reloj**, con un margen de **240
+segundos** ([medido](https://github.com/verifactu-js/verifactu-js/blob/main/docs/spec-notes.md),
+no publicado). Un registro correcto al generarse deja de serlo por el mero paso del tiempo.
+
+Y falla en silencio. El código **2004** es de categoría *aceptado con errores*: el registro **queda
+almacenado**, cuenta a efectos del RD 1007/2023, y hay que subsanarlo uno a uno.
+
+### No se puede «poner al día» un registro encolado
+
+La reacción natural es re-sellar el registro antes de mandarlo. No se puede:
+`FechaHoraHusoGenRegistro` **entra en la huella**.
+
+```
+2026-08-19T12:00:00+02:00  →  6172DDF8744FEA88…
+2026-08-19T12:05:00+02:00  →  F5AB113C5911A072…
+```
+
+El mismo registro, cinco minutos después, otra huella. Y como la huella de cada registro es un
+campo del siguiente, re-sellar uno **invalida toda la cadena que cuelgue detrás**. Un registro
+encolado con su huella ya calculada es, a efectos prácticos, inmutable.
+
+### La regla
+
+> **Encola datos de factura, no registros firmados.** El sello temporal, la huella y el eslabón con
+> el registro anterior se calculan justo antes de enviar.
+
+De ahí salen dos consecuencias que conviene aceptar de entrada:
+
+1. **La cola es estrictamente secuencial.** No se puede preparar el registro *n+1* sin la huella del
+   *n*, y esa huella no se conoce hasta haber enviado el *n*. No hay paralelismo posible dentro de
+   una cadena, y no es una limitación de esta librería: es la forma del problema.
+2. **Si tu SIF genera los registros en otro proceso** y te llegan ya firmados —que es un caso real—,
+   entonces mide su antigüedad antes de enviarlos y decide a conciencia: mandarlo sabiendo que
+   volverá 2004 y subsanarlo después, o rehacer la cadena desde ese punto. Lo que no vale es
+   mandarlo sin mirar.
+
+```ts
+import { desfaseDeReloj, MARGEN_RELOJ_AEAT_SEGUNDOS } from '@verifactu-js/client';
+
+// ¿Va bien el reloj de esta máquina? Contra el sello de la AEAT, gratis en cada respuesta.
+const reloj = desfaseDeReloj(respuesta.DatosPresentacion?.TimestampPresentacion ?? '');
+if (!reloj.dentroDelMargen) console.warn(reloj.aviso);
+
+// ¿Ha envejecido el registro esperando en la cola? Misma resta, mismo margen.
+const antiguedad = desfaseDeReloj(eslabon.fields.FechaHoraHusoGenRegistro);
+if (!antiguedad.dentroDelMargen) {
+  // No lo re-selles: cambiarías la huella y romperías la cadena. Ver arriba.
+}
+```
+
+El razonamiento completo, con lo que se midió y cómo, está en
+[`docs/spec-notes.md`](https://github.com/verifactu-js/verifactu-js/blob/main/docs/spec-notes.md) §22.9.
 
 ## Los dos formatos de certificado
 

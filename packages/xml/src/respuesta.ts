@@ -113,7 +113,11 @@ export interface RespuestaRemision {
   readonly RespuestaLinea: readonly RespuestaLinea[];
 }
 
-function inesperada(mensaje: string, accionSugerida: string): VerifactuXmlError {
+function inesperada(
+  mensaje: string,
+  accionSugerida: string,
+  codigoAeat?: string,
+): VerifactuXmlError {
   return new VerifactuXmlError({
     code: 'RESPUESTA_INESPERADA',
     message: mensaje,
@@ -122,7 +126,22 @@ function inesperada(mensaje: string, accionSugerida: string): VerifactuXmlError 
       'RespuestaSuministro.xsd.',
     accionSugerida,
     referencia: 'docs/spec-notes.md §8.6 y §19',
+    ...(codigoAeat === undefined ? {} : { codigoAeat }),
   });
+}
+
+/**
+ * Pulls the AEAT's error code out of a SOAP `faultstring`.
+ *
+ * Los errores de cabecera no vienen como respuesta de negocio: vienen como fault, y el código va
+ * dentro de la frase con la forma `Codigo[4126].Error en la cabecera: …`. Medido en la sonda S-4.
+ *
+ * Se busca el patrón en cualquier parte del texto y no solo al principio, porque no hay documento
+ * que fije el formato: lo único que consta es lo observado. Si el patrón no aparece se devuelve
+ * `undefined` y el mensaje sigue estando entero — inventarse un código sería peor que no tenerlo.
+ */
+function codigoDelFault(faultstring: string): string | undefined {
+  return /Codigo\[(\d{3,4})\]/.exec(faultstring)?.[1];
 }
 
 /** Requires a child element's text, failing with a pointed message when it is missing. */
@@ -227,10 +246,17 @@ function localizarRespuesta(raiz: XmlElement): XmlElement {
     if (fault !== undefined) {
       const codigo = textoDeHijo(fault, '', 'faultcode') ?? '(sin faultcode)';
       const motivo = textoDeHijo(fault, '', 'faultstring') ?? '(sin faultstring)';
+      const codigoAeat = codigoDelFault(motivo);
+
       throw inesperada(
         `El servicio ha devuelto un SOAP Fault: ${codigo} — ${motivo}`,
-        'No es un problema de formato del lote. Suele ser el certificado, el endpoint o una ' +
-          'incidencia del servicio. Reintentar el mismo envío sin cambiar nada repetirá el fallo.',
+        codigoAeat === undefined
+          ? 'No es un problema de formato del lote. Suele ser el certificado, el endpoint o una ' +
+              'incidencia del servicio. Reintentar el mismo envío sin cambiar nada repetirá el fallo.'
+          : `El fault trae el código ${codigoAeat} de la AEAT, disponible en «codigoAeat». Pásalo ` +
+              'por explicarCodigo() de @verifactu-js/client: la explicación es la misma que si ' +
+              'hubiera llegado en una RespuestaLinea.',
+        codigoAeat,
       );
     }
 
