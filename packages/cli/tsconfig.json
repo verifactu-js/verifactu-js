@@ -1,9 +1,20 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    // Contra el `src` del hermano, no contra su `dist`. Dos motivos: en CI el typecheck corre
+    // ANTES del build, así que ese `dist` todavía no existe; y aunque existiera, se estaría
+    // comprobando contra una compilación vieja en lugar de contra el código que se está editando.
+    //
+    // `xml` y `validation` están aquí aunque este paquete no los importe: los importa `client`,
+    // y al resolverlo por `src` hay que poder seguirle la pista a lo que él importa.
+    "paths": {
+      "@verifactu-js/client": ["../client/src/index.ts"],
+      "@verifactu-js/core": ["../core/src/index.ts"],
+      "@verifactu-js/validation": ["../validation/src/index.ts"],
+      "@verifactu-js/xml": ["../xml/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
 }
