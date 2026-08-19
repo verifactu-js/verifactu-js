@@ -242,15 +242,21 @@ La causa más frecuente de discrepancia entre la huella local y la que recalcula
 de fecha-hora de generación del registro con huso horario.
 
 - Formato ISO 8601 con **offset explícito**, nunca `Z` implícito ni hora local ambigua.
-  **Medido el 18/08/2026 contra preproducción** (sonda S-2, `docs/spec-notes.md` §22): el offset es
-  exactamente `±hh:mm`. Fracciones de segundo, `+01:00:00` y `+0100` los rechaza la AEAT con el
-  código 1244. `Z` en cambio lo **acepta** — y lo hashea tal cual, lo que demuestra que la AEAT no
-  normaliza el `xs:dateTime` antes de calcular la huella. Aun así seguimos emitiendo `±hh:mm`.
+  **Medido contra preproducción los días 18 y 19/08/2026** (sondas S-2 y S-2b,
+  `docs/spec-notes.md` §22): el offset es exactamente `±hh:mm`. Fracciones de segundo, `+01:00:00`
+  y `+0100` los rechaza la AEAT con el código 1244. `Z` en cambio lo **acepta**, y lo hashea tal
+  cual — lo que demuestra que la AEAT **no normaliza el `xs:dateTime` antes de calcular la
+  huella**. Aun así seguimos emitiendo `±hh:mm`: cambiar lo que se genera solo puede restar.
 - **Caso Canarias:** el autor está en `Atlantic/Canary` (UTC+0 / UTC+1 en verano), **no** en hora peninsular.
   La librería no debe asumir `Europe/Madrid` en ningún sitio. Tests explícitos para ambos husos
   y para el cambio de hora (DST) en las dos zonas.
-  **[PENDIENTE DE MEDIR:** si `+00:00` explícito se acepta igual que `Z`. Es exactamente este
-  caso. Sonda S-2b, un envío.**]**
+  **Medido y cubierto:** `+00:00` explícito —lo que la librería emite en Canarias en invierno—
+  vuelve `Correcto` (S-2b). Las dos formas del huso cero valen, y cada una se hashea como viene
+  escrita.
+- **Las dos fechas del registro tienen que salir del mismo instante y de la misma zona.**
+  `FechaExpedicionFactura` (`dd-mm-aaaa`) y `FechaHoraHusoGenRegistro` pueden discrepar en un día
+  entero si cada una se deriva por su cuenta, y una hora de diferencia con la Península es
+  suficiente. Es la misma trampa de Canarias con otra cara.
 - La función que obtiene la hora debe ser **inyectable** para que los tests sean deterministas.
 - Añade a `doctor` una comprobación de desfase del reloj del sistema. **El umbral está medido: 240
   segundos**, que es lo que la AEAT interpola en el texto del código 2004 y no publica en ninguna

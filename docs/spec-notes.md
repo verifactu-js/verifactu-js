@@ -1118,17 +1118,19 @@ antes de declarar `0.1.0` estable.
   **Medida en preproducción (sonda S-2):** `2026-08-18T17:19:06.123+02:00` →
   **`Incorrecto`, código 1244** «El campo FechaHoraHusoGenRegistro tiene un formato incorrecto».
   La AEAT las **rechaza**. La mitigación de fase 1 era correcta y se mantiene. Ver §22.
-- **I-08 `BLOQUEA-ESTABLE` — Offset `Z` vs `+00:00`. PARCIALMENTE RESUELTA (18/08/2026).**
+- **I-08 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (19/08/2026) — Offset `Z` vs `+00:00`.**
   Para Canarias en invierno el offset es cero.
   **Medido:** `2026-08-18T15:21:06Z` → **`Correcto`**. La AEAT acepta `Z` **y hashea el literal tal
   y como llega**: si hubiera normalizado a `+00:00` antes de calcular la huella, su digest habría
   diferido del nuestro y habría contestado 2000. No lo hizo. Eso cierra el miedo de fondo de toda
   la incógnita — **la AEAT no normaliza el `xs:dateTime` antes de hashear** — y obliga a que la
   inspección no trate `Z` como defecto: una cadena histórica que lo lleve es válida y verificable.
-  **Sigue abierto** si `+00:00` explícito se acepta igual, que es justo el caso de Canarias y lo
-  que emitimos allí. El caso de S-2 que debía medirlo estaba mal construido y midió desfase de
-  reloj (§22.3). Reintento pendiente: sonda **S-2b**, un envío.
-  Afecta al caso Canarias del brief (`VERIFACTU-BRIEF.md` §6.2).
+  **Y `+00:00` explícito también se acepta** (sonda S-2b, 19/08/2026):
+  `2026-08-18T23:36:50+00:00` → **`Correcto`**, CSV `A-T5BLBWD7HKASYZ`. Es el caso de Canarias en
+  invierno y es exactamente lo que emitimos allí, así que el caso Canarias del brief
+  (`VERIFACTU-BRIEF.md` §6.2) queda cubierto.
+  **Las dos formas del huso cero valen**, y cada una se hashea como viene escrita: son literales
+  distintos, con huellas distintas, y las dos correctas. Ver §22.7.
   **Mitigación en fase 1, que se mantiene:** emitir siempre `+00:00`, nunca `Z`, y rechazar `Z` en
   la entrada. Que `Z` sea válido no es motivo para empezar a emitirlo.
 - **I-09 ~~`BLOQUEA-ESTABLE`~~ `RESUELTA` (18/08/2026) — Offsets con segundos** (`+01:00:00`) **o sin
@@ -1246,17 +1248,97 @@ Lo que sí está condicionado, según la clasificación de §11:
 |---|---|
 | Empezar a implementar `@verifactu/core` | **ninguna** |
 | Publicar `0.1.0` como **preestreno** (con las salvedades en el README) | **ninguna** |
-| Declarar `0.1.0` **estable** | I-01, I-02, I-03, I-04, I-05, ~~I-07~~, **I-08** (a medias), ~~I-09~~ — ver §22 |
+| Declarar `0.1.0` **estable** | I-02, I-03, I-04, I-05 · ~~I-07~~ ~~I-08~~ ~~I-09~~ cerradas (§22) · I-01 degradada · ver §12.2 |
 | Cerrar fase 2 (`xml` + `qr`) | I-10, I-11, I-14 |
 | Cerrar fase 3 (`client`) | ~~I-15~~ (cerrada 18/08/2026, §21) |
 
-Las ocho `BLOQUEA-ESTABLE` afectan a casos borde (Unicode, signos, decimales exóticos, formato
-del offset) y **todas** se aíslan en un único módulo de canonicalización, de modo que resolverlas
-más adelante no obliga a rediseñar la API. Cada una lleva su `TODO(verify: I-XX)` en el código y
-su test correspondiente marcado como pendiente.
+Las `BLOQUEA-ESTABLE` afectan a casos borde (Unicode, signos, decimales exóticos, formato del
+offset) y **todas** se aíslan en un único módulo de canonicalización, de modo que resolverlas más
+adelante no obliga a rediseñar la API. Cada una lleva su `TODO(verify: I-XX)` en el código y su
+test correspondiente marcado como pendiente.
 
 Todas ellas se resuelven con **un certificado electrónico cualificado real** y una batería de
 pruebas contra preproducción (§13).
+
+### 12.2 Qué queda para declarar `core` estable (revisado el 19/08/2026)
+
+Cerradas I-07, I-08 e I-09 (§22), quedan cinco. Y ha cambiado algo que las afecta a todas:
+**ahora son medibles**. Antes, un desacuerdo de huella con la AEAT era invisible —o el registro
+pasaba, o fallaba por cualquier otra razón—. Con el código **2000** de la tabla de S-1
+(«El cálculo de la huella suministrada es incorrecta») cada una de estas cinco preguntas tiene un
+oráculo directo: se envía un registro con el literal dudoso, hasheado a nuestra manera, y la
+respuesta dice si la AEAT calculó lo mismo.
+
+| Incógnita | ¿Abierta? | ¿Bloquea estable? | Coste de cerrarla |
+|---|:--:|:--:|---|
+| **I-01** trim de espacios | sí | **no** — ver abajo | 1 registro |
+| **I-02** espacios interiores múltiples | sí | **sí** | 1 registro |
+| **I-03** normalización Unicode (NFC/NFD) | sí | **sí** | 1 registro |
+| **I-04** tolerancia decimal | sí | **sí** | 2 registros |
+| **I-05** signo en importes | sí | **sí** | 2 registros |
+
+#### I-01 se degrada: sigue abierta, pero ya no bloquea
+
+No se ha medido, y lo digo primero para no confundir «resuelta» con «neutralizada». Lo que ha
+cambiado es que la decisión de §1.3.1 la vuelve **inalcanzable por construcción**:
+
+- `@verifactu-js/xml` escribe `fields`, los literales ya recortados, nunca la entrada cruda. El
+  literal del XML y el valor hasheado son la misma cadena, de modo que el recorte que haga la AEAT
+  al recalcular es una operación nula: no puede divergir del nuestro. Eso cubre todo `<= U+0020`,
+  que es la semántica de `String.trim()` y la única que la referencia Java sugiere.
+- Para la zona gris —NBSP, `U+2000`–`U+200A`, `U+202F`, `U+3000`, `U+FEFF`— `core` **lanza**
+  `ESPACIO_AMBIGUO_EN_BORDE` en vez de elegir. No se puede construir un registro cuya huella
+  dependa de esa respuesta.
+
+O el valor es inequívoco, o la librería se niega. En ningún camino se produce una huella que
+dependa de I-01, así que **no bloquea declarar estable**. Sigue abierta porque afecta a la
+**verificación** de cadenas ajenas que sí lleven esos caracteres, y ahí lo honesto es decir que no
+se puede determinar.
+
+#### Las otras cuatro sí bloquean, y por qué
+
+Ninguna está neutralizada por diseño. En las cuatro, un usuario legítimo puede producir un registro
+cuya huella dependa de la respuesta:
+
+- **I-02** — `NumSerieFactura` es el único campo de texto libre que entra en la huella del alta. El
+  vector oficial `12345678 / G33` prueba que los espacios simples se conservan, pero no dice nada
+  de los dobles. Si la AEAT los colapsara al recalcular, la huella no cuadraría.
+- **I-03** — mismo campo, mismo problema con `é` precompuesta contra descompuesta: son bytes
+  distintos y ninguna fuente dice si hay que normalizar a NFC.
+  Que S-2 haya demostrado que la AEAT **no** normaliza el `xs:dateTime` antes de hashear sube la
+  probabilidad de que tampoco normalice Unicode, pero **no lo demuestra**: son capas distintas —una
+  es normalización semántica en un parser de fechas, la otra es normalización de codificación de
+  texto— y un sistema puede hacer la segunda sin hacer la primera. Se mide, no se deduce.
+- **I-04** — `CuotaTotal` e `ImporteTotal` entran en la huella. F1 dice que `123.1` y `123.10` son
+  «igualmente válidos» y no dice cómo. Es la de mayor riesgo real, porque todo el mundo formatea
+  importes y casi nadie lo hace igual.
+- **I-05** — el XSD permite `(\+|-)?` y no hay ni un ejemplo oficial de huella con importe
+  negativo. Afecta a las rectificativas por diferencias, que no son un caso exótico.
+
+#### Cómo se cerrarían: sonda S-5, seis registros
+
+Cada caso es un alta con un literal deliberadamente dudoso, hasheado como lo haría `core`, con su
+propia `NumeroInstalacion`. La lectura es binaria y la da el código:
+
+| # | Qué se envía | `Correcto` significa | `2000` significa |
+|---|---|---|---|
+| 1 | `NumSerieFactura` con NBSP al final (I-01) | La AEAT no recorta más allá de `U+0020` | Recorta con semántica Unicode |
+| 2 | `NumSerieFactura` con dos espacios interiores (I-02) | Los conserva | Los colapsa |
+| 3 | `NumSerieFactura` con `é` en NFD (I-03) | No normaliza Unicode | Normaliza a NFC |
+| 4 | `ImporteTotal` con un solo decimal, `121.1` (I-04) | Hashea el literal dado | Normaliza a dos decimales |
+| 5 | `ImporteTotal` con `+` explícito (I-05) | Conserva el signo | Lo quita al recalcular |
+| 6 | Rectificativa por diferencias con importes negativos (I-05) | El `-` entra en la huella tal cual | Otra cosa |
+
+Los casos 1, 2 y 3 tienen que **saltarse la validación de `core`**, igual que hicieron los casos 2
+y 3 de S-3: la librería rechaza a propósito lo que se quiere medir. Eso vive en el script, marcado,
+y no toca la librería.
+
+El caso 6 es el único que necesita montaje aparte —`TipoFactura` R1-R5, `TipoRectificativa`,
+`FacturasRectificadas`— y es también el único que puede volver rechazado por reglas de negocio
+(1140, 1143: los signos de base y cuota deben coincidir) sin llegar a medir la huella. Si pasa eso,
+se anota como no concluyente y se rehace el montaje, no se interpreta.
+
+**S-5 va después de S-3 y S-4**, y como todas, con el plan aprobado antes de enviar nada.
 
 ---
 
@@ -2171,12 +2253,15 @@ Llevaba **dos** defectos independientes, y cualquiera de los dos bastaba:
    defecto anterior.
 
 El segundo no mordió en los otros casos de puro azar: la validación de formato los rechazaba antes
-de llegar al reloj. Los dos están arreglados en `s2-fechas.mjs`, y el reintento va como **S-2b**,
-un envío, que además comprueba el reloj **antes** de gastar el registro leyendo la cabecera `Date`
-de un host de la AEAT — cero registros.
+de llegar al reloj. Los dos están arreglados en `s2-fechas.mjs`, y el reintento fue **S-2b** (§22.7),
+un envío, que además comprueba el reloj **antes** de gastarlo leyendo la cabecera `Date` de un host
+de la AEAT — cero registros.
 
 La lección es que el literal de fecha es a la vez el dato que se mide **y** algo que la AEAT
 contrasta contra su reloj. Tocarlo sin querer cambia la pregunta.
+
+Y el segundo defecto no es solo nuestro: es el modo de fallo que le espera a cualquiera que encole
+registros. Va aparte, en **§22.9**.
 
 ### 22.4 Constante medida: el margen de reloj son **240 segundos**
 
@@ -2196,7 +2281,9 @@ Dos consecuencias de diseño para la fase 3d:
 
 1. **La cola no puede sellar la fecha al encolar y enviar mucho más tarde.** Cuatro minutos es muy
    poco margen para un reintento con espera: si `TiempoEsperaEnvio` son 60 s, cuatro reintentos ya
-   agotan la ventana. El sellado tiene que ir junto al envío, no junto al encolado.
+   agotan la ventana. El sellado tiene que ir junto al envío, no junto al encolado. Desarrollado
+   en **§22.9**, con la consecuencia que no es obvia: re-sellar cambia la huella, así que un
+   registro encolado ya firmado no se puede «poner al día».
 2. **Un reloj de sistema desincronizado produce facturas defectuosas en silencio.** Comprobarlo
    antes de empezar vale más que cualquier reintento, y sale gratis: la AEAT devuelve su hora en
    `DatosPresentacion.TimestampPresentacion` en **cada respuesta aceptada**, y cualquier respuesta
@@ -2220,3 +2307,114 @@ La respuesta aceptada trae `NIFPresentador` y `TimestampPresentacion`, que `@ver
 parseaba y nadie usaba. `TimestampPresentacion` es **el reloj de la AEAT**, y llega en cada envío
 aceptado: comprobar el desfase no cuesta nada extra. Las respuestas rechazadas (1244) **no** traen
 el bloque, lo cual tiene sentido — no hubo presentación que sellar.
+
+### 22.7 S-2b: `+00:00` explícito también vale (I-08, cerrada el 19/08/2026)
+
+Un envío, el instante de ese momento escrito con offset cero:
+
+```
+<sf:FechaHoraHusoGenRegistro>2026-08-18T23:36:50+00:00</sf:FechaHoraHusoGenRegistro>
+<sf:Huella>35EC18A6A88B268E0E8BFB08E240A666B6F011904D4B9211F3EBDBFA78484C75</sf:Huella>
+```
+```
+<tikR:CSV>A-T5BLBWD7HKASYZ</tikR:CSV>
+<tik:TimestampPresentacion>2026-08-19T01:36:51+02:00</tik:TimestampPresentacion>
+<tikR:EstadoEnvio>Correcto</tikR:EstadoEnvio>
+<tikR:EstadoRegistro>Correcto</tikR:EstadoRegistro>
+```
+
+**Las dos formas del huso cero valen.** `Z` y `+00:00` se aceptan por igual, y cada una se hashea
+como viene escrita. No son intercambiables: son literales distintos, producen huellas distintas, y
+las dos son correctas. La elección la hace quien genera, y queda congelada en la cadena para
+siempre — que es exactamente por qué esta librería emite una sola forma y nunca la cambia.
+
+Con esto **I-07, I-08 e I-09 quedan cerradas** y `packages/core/src/datetime.ts` se queda sin
+ningún `TODO(verify:)` de fechas.
+
+La comprobación de reloj previa funcionó y de paso se validó a sí misma: la cabecera `Date` del
+host estático dio 0 s de desfase, y el `TimestampPresentacion` del servicio SOAP dio 0 s también.
+Un solo punto de datos, pero es el único que había y dice que los dos relojes van juntos.
+
+### 22.8 Dos observaciones incidentales, dichas como lo que son
+
+**El reloj de la AEAT es peninsular.** `TimestampPresentacion` vino con `+02:00` en las tres
+respuestas aceptadas (agosto, horario de verano). No es una sorpresa, pero conviene tenerlo escrito
+antes de razonar sobre husos: cuando la AEAT dice «la fecha actual del sistema de la AEAT» (código
+2004) se refiere a un instante, no a una fecha de calendario, y el margen de 240 s se aplica sobre
+instantes. Un SIF en Canarias no tiene ningún problema por estar una hora por detrás.
+
+**Las dos fechas del registro salieron de zonas distintas y nadie se quejó.** El registro de S-2b
+llevaba `FechaExpedicionFactura` = `19-08-2026` —la fecha local peninsular en ese momento— y
+`FechaHoraHusoGenRegistro` = `2026-08-18T23:36:50+00:00`, que en UTC es todavía el día 18. La AEAT
+lo aceptó sin errores.
+
+Eso **no** demuestra que la AEAT tolere cualquier discrepancia entre ambos campos: demuestra que
+ninguna regla saltó en ese caso concreto, y la única regla candidata (1112, «FechaExpedicionFactura
+es superior a la fecha actual») no podía saltar porque la fecha de la AEAT era también el 19. No se
+extrapola.
+
+Lo que sí deja es una lección para quien integre, y para nuestras propias sondas: **derivar las dos
+fechas de zonas distintas es un error esperando a ocurrir**, y es justo la forma que toma el
+problema de Canarias. Ambas tienen que salir del mismo instante y de la misma zona. Las sondas ya
+lo hacen así.
+
+
+### 22.9 El literal que envejece: un modo de fallo para cualquiera que encole
+
+Lo de §22.3 no fue solo un fallo de la sonda. **Es lo que le va a pasar a cualquiera que encole
+registros**, y merece estar escrito como modo de fallo y no como anécdota, porque el sistema no
+avisa cuando ocurre.
+
+**El mecanismo.** `FechaHoraHusoGenRegistro` se sella cuando se *genera* el registro. Entre generar
+y enviar puede pasar tiempo: una cola, un reintento, un proceso nocturno, un usuario que cierra la
+caja y el envío sale luego. La AEAT no compara ese sello contra la fecha de la factura: lo compara
+contra **su propio reloj**, con un margen de **240 s** (§22.4). Un registro correcto en el momento
+de generarse deja de serlo por el mero paso del tiempo.
+
+**La aritmética es más ajustada de lo que parece.** `TiempoEsperaEnvio` fue 60 s en las siete
+respuestas medidas. Cuatro esperas agotan la ventana. Un lote que reintenta unas pocas veces, o un
+envío por detrás de otros tres en la cola, ya está fuera. A la sonda le pasó sin proponérselo: el
+literal salió 301 s después de la hora que llevaba escrita.
+
+**Y falla en silencio, que es lo peor.** El código 2004 es de categoría *aceptado con errores*: el
+registro **queda almacenado**, cuenta a efectos del RD 1007/2023, y hay que subsanarlo uno a uno.
+No hay excepción, no hay rechazo, no hay nada que mirar en los logs salvo un código en la respuesta
+que es fácil dar por bueno porque el `EstadoEnvio` dice `ParcialmenteCorrecto`.
+
+#### La consecuencia que no es obvia: no se puede re-sellar
+
+La reacción natural es «pues le pongo la fecha de ahora antes de enviarlo». **No se puede**, o no
+sin más: `FechaHoraHusoGenRegistro` **entra en la huella**.
+
+```
+2026-08-19T12:00:00+02:00  →  6172DDF8744FEA88…
+2026-08-19T12:05:00+02:00  →  F5AB113C5911A072…
+```
+
+El mismo registro, sellado cinco minutos después, tiene otra huella. Y como la huella de cada
+registro es un campo del siguiente, re-sellar uno **invalida toda la cadena que cuelgue detrás**.
+Un registro encolado con su huella ya calculada es, a efectos prácticos, inmutable: o se envía
+dentro de la ventana, o se envía tarde y se subsana.
+
+#### La regla que sale de aquí
+
+**La cadena se construye en el momento de enviar, no en el de encolar.** Lo que se encola son los
+datos de la factura; el sello temporal, la huella y el eslabón con el registro anterior se calculan
+justo antes de abrir el socket, y con lo que de verdad se envió como eslabón previo.
+
+Es lo contrario de lo que sugiere la intuición —«dejo el registro listo y ya lo mandaré»— y es la
+restricción que más forma le da a la cola de la fase 3d:
+
+1. La cola guarda **datos**, no registros firmados.
+2. El encadenamiento es una operación de envío, no de preparación. Sale de ahí que la cola tenga
+   que ser estrictamente secuencial: no se puede preparar el registro *n+1* sin saber la huella del
+   *n*, y no se sabe hasta enviarlo.
+3. Si aun así hay que encolar registros ya firmados —porque el SIF los genera en otro proceso, que
+   es un caso real—, entonces hay que **medir la antigüedad antes de enviar** y decidir a
+   conciencia: enviar sabiendo que va a volver 2004 y subsanarlo después, o rehacer la cadena desde
+   ese punto. Lo que no vale es enviarlo sin mirar.
+
+`desfaseDeReloj()` mide las dos distancias, porque las dos son la misma resta contra el mismo
+margen: pasándole el `TimestampPresentacion` de la AEAT dice si la máquina va mal, y pasándole el
+sello del propio registro dice cuánto ha envejecido. El texto de `aviso` está redactado para el
+primer caso; para el segundo, lo que se mira es `segundos` y `dentroDelMargen`.

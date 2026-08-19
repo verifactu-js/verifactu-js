@@ -1,6 +1,7 @@
 # Plan de sondas contra preproducción — fase 3
 
-> **Estado: S-1 y S-2 hechas (6 registros). Pendientes: S-2b, S-3 y S-4.**
+> **Estado: S-1, S-2 y S-2b hechas (7 registros). Pendientes: S-3 y S-4.**
+> **I-07, I-08 e I-09 cerradas: ya no bloquean declarar `0.1.0` estable.**
 >
 > Redactado el 18/08/2026, corregido el mismo día con las observaciones al diseño experimental, y
 > **corregido otra vez tras S-1**: la tabla de códigos obligó a cambiar cómo se aíslan las cadenas
@@ -113,8 +114,8 @@ ese literal**. Si hubiera normalizado `Z` a `+00:00` antes de hashear habría co
 hizo. Queda medido que **la AEAT no normaliza el `xs:dateTime` antes de calcular la huella**, que
 era el miedo de fondo de las tres incógnitas.
 
-**I-08 sigue abierta en su parte importante**, y por un fallo de diseño de la propia sonda. Ver
-S-2b. Análisis completo en `spec-notes.md` §22.
+**I-08 quedó abierta en su parte importante** por un fallo de diseño de la propia sonda, y la
+cerró S-2b. Análisis completo en `spec-notes.md` §22.
 
 **Dos constantes medidas que no están publicadas en ningún sitio:** el margen de reloj de la AEAT
 son **240 s** (interpolado por ella en el texto del 2004), y `TiempoEsperaEnvio` fue **60 s** en las
@@ -125,7 +126,7 @@ XSD se aplica de verdad antes que las validaciones de negocio.
 
 ---
 
-## S-2b · `+00:00` explícito (I-08, lo que queda) — **1 registro**
+## S-2b · `+00:00` explícito (I-08) — **1 registro** · ✅ HECHA
 
 El caso `offset-cero` de S-2 estaba mal construido y midió otra cosa. Llevaba **dos** defectos
 independientes, y cualquiera bastaba para estropearlo:
@@ -154,6 +155,22 @@ AEAT: cero envíos. Si está fuera de margen, no envía nada y lo dice.
 | `1244` | La AEAT exige `Z` para huso cero. Habría que cambiar lo que genera `core` |
 | `2004` | **No mide nada.** Reloj desfasado: sincronizar y repetir |
 | `2007` | **No mide nada.** La AEAT no separa cadenas por `NumeroInstalacion` |
+
+### Resultado (19/08/2026)
+
+```
+literal: 2026-08-18T23:36:50+00:00
+huella:  35EC18A6A88B268E0E8BFB08E240A666B6F011904D4B9211F3EBDBFA78484C75
+→ envío Correcto · registro Correcto · CSV A-T5BLBWD7HKASYZ
+```
+
+**I-08 cerrada.** `+00:00` explícito vale, y se hashea tal cual. Las dos formas del huso cero se
+aceptan por igual, y no son intercambiables: literales distintos, huellas distintas, las dos
+correctas.
+
+La comprobación de reloj previa se validó a sí misma: la cabecera `Date` del host estático dio 0 s
+y el `TimestampPresentacion` del servicio SOAP dio 0 s también. Un solo punto de datos, pero dice
+que los dos relojes van juntos.
 
 ---
 
@@ -217,13 +234,13 @@ abierta — no se fuerza una conclusión.
 |---|:--:|:--:|---|
 | S-1 `errores.properties` ✅ | 0 | 0 | I-15 **cerrada** |
 | S-2 fechas ✅ | 6 | 6 | I-07 **cerrada**, I-09 **cerrada**, I-08 a medias |
-| S-2b `+00:00` | 1 | 1 | I-08, lo que queda |
+| S-2b `+00:00` ✅ | 1 | 1 | I-08 **cerrada** |
 | S-3 caracteres | 3 | 3 | I-28 |
 | S-4 cabecera | 1 | 1 | D-16 |
 | **Total** | **11** | **11** | |
 
 **Orden y paradas:** S-1 ✅ → *parada, tabla de códigos* ✅ → S-2 ✅ → *parada, las tres
-incógnitas* ✅ → **S-2b** → S-3 → S-4.
+incógnitas* ✅ → S-2b ✅ → **S-3** → S-4.
 
 El total sube de 10 a 11 registros: el envío de más es el reintento de I-08, y sale de un fallo de
 diseño de S-2, no de un cambio de alcance.
