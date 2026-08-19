@@ -4,6 +4,10 @@
 > S-2b. Cada restricción va con la medición de la que sale. Lo que no esté medido se dice que no
 > lo está.
 >
+> **Implementado el 19/08/2026** en `packages/client/src/cola.ts`, con un test por restricción en
+> `packages/client/test/cola.test.ts`. El documento no se ha retocado para que cuadre con el
+> código: se dejó como se escribió, que es lo que le da valor.
+>
 > El razonamiento largo está en [`spec-notes.md`](spec-notes.md) §22. Esto es el contrato que la
 > implementación tiene que cumplir.
 
@@ -119,9 +123,29 @@ Ya implementado en `@verifactu-js/xml` (`assertLoteContiguo`, `assertMismoObliga
 
 ## Pendiente de medir antes de dar la cola por buena
 
-- **I-02, I-03, I-04, I-05** — sonda S-5. Bloquean declarar `core` estable (§12.2), y una cola
-  sobre una huella que no cuadra no sirve de nada.
-- **Comportamiento con `TiempoEsperaEnvio` vacío.** No lo hemos visto: las siete respuestas
-  trajeron `60`. La cola tiene que tratar la cadena vacía como «no hay dato», nunca como cero.
-- **Qué hace la AEAT ante dos envíos seguidos sin respetar la espera.** No se ha probado, y probarlo
-  cuesta registros contra un NIF real.
+- ~~**I-02, I-03, I-04, I-05** — sonda S-5.~~ **Cerrado el 19/08/2026.** I-02, I-04 e I-05 medidas;
+  I-01 e I-03 quedan inalcanzables por construcción. Ninguna bloquea (spec-notes §12.2).
+- **Comportamiento con `TiempoEsperaEnvio` vacío.** Sigue sin verse: las dieciocho respuestas
+  trajeron `60`. **Resuelto por diseño, no por medición**: `esperaTrasRespuesta()` trata la cadena
+  vacía como «no hay dato» y conserva la espera anterior. Y de paso descarta lo que el XSD no puede
+  producir —negativos y valores por encima de 9999—, porque acelerar por un dato corrupto es el
+  fallo caro. Un `0` explícito **sí** se respeta: es un dato, y R-4 dice que la respuesta manda.
+- **Qué hace la AEAT ante dos envíos seguidos sin respetar la espera.** Sigue sin probarse, y
+  **no se va a probar**: cuesta registros contra un NIF real y el RD prohíbe expresamente las
+  pruebas masivas. La cola respeta la espera siempre, que es la conducta conservadora y no necesita
+  medición para justificarse.
+
+## Cómo quedó implementado
+
+| | Dónde |
+|---|---|
+| R-1 · sellar al enviar | `sellar()` dentro del bucle de `procesar()`, y el guardia `ESLABON_EN_LA_COLA` en `encolar()` |
+| R-2 · secuencial | El cerrojo `COLA_EN_CURSO`; un `procesar()` por cadena |
+| R-3 · el sello envejece | `antiguedadSelloSegundos` por envío y la parada `SELLO_CADUCADO` antes de cada intento |
+| R-4 · la espera la dicta la AEAT | `esperaTrasRespuesta()` y `esperarTurno()` |
+| R-5 · reintentar poco | `procedeReintentar()` sobre `explicarCodigo()` |
+| R-6 · el lote | `tamanoLote`, acotado a 1..1000 al crear la cola |
+
+Lo que el documento decía que **no** decide sigue sin decidirse: la cola no elige almacenamiento,
+no decide qué hacer ante un 2004 —da el dato— y no fija una política de reintentos más allá de
+cuándo son legítimos.
