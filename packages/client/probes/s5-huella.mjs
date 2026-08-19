@@ -130,6 +130,10 @@ const CASOS = [
       correcto: 'La AEAT no recorta más allá de U+0020, igual que String.trim(). I-01 medida.',
       dosMil:
         'La AEAT recorta con semántica Unicode y nosotros no. I-01 medida, y core hace bien en negarse.',
+      1130:
+        'La AEAT RECHAZA el NBSP en la serie, antes de llegar a comparar huellas. La semántica ' +
+        'de recorte queda sin medir Y DEJA DE IMPORTAR: el carácter que hacía ambigua la ' +
+        'pregunta no llega nunca a una huella. I-01 inalcanzable por construcción.',
     },
   },
   {
@@ -171,6 +175,14 @@ const CASOS = [
       dosMil:
         'La AEAT admite no-ASCII pero normaliza a NFC. I-03 cerrada, y core tendría que ' +
         'normalizar antes de hashear.',
+      // Un 1130 no mide la normalización, pero SÍ contesta la pregunta primaria de este caso.
+      // Sin esta entrada la sonda lo daba por «no concluyente» y se dejaba el hallazgo dentro.
+      1130:
+        'La AEAT RECHAZA el no-ASCII en la serie, igual que hizo con el NBSP. La normalización ' +
+        'Unicode queda sin medir Y DEJA DE IMPORTAR: NumSerieFactura es el único campo de texto ' +
+        'libre que entra en la huella, así que ningún carácter que la normalización pueda tocar ' +
+        'llega nunca a una. I-03 inalcanzable por construcción, como I-01. Y core NO es más ' +
+        'estricto que la AEAT: su restricción a ASCII 32-126 queda confirmada.',
     },
   },
   {
@@ -406,6 +418,9 @@ for (const h of hallazgos) {
   if (h.error !== undefined) lectura = `sin respuesta legible: ${h.error}`;
   else if (codigo === null && h.estadoRegistro === 'Correcto') lectura = h.caso.lectura.correcto;
   else if (codigo === '2000') lectura = h.caso.lectura.dosMil;
+  // Un código previsto para ESE caso concreto. No todos los rechazos son ruido: algunos
+  // contestan la pregunta por otra vía, y darlos por «no concluyente» pierde el hallazgo.
+  else if (codigo !== null && h.caso.lectura[codigo] !== undefined) lectura = h.caso.lectura[codigo];
   else lectura = `NO CONCLUYENTE: el código ${codigo} no mide la huella. No lo interpretes, dilo.`;
 
   console.log(`\n${h.caso.incognita} · ${h.caso.id}\n  ${lectura}`);
