@@ -76,7 +76,11 @@ export function assertSerialisedString(fieldName: string, value: unknown): asser
         'dejaría de coincidir con la que recalcula la AEAT.',
       accionSugerida:
         `Serializa el importe una sola vez y usa esa MISMA cadena para el XML y para la ` +
-        `huella. Ejemplo: { ${fieldName}: "131.40" }. Nunca reformatees entre ambos pasos.`,
+        `huella. Ejemplo: { ${fieldName}: "131.40" }. Nunca reformatees entre ambos pasos. ` +
+        'Medido el 19/08/2026 (sonda S-5): la AEAT acepta «121.10», «121.1», «+121.00» y ' +
+        '«-121.00», y en los cuatro casos da por buena la huella calculada sobre ese literal. ' +
+        'La huella no es función del importe, es función de cómo lo escribas — así que lo que ' +
+        'importa no es qué forma elijas, sino que sea la misma en los dos sitios.',
       referencia: 'docs/spec-notes.md §1.7 y §10 (D-1)',
     });
   }
@@ -143,10 +147,17 @@ const CARACTERES_PROHIBIDOS_SERIE: ReadonlyArray<readonly [string, number]> = [
  *
  * See docs/spec-notes.md §18 for the full analysis (I-28).
  *
- * TODO(verify: I-28) — §3.1.3.1 documents this for `NumSerieFactura` only. We apply it to
- * `NumSerieFacturaAnulada` as well: an anulación cancels an invoice whose series had to pass the
- * alta validation, so a series with `=` could not legitimately exist. That is reasoning, not a
- * citation. Also undocumented: whether a breach rejects the record or merely flags it.
+ * **Medido el 19/08/2026 (sonda S-3), y ya no es razonamiento.** Aplicar la regla también a
+ * `NumSerieFacturaAnulada` era una inferencia nuestra; ahora está comprobado: una anulación con
+ * `=` en la serie vuelve **rechazada** con el código 1287. Y la infracción **rechaza el registro**,
+ * no lo marca — era la otra mitad de la duda.
+ *
+ * Un matiz que conviene conocer: el mensaje de la AEAT rellena su `%s` con `NumSerieFactura`
+ * incluso cuando el campo infractor es `NumSerieFacturaAnulada`, así que ese nombre no sirve para
+ * ramificar. Ver docs/spec-notes.md §23.2.
+ *
+ * El `&` **sí** se permite, y también está medido: vuelve `Correcto` y la AEAT calcula la misma
+ * huella con el separador sin escapar (§23.1).
  */
 export function assertSerieValida(fieldName: string, value: string): void {
   for (const [character, code] of CARACTERES_PROHIBIDOS_SERIE) {

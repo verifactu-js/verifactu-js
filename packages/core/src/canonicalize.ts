@@ -34,16 +34,22 @@ const CAMPOS_SERIE: ReadonlySet<string> = new Set(['NumSerieFactura', 'NumSerieF
  * We replicate Java because that is what the published reference does. Values that land in
  * that divergence are rejected outright by {@link canonicalizeValue}.
  *
- * TODO(verify: I-01) — It is not documented whether the AEAT applies these same semantics when
- * it recomputes the hash on its side. See docs/spec-notes.md §11, I-01 (`BLOQUEA-ESTABLE`).
+ * ## Medido contra preproducción el 19/08/2026 (sonda S-5)
  *
- * TODO(verify: I-02) — Interior whitespace is preserved (the official example yields
- * `"12345678 / G33"`), but it is not documented whether the AEAT collapses repeated interior
- * spaces when recomputing. See docs/spec-notes.md §11, I-02 (`BLOQUEA-ESTABLE`).
+ * **I-02, cerrada.** Se envió una serie con dos espacios interiores seguidos y volvió `Correcto`:
+ * la AEAT calculó la misma huella, luego **no los colapsa**. Se conservan, como ya hacemos.
  *
- * TODO(verify: I-03) — No source states whether the string must be Unicode-normalised (NFC)
- * before UTF-8 encoding. We do not normalise. See docs/spec-notes.md §11, I-03
- * (`BLOQUEA-ESTABLE`).
+ * **I-01 e I-03, inalcanzables por construcción.** Las dos preguntan qué hace la AEAT con
+ * caracteres que aquí no pueden llegar a una huella. `NumSerieFactura` y `NumSerieFacturaAnulada`
+ * son los **únicos** campos de texto libre que entran en las huellas del alta y de la anulación
+ * —los demás son NIF, fecha, enum, decimal y hex—, y los dos están restringidos a ASCII 32-126
+ * por {@link assertSerieValida}. La AEAT restringe igual: rechazó con el código 1130 tanto un
+ * NBSP (`U+00A0`) como un acento combinante (`U+0301`).
+ *
+ * Es decir, ni la semántica de recorte (I-01) ni la normalización Unicode (I-03) pueden cambiar
+ * una huella producida o verificada por esta librería: el carácter que haría la pregunta
+ * interesante no llega. Las dos siguen abiertas en el papel y ninguna bloquea nada. Ver
+ * docs/spec-notes.md §24.
  *
  * @param value - Raw value, exactly as it appears in the XML element.
  * @returns The value with leading/trailing code units `<= U+0020` removed.
