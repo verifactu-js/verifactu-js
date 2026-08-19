@@ -21,7 +21,7 @@
  *   node packages/client/probes/s3-caracteres.mjs
  */
 
-import { createSifChain } from '@verifactu-js/core';
+import { createSifChain, formatFechaHoraHusoGenRegistro } from '@verifactu-js/core';
 
 import {
   cabecera,
@@ -104,7 +104,15 @@ function cadenaAnulacion(f) {
   ].join('&');
 }
 
-const fechaHora = conAmpersand.fields.FechaHoraHusoGenRegistro;
+/**
+ * Sello temporal **recién generado**, uno por caso.
+ *
+ * Reutilizar el del caso 1 sería el defecto de §22.9 de spec-notes: entre casos se espera el
+ * `TiempoEsperaEnvio` de la AEAT (60 s medidos), y el margen de reloj son 240 s. Con tres casos
+ * todavía cabría, pero por poco y solo mientras la AEAT no suba la espera — y es exactamente el
+ * modo de fallo que este proyecto ha documentado para que no le pase a nadie.
+ */
+const selloNuevo = () => formatFechaHoraHusoGenRegistro(new Date(), { timeZone: 'Europe/Madrid' });
 
 // ── Caso 2: «=» en el alta. Control negativo: F3 §3.1.3.1 lo prohíbe. ─────────────────────────
 await esperar(espera, 'TiempoEsperaEnvio de la AEAT');
@@ -117,7 +125,7 @@ const camposIgual = {
   CuotaTotal: '21.00',
   ImporteTotal: '121.00',
   Huella: null,
-  FechaHoraHusoGenRegistro: fechaHora,
+  FechaHoraHusoGenRegistro: selloNuevo(),
 };
 
 console.log(`\n   caso 2 · serie con «=»: ${camposIgual.NumSerieFactura}`);
@@ -150,7 +158,7 @@ const camposAnulacion = {
   NumSerieFacturaAnulada: `S3-ANU-A=B-${marca}`,
   FechaExpedicionFacturaAnulada: fecha,
   Huella: null,
-  FechaHoraHusoGenRegistro: fechaHora,
+  FechaHoraHusoGenRegistro: selloNuevo(),
 };
 
 console.log(`\n   caso 3 · anulación con «=»: ${camposAnulacion.NumSerieFacturaAnulada}`);
