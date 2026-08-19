@@ -13,7 +13,7 @@ Núcleo sin dependencias en runtime e isomórfico.
 | [`@verifactu-js/qr`](https://www.npmjs.com/package/@verifactu-js/qr) | `0.1.0` | URL de cotejo, validación, literales del art. 20, constantes del art. 21 |
 | [`@verifactu-js/xml`](https://www.npmjs.com/package/@verifactu-js/xml) | `0.1.0` | Serialización al esquema oficial, envoltorio SOAP y lectura de la respuesta |
 | [`@verifactu-js/validation`](https://www.npmjs.com/package/@verifactu-js/validation) | `0.1.0` | Validaciones de negocio de la AEAT, cada regla citada y versionada |
-| `@verifactu-js/client` | en curso | Envío con mTLS, cola de `TiempoEsperaEnvio`, mapa de errores |
+| `@verifactu-js/client` | sin publicar | Envío con mTLS, cola de `TiempoEsperaEnvio`, mapa de los 247 códigos |
 
 Los cuatro publicados son **isomórficos y sin dependencias de terceros**. `client` no lo será:
 necesita un socket TLS con certificado cliente, y eso no existe igual en todas partes.
@@ -93,6 +93,42 @@ Ah, y el camino por defecto de JavaScript es el prohibido:
 new Date().toISOString(); // '2024-01-15T12:00:00.000Z'  ← designador Z Y fracciones de segundo
 ```
 
+### 4. Lo que la AEAT no publica, medido contra su propio servicio
+
+**Dieciocho registros contra preproducción**, con certificado cualificado real, en seis sondas
+(agosto de 2026). No son un smoke test: cada envío estaba construido para separar dos hipótesis
+concretas, y la lectura estaba escrita antes de mandarlo.
+
+| Lo medido | Por qué importa |
+|---|---|
+| **El margen de reloj son 240 segundos.** No está en F1, ni en F3, ni en el diccionario de datos: la AEAT lo interpola en el texto del código 2004 | Pasarse **no rechaza**: acepta, almacena y marca con error. Un reloj mal sincronizado produce facturas defectuosas en silencio, todas |
+| **El `&` no se escapa.** El código 1287 enumera `<`, `>`, `"`, `'` y `=`, y no lo incluye; una serie con `&` vuelve `Correcto` y con la misma huella | La cadena de la huella usa `&` como separador. Escaparlo «por si acaso» produce una huella distinta de la que calcula la AEAT |
+| **La AEAT hashea el literal tal y como llega.** `Z` como designador de huso vuelve `Correcto`; `121.10` y `121.1` también, cada uno con su propia huella | No hay normalización previa a la que agarrarse. **La huella no es función del importe: es función de cómo lo escribas** |
+| **La exclusión de `RemisionRequerimiento` va por *endpoint*, no por cabecera** (código 4126) | Explica por qué el XSD los admite juntos: el esquema es común a los dos servicios y la restricción vive en el servicio |
+
+Cada valor lleva pegada su procedencia en
+[`packages/client/src/medido.ts`](packages/client/src/medido.ts) — un número sin procedencia es
+indistinguible de un número inventado.
+
+#### Y el hallazgo estructural: la cadena se construye al enviar, no al encolar
+
+`FechaHoraHusoGenRegistro` entra en la huella, y la huella de cada registro es un campo del
+siguiente. Re-sellar un registro encolado para ponerlo al día **invalida toda la cadena que cuelga
+detrás**:
+
+```
+2026-08-19T12:00:00+02:00  →  6172DDF8744FEA88…
+2026-08-19T12:05:00+02:00  →  F5AB113C5911A072…
+```
+
+Como el margen son 240 s, un registro encolado **deja de ser válido por el mero paso del tiempo**,
+y el fallo llega como «Aceptado con errores»: nada revienta. Lo descubrimos porque nos pasó en una
+sonda, con el literal generado al principio y enviado después de las esperas.
+
+De ahí que la cola sea estrictamente secuencial y selle justo antes de abrir el socket. El contrato
+completo, escrito antes de implementarlo, está en
+[`docs/diseno-cola-3d.md`](docs/diseno-cola-3d.md).
+
 ---
 
 ## La especificación, citada
@@ -104,8 +140,10 @@ técnica lleva cita textual, documento, versión y fecha de consulta**. Incluye:
 - Diecisiete discrepancias detectadas entre fuentes oficiales, y cuál gana en cada caso: desde
   el XSD que admite lo que las validaciones prohíben hasta el mismo bloque viajando bajo tres
   prefijos de namespace distintos.
-- 28 incógnitas clasificadas por qué bloquean (`BLOQUEA-ESTABLE`, `BLOQUEA-FASE-N`, `ABIERTA`),
-  cada una con su `TODO(verify: I-XX)` en el código.
+- 28 incógnitas clasificadas por qué bloquean (`BLOQUEA-ESTABLE`, `BLOQUEA-FASE-N`, `ABIERTA`).
+  Nueve se cerraron midiendo contra el servicio real; **ninguna de las que quedan bloquea**. Las dos
+  que siguen abiertas se documentan como inalcanzables por construcción, que no es lo mismo que
+  resueltas.
 - Los ocho endpoints SOAP, incluida la variante por certificado de sello que nadie modela.
 - La trampa de los namespaces: se descargan de `…/tikeV1.0/…` pero declaran `…/tike/…`.
 
@@ -119,13 +157,17 @@ Las fuentes oficiales están descargadas en [`docs/reference/`](docs/reference/)
 | 1 | `core`: huella, cadena, fechas | ✅ publicada |
 | 1b | `qr`: URL de cotejo, medida contra el servicio real | ✅ publicada |
 | 2 | `xml` + `validation`: esquema oficial, SOAP, respuesta, reglas de negocio | ✅ publicada |
-| 3 | `client`: envío con mTLS y sondas contra preproducción | 🔧 en curso |
+| 3 | `client`: envío con mTLS, sondas contra preproducción y cola | ✅ cerrada, sin publicar |
 | 4 | Consulta, eventos | no empezada |
 | 5 | XAdES para el flujo no VERI\*FACTU | no empezada |
 
-**No se ha validado todavía ningún envío real contra la AEAT.** Eso es la fase 3, y es lo que
-convierte varias incógnitas de `spec-notes.md` §11 en hechos medidos. Hasta entonces esto sigue
-siendo preestreno, por muy verdes que estén los tests.
+**Dieciocho registros validados contra preproducción** con un certificado cualificado real. Nueve
+incógnitas de `spec-notes.md` §11 dejaron de ser inferencia, y **ninguna sigue bloqueando** declarar
+`core` estable (§12.1). Los crudos de las sondas no están en el repositorio: llevan un NIF real y
+esto es público.
+
+Sigue siendo `0.x` a propósito: **nunca se ha enviado nada a producción**, y `client` se niega por
+construcción a apuntar ahí. Un envío a producción es una declaración tributaria que no se retira.
 
 ## Lo que `validation` no comprueba
 
