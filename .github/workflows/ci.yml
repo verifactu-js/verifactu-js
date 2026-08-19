@@ -103,6 +103,12 @@ jobs:
       - name: Workspace dependencies
         run: pnpm check:workspace
 
+      # Una versión de npm es inmutable: si sale sin changelog, sale sin changelog para siempre.
+      # Comprobarlo aquí, y no solo al publicar, hace que el aviso llegue cuando todavía se puede
+      # arreglar sin quemar una versión.
+      - name: Changelog
+        run: pnpm check:changelog
+
       - name: Lint (Biome)
         run: pnpm lint
 

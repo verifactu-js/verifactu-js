@@ -25,8 +25,11 @@ on:
 # fails with `EUSAGE: Automatic provenance generation not supported for provider: null`.
 # Keeping it as a flag means local publishes work and CI publishes are attested.
 # Do not move it back into package.json.
+# `contents: write` es lo mínimo para crear la Release de GitHub al final. No da acceso a nada
+# más de lo que ya tenía el checkout, y sin ello un tag empujado se queda en un tag pelado: la
+# gente que llega desde npm no tiene dónde leer qué lleva dentro esa versión.
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -55,12 +58,24 @@ jobs:
         id: pkg
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "dir=packages/${{ inputs.package }}" >> "$GITHUB_OUTPUT"
+            dir="packages/${{ inputs.package }}"
+            version="$(node -p "require('./$dir/package.json').version")"
           else
             # Tag shape: @verifactu-js/<name>@<version>
             name="${GITHUB_REF_NAME#@verifactu-js/}"
-            echo "dir=packages/${name%@*}" >> "$GITHUB_OUTPUT"
+            dir="packages/${name%@*}"
+            version="${name##*@}"
+
+            # Un tag que no cuadre con el manifiesto publicaría una versión distinta de la que
+            # dice el tag, en silencio y para siempre: las versiones de npm son inmutables.
+            manifiesto="$(node -p "require('./$dir/package.json').version")"
+            if [ "$version" != "$manifiesto" ]; then
+              echo "::error::El tag dice $version y el package.json dice $manifiesto." >&2
+              exit 1
+            fi
           fi
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       # npm answers 404 both when the package does not exist and when the credentials are not
       # authorised for that name, and the message distinguishes neither. This says which, and it
@@ -76,6 +91,15 @@ jobs:
       - name: Publishable at all
         if: '!inputs.dry_run'
         run: node scripts/check-first-publish.mjs ${{ steps.pkg.outputs.dir }}
+
+      # Antes de publicar, no después: una versión de npm es inmutable, así que si sale sin
+      # changelog sale sin changelog para siempre. Mismo criterio que el paso de arriba — todo lo
+      # que se pueda detectar sin llamar al registro, se detecta antes de llamarlo. No necesita
+      # dependencias instaladas.
+      - name: Notas de la versión
+        run: |
+          node scripts/changelog.mjs "${{ steps.pkg.outputs.dir }}" "${{ steps.pkg.outputs.version }}" > notas.md
+          cat notas.md
 
       - run: pnpm install --frozen-lockfile
 
@@ -95,3 +119,15 @@ jobs:
         if: '!inputs.dry_run'
         working-directory: ${{ steps.pkg.outputs.dir }}
         run: npm publish --provenance --access public
+
+      # Después de publicar, y solo desde un tag: una Release apuntando a un tag que no existe no
+      # se puede crear, y `workflow_dispatch` no tiene ninguno. `--verify-tag` se niega a inventarlo.
+      - name: Release de GitHub
+        if: github.event_name == 'push' && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notas.md \
+            --verify-tag

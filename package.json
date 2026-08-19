@@ -34,6 +34,7 @@
     "prepare": "node scripts/install-hooks.mjs",
     "probe:qr": "node scripts/probe-qr-encoding.mjs",
     "check:workspace": "node scripts/check-workspace-deps.mjs",
+    "check:changelog": "node scripts/changelog.mjs --check",
     "check:publishable": "node scripts/check-first-publish.mjs"
   },
   "devDependencies": {
