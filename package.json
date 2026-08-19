@@ -24,6 +24,7 @@
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "check:readmes": "node scripts/check-readmes.mjs",
     "check:manifest": "node scripts/reference-manifest.mjs --check",
+    "check:invisibles": "node scripts/check-invisibles.mjs",
     "manifest": "node scripts/reference-manifest.mjs",
     "check:codigos": "node scripts/generar-codigos-aeat.mjs --check",
     "codigos": "node scripts/generar-codigos-aeat.mjs",

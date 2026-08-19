@@ -96,7 +96,10 @@ describe('renderField surfaces the same errors', () => {
   });
 
   it('ambiguous edge whitespace is rejected with ESPACIO_AMBIGUO_EN_BORDE', () => {
-    const error = captureVerifactuError(() => renderField('NumSerieFactura', 'A-1 '));
+    // El NBSP va con escape: pegado en crudo es indistinguible de un espacio normal, y este
+    // test dejaría de probar lo que dice en cuanto alguien 'normalizara los espacios'.
+    const serieConNbsp = 'A-1\u00a0';
+    const error = captureVerifactuError(() => renderField('NumSerieFactura', serieConNbsp));
     expect(error.code).toBe('ESPACIO_AMBIGUO_EN_BORDE');
     expect(error.referencia).toContain('I-01');
   });

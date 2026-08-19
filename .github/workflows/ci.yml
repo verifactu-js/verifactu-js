@@ -91,6 +91,12 @@ jobs:
       - name: AEAT error codes in sync
         run: pnpm check:codigos
 
+      # In this project a stray space changes a hash. A raw NBSP is indistinguishable from a
+      # normal space in an editor, in a diff and in review — and one had already slipped into a
+      # core test that verified NBSP rejection *using a raw NBSP*. They go as escapes.
+      - name: No raw invisible characters
+        run: pnpm check:invisibles
+
       # Sibling packages are linked from this repository only while the local version satisfies
       # the declared range. When it stops doing so, pnpm quietly installs the published copy and
       # the suite starts testing against npm instead of against this code.
