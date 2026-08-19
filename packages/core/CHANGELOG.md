@@ -3,7 +3,7 @@
 Las versiones siguen [semver](https://semver.org/lang/es/). Mientras el paquete esté en `0.x`, un
 cambio incompatible sube la versión menor.
 
-## Sin publicar
+## 0.2.1 — 2026-08-19
 
 - El error `IMPORTE_NO_SERIALIZADO` cita ahora las cuatro escrituras que la AEAT aceptó midiendo
   contra preproducción: `121.10`, `121.1`, `+121.00` y `-121.00`. La huella no es función del

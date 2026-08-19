@@ -1,6 +1,6 @@
 {
   "name": "@verifactu-js/validation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Validaciones de negocio de la AEAT para registros VERI*FACTU, cada regla con su cita y la versión del documento. / AEAT business validations for Spanish VERI*FACTU billing records, each rule cited to its source document and version.",
   "keywords": [
     "verifactu",

@@ -1,6 +1,6 @@
 {
   "name": "@verifactu-js/xml",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Serialización al esquema oficial VERI*FACTU (AEAT), envoltorio SOAP y lectura de la respuesta. Sin dependencias de terceros. / Official VERI*FACTU schema serialisation, SOAP envelope and response parsing. No third-party dependencies.",
   "keywords": [
     "verifactu",

@@ -3,9 +3,10 @@
 Las versiones siguen [semver](https://semver.org/lang/es/). Mientras el paquete esté en `0.x`, un
 cambio incompatible sube la versión menor.
 
-## Sin publicar
+## 0.1.1 — 2026-08-19
 
-- `author` en el `package.json`, que faltaba.
+- `author` en el `package.json`. Sin él, la página de npm no decía quién ha escrito esto.
+  No cambia nada del código: es una versión de metadatos.
 
 ## 0.1.0 — 2026-08-17
 

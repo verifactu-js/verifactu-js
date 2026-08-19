@@ -1,6 +1,6 @@
 {
   "name": "@verifactu-js/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Huella encadenada SHA-256 y verificación de cadenas VERI*FACTU (AEAT). Cero dependencias, isomórfico. / Chained SHA-256 hash and chain verification for Spanish VERI*FACTU billing records. Zero dependencies, isomorphic.",
   "keywords": [
     "verifactu",
