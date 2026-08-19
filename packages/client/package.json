@@ -1,7 +1,6 @@
 {
   "name": "@verifactu-js/client",
   "version": "0.1.0",
-  "private": true,
   "description": "Envío de registros VERI*FACTU a la AEAT con certificado cliente (mTLS). Capa HTTP inyectable, Node por defecto. / Submission of Spanish VERI*FACTU records to the AEAT over mTLS. Injectable HTTP layer, Node by default.",
   "keywords": [
     "verifactu",
