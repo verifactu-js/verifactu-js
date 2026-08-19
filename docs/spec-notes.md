@@ -1272,11 +1272,15 @@ respuesta dice si la AEAT calculó lo mismo.
 
 | Incógnita | ¿Abierta? | ¿Bloquea estable? | Coste de cerrarla |
 |---|:--:|:--:|---|
-| **I-01** trim de espacios | sí | **no** — ver abajo | 1 registro |
-| **I-02** espacios interiores múltiples | sí | **sí** | 1 registro |
-| **I-03** normalización Unicode (NFC/NFD) | sí | **sí** | 1 registro |
+| **I-01** trim de espacios | sí | **no** — ver abajo | *medida sin concluir (§24.2)* |
+| **I-02** espacios interiores múltiples | ~~sí~~ **CERRADA** (§24.1) | no | — |
+| **I-03** normalización Unicode (NFC/NFD) | sí | **sí** | 1 registro (§24.3) |
 | **I-04** tolerancia decimal | sí | **sí** | 2 registros |
 | **I-05** signo en importes | sí | **sí** | 2 registros |
+
+> **Actualizado el 19/08/2026 con la primera tanda de S-5.** I-02 cerrada: la AEAT conserva los
+> espacios interiores múltiples. I-01 sigue degradada y ahora con una medición que la respalda.
+> I-03 cambia de pregunta — ver §24.
 
 #### I-01 se degrada: sigue abierta, pero ya no bloquea
 
@@ -2536,3 +2540,91 @@ Es el mismo principio de §22.9 aplicado a otra cosa: **una respuesta de la AEAT
 no se puede volver a pedir.** Arreglado en la sonda, y también en la librería —
 `VerifactuClientError.cuerpo` lleva ahora el cuerpo entero cuando no se ha podido parsear, que es
 justo cuando más falta hace y cuando más fácil es perderlo.
+
+
+## 24. S-5, primera tanda: I-02 cerrada y el alcance real de I-01 e I-03
+
+> **Parcial.** Se enviaron dos de los siete casos y la sonda paró en el tercero por un error de
+> construcción, local, antes de enviarlo. Los cinco que faltan siguen pendientes.
+
+| # | Caso | `NumSerieFactura` | Envío | Registro | Código |
+|---|---|---|---|---|:--:|
+| 1 | I-01 | `S5-NBSP-…` + `U+00A0` | Incorrecto | Incorrecto | **1130** |
+| 2 | I-02 | `S5-A␣␣B-…` (dos espacios) | Correcto | **Correcto** | — |
+| 3 | I-03 | — | *no se envió* | — | — |
+
+### 24.1 I-02 cerrada: los espacios interiores se conservan
+
+`S5-A  B-20260819012803`, con dos espacios seguidos, volvió **`Correcto`** con CSV
+`A-TDPEZN6FG2CYFE`. La AEAT calculó la misma huella sobre una cadena canónica que contenía los dos
+espacios seguidos, luego **no los colapsa**.
+
+Era una de las cuatro que bloqueaban declarar `core` estable. El vector oficial `12345678 / G33`
+probaba que los espacios simples se conservan; ahora se sabe que los múltiples también, y `core` no
+tiene que hacer nada distinto de lo que ya hace.
+
+### 24.2 I-01: no concluyente para la huella, pero con un hallazgo propio
+
+El NBSP viajó de verdad —los bytes `C2 A0` están en `s5-nbsp-final.request.xml`— y volvió con
+**1130**, «El campo NumSerieFactura contiene caracteres no permitidos». El registro se rechazó
+antes de llegar a comparar huellas, así que **la pregunta de I-01 no se ha medido**: seguimos sin
+saber qué semántica de recorte aplica la AEAT.
+
+Lo que sí se ha medido es más útil de lo que parece:
+
+1. **La AEAT rechaza el NBSP en `NumSerieFactura`.** No con 1287 —la lista de ese código es
+   `<`, `>`, `"`, `'`, `=`, y el NBSP no está—, sino con **1130**, que es la regla específica del
+   campo. Es decir, el juego de caracteres admitido en la serie es **más estrecho** que «todo menos
+   esos cinco», y la restricción a ASCII que `core` aplica (F3 §3.1.3.1) queda respaldada por una
+   medición.
+2. **La pregunta de I-01 puede no tener sentido.** El recorte solo importa si el carácter llega a
+   la huella, y este no llega: lo rechaza la AEAT antes. Como `NumSerieFactura` es el **único campo
+   de texto libre que entra en la huella del alta** —los demás son NIF, fecha, enum, decimal y
+   hex—, no hay ningún sitio por donde un carácter de la zona gris pueda alcanzarla.
+
+**I-01 sigue degradada, no cerrada** (§12.2). La medición es de un solo carácter; el resto de la
+zona gris —`U+2000`–`U+200A`, `U+202F`, `U+3000`, `U+FEFF`— comparte la propiedad que provocó el
+rechazo, pero eso es inferencia y no medición.
+
+### 24.3 I-03 cambia de pregunta
+
+`core` restringe `NumSerieFactura` y `NumSerieFacturaAnulada` a ASCII 32-126, y esos son los únicos
+campos de texto libre que entran en las huellas del alta y de la anulación. De ahí sale una
+consecuencia que no estaba escrita:
+
+> **Si la AEAT también restringe la serie a ASCII, entonces ningún carácter que la normalización
+> Unicode pueda tocar entra jamás en una huella, e I-03 queda inalcanzable por construcción — igual
+> que I-01.**
+
+Así que la pregunta primaria del caso 3 ya no es «¿normaliza la AEAT a NFC?», sino **«¿admite la
+AEAT caracteres no ASCII en el número de serie?»**. La de normalización solo existe si la respuesta
+es que sí.
+
+Y esa reformulación tiene valor propio, porque la respuesta interesante es la incómoda: si la AEAT
+**sí** los admite, entonces `core` es **más estricto que la AEAT** y está rechazando series legales
+con `Ñ` o con acentos, que en España no es un caso raro. Sería el mismo hallazgo que el del `&`
+(§23.1) pero al revés, y habría que decidir si se afloja.
+
+El 1130 del caso 1 apunta a que la AEAT restringe, pero un NBSP es un carácter de espaciado y una
+`é` es una letra: no es la misma pregunta y no se deduce una de la otra.
+
+### 24.4 El error del plan, y el arreglo que faltaba
+
+El plan de S-5 decía que el caso 3 **no** se saltaba `core`. Era falso y no se comprobó: `core`
+rechaza cualquier no-ASCII en la serie con `CARACTER_NO_PERMITIDO`. La sonda se estrelló ahí,
+**después de haber gastado dos registros** contra un NIF real.
+
+El fallo no es que el caso estuviera mal: es que un error de construcción —local, gratis, detectable
+sin red— se descubrió a mitad de la tanda. La sonda ahora **construye los siete casos antes de
+enviar ninguno** y aborta con la lista de los que fallan. Y `--seco` deja ejercitar esa comprobación
+sin enviar nada, que es lo único de esta sonda que se puede probar sin gastar registros.
+
+Cada caso que se salta `core` declara además su motivo en `motivoSalto`, para que la excepción sea
+explícita y no algo que haya que deducir leyendo el código:
+
+| Caso | Motivo del salto |
+|---|---|
+| 1 · NBSP | `ESPACIO_AMBIGUO_EN_BORDE` — `core` se niega a elegir en la zona gris de I-01 |
+| 3 · NFD | `CARACTER_NO_PERMITIDO` — `core` restringe la serie a ASCII 32-126 |
+
+Es el mismo principio que §22.9 y §23.5: **lo que cuesta registros se comprueba antes de gastarlos**.

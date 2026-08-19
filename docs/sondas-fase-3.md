@@ -1,8 +1,8 @@
 # Plan de sondas contra preproducción — fase 3
 
-> **Estado: S-1, S-2, S-2b, S-3 y S-4 hechas (11 registros). Pendiente: S-5.**
-> **Cerradas: I-07, I-08, I-09, I-15, I-28 y D-16.** Quedan I-02, I-03, I-04 e I-05,
-> que son las que mide S-5. I-01 degradada (§12.2).
+> **Estado: S-1, S-2, S-2b, S-3, S-4 y 2 de los 7 casos de S-5 hechas (13 registros).**
+> **Cerradas: I-07, I-08, I-09, I-15, I-28, D-16 e I-02.** Quedan I-03, I-04 e I-05.
+> I-01 degradada, y ahora con una medición que la respalda (§24.2).
 >
 > Redactado el 18/08/2026, corregido el mismo día con las observaciones al diseño experimental, y
 > **corregido otra vez tras S-1**: la tabla de códigos obligó a cambiar cómo se aíslan las cadenas
@@ -231,7 +231,7 @@ abierta — no se fuerza una conclusión.
 
 ---
 
-## S-5 · Las cuatro que bloquean el estable (I-01…I-05) — **7 registros**
+## S-5 · Las cuatro que bloquean el estable (I-01…I-05) — **7 registros** · ⏸ 2 de 7
 
 > **Aprobada en principio. No enviada.** Va después de S-3 y S-4.
 
@@ -248,9 +248,20 @@ Cualquier otro código no mide la huella y se anota como tal, sin interpretar.
 
 | # | Incógnita | Qué se envía | `Correcto` significa | `2000` significa |
 |---|---|---|---|---|
-| 1 | **I-01** | `NumSerieFactura` con NBSP (`U+00A0`) al final | La AEAT no recorta más allá de `U+0020`, como `String.trim()` | Recorta con semántica Unicode |
-| 2 | **I-02** | `NumSerieFactura` con dos espacios interiores | Los conserva | Los colapsa a uno |
-| 3 | **I-03** | `NumSerieFactura` con `é` en NFD (`e` + `U+0301`) | No normaliza Unicode | Normaliza a NFC |
+| 1 ✅ | **I-01** | `NumSerieFactura` con NBSP (`U+00A0`) al final | — | — |
+| 2 ✅ | **I-02** | `NumSerieFactura` con dos espacios interiores | Los conserva | Los colapsa a uno |
+| 3 | **I-03** | `NumSerieFactura` con `é` en NFD (`e` + `U+0301`) | **Admite no-ASCII** y no normaliza | Admite no-ASCII y normaliza a NFC |
+
+**Resultado de los dos primeros (19/08/2026).** El caso 2 volvió `Correcto`: **I-02 cerrada**, la
+AEAT conserva los espacios interiores múltiples. El caso 1 volvió **1130** —«contiene caracteres no
+permitidos»—, así que el NBSP se rechaza antes de llegar a la huella y **I-01 no queda medida**;
+lo que sí queda es que el juego de caracteres de la serie es más estrecho que la lista de 1287.
+Ver §24.
+
+**El caso 3 cambia de pregunta.** `core` restringe la serie a ASCII 32-126, y esa es la única vía
+por la que texto libre entra en una huella. Si la AEAT restringe igual, I-03 es inalcanzable por
+construcción como I-01. Si **no** restringe, `core` es más estricto que la AEAT y estaría
+rechazando series legales con `Ñ` o acentos. Esa es ahora la pregunta primaria.
 | 4 | **I-04** | `ImporteTotal` = `121.10` — **control positivo del par** | La forma que emite `core` cuadra | **PARA**: el problema no son los decimales |
 | 5 | **I-04** | `ImporteTotal` = `121.1`, el mismo importe | Hashea el literal dado | Normaliza a dos decimales |
 | 6 | **I-05** | `ImporteTotal` con `+` explícito: `+121.00` | Conserva el signo en la cadena | Lo quita al recalcular |
@@ -273,14 +284,33 @@ y porque afecta a la **verificación** de cadenas ajenas, que sí pueden llevar 
 |---|:--:|---|
 | 1 | **sí** | `core` lanza `ESPACIO_AMBIGUO_EN_BORDE` sobre el NBSP. Es la decisión de §1.3.1 y es correcta: se niega a elegir por el usuario. El objeto de la medición es precisamente lo que se niega a construir |
 | 2 | no | Los espacios interiores son legales y `core` los conserva |
-| 3 | no | NFD es texto válido; `core` no normaliza, que es justo lo que se quiere medir |
+| 3 | **sí** | `core` lanza `CARACTER_NO_PERMITIDO`: restringe la serie a ASCII 32-126 (F3 §3.1.3.1). **El plan decía que no y era falso**; la sonda se estrelló ahí tras gastar dos registros |
 | 4 | no | `121.10` es la forma canónica |
 | 5 | no | `121.1` cumple el XSD (`(\.\d{0,2})?`) y `core` lo acepta |
 | 6 | no | El `+` explícito lo permite el XSD |
 | 7 | no | Es un registro legal, solo que más laborioso de montar |
 
-Es decir: **solo el caso 1**. Se construye su cadena canónica a mano y se hashea en el script,
-marcado, igual que hicieron los casos 2 y 3 de S-3. La librería no se toca.
+Es decir: **los casos 1 y 3**. Construyen su cadena canónica a mano y la hashean en el script,
+igual que hicieron los casos 2 y 3 de S-3. La librería no se toca, y cada uno declara su motivo en
+`motivoSalto` para que la excepción sea explícita y no haya que deducirla del código.
+
+### La comprobación en seco, y por qué existe
+
+La sonda **construye los siete casos antes de enviar ninguno** y aborta con la lista de los que
+fallan. Existe porque el error del caso 3 se descubrió a mitad de la tanda, con dos registros ya
+gastados, cuando era local, gratis y detectable sin tocar la red.
+
+```bash
+node packages/client/probes/s5-huella.mjs --seco     # construye los siete y para. Cero envíos.
+```
+
+### Reanudar sin repetir lo ya medido
+
+```bash
+node packages/client/probes/s5-huella.mjs unicode-nfd decimal-dos decimal-uno signo-mas importe-negativo
+```
+
+Cinco envíos, los que faltan.
 
 ### Las dos reglas que vienen de lo que costó S-2
 
@@ -324,8 +354,9 @@ marcado, igual que hicieron los casos 2 y 3 de S-3. La librería no se toca.
 | S-2b `+00:00` ✅ | 1 | 1 | I-08 **cerrada** |
 | S-3 caracteres ✅ | 3 | 3 | I-28 **cerrada** |
 | S-4 cabecera ✅ | 1 | 1 | D-16 **confirmada** |
-| S-5 huella (aprobada, sin enviar) | 7 | 7 | I-01…I-05 |
-| **Total** | **18** | **18** | |
+| S-5 huella ⏸ | 2 de 7 | 2 de 7 | I-02 **cerrada** · faltan I-03, I-04, I-05 |
+| **Total enviado** | **13** | **13** | |
+| **Total previsto** | **18** | **18** | |
 
 **Orden y paradas:** S-1 ✅ → *parada, tabla de códigos* ✅ → S-2 ✅ → *parada, las tres
 incógnitas* ✅ → S-2b ✅ → S-3 ✅ → S-4 ✅ → *parada, plan de S-5* ✅ → **S-5**.
