@@ -1,7 +1,8 @@
 # Plan de sondas contra preproducción — fase 3
 
-> **Estado: S-1, S-2 y S-2b hechas (7 registros). Pendientes: S-3 y S-4.**
-> **I-07, I-08 e I-09 cerradas: ya no bloquean declarar `0.1.0` estable.**
+> **Estado: S-1, S-2, S-2b, S-3 y S-4 hechas (11 registros). Pendiente: S-5.**
+> **Cerradas: I-07, I-08, I-09, I-15, I-28 y D-16.** Quedan I-02, I-03, I-04 e I-05,
+> que son las que mide S-5. I-01 degradada (§12.2).
 >
 > Redactado el 18/08/2026, corregido el mismo día con las observaciones al diseño experimental, y
 > **corregido otra vez tras S-1**: la tabla de códigos obligó a cambiar cómo se aíslan las cadenas
@@ -174,7 +175,7 @@ que los dos relojes van juntos.
 
 ---
 
-## S-3 · Caracteres en el número de serie (I-28) — **3 registros**
+## S-3 · Caracteres en el número de serie (I-28) — **3 registros** · ✅ HECHA
 
 | # | Qué se envía | Qué se espera | Por qué importa |
 |---|---|---|---|
@@ -203,7 +204,7 @@ con eso **§18.4 queda cerrada en un solo envío**. Existe además `1130`, espec
 
 ---
 
-## S-4 · `RemisionVoluntaria` + `RemisionRequerimiento` (D-16) — **1 registro**
+## S-4 · `RemisionVoluntaria` + `RemisionRequerimiento` (D-16) — **1 registro** · ✅ HECHA
 
 Una cabecera con los dos bloques a la vez. El XSD lo admite; F3 §3.1.1 los hace excluyentes.
 
@@ -228,6 +229,92 @@ abierta — no se fuerza una conclusión.
 
 ---
 
+---
+
+## S-5 · Las cuatro que bloquean el estable (I-01…I-05) — **7 registros**
+
+> **Aprobada en principio. No enviada.** Va después de S-3 y S-4.
+
+Cada caso es un alta con un literal deliberadamente dudoso, hasheado como lo haría `core`. La
+lectura es **binaria y la da el código**, gracias a la tabla de S-1:
+
+- **`Correcto`** → la AEAT calculó la misma huella sobre ese literal. No normaliza.
+- **`2000`** → «El cálculo de la huella suministrada es incorrecta». Normalizó antes de hashear.
+  Es *aceptado con errores*: el registro **queda almacenado** y hay que subsanarlo.
+
+Cualquier otro código no mide la huella y se anota como tal, sin interpretar.
+
+### Los seis casos
+
+| # | Incógnita | Qué se envía | `Correcto` significa | `2000` significa |
+|---|---|---|---|---|
+| 1 | **I-01** | `NumSerieFactura` con NBSP (`U+00A0`) al final | La AEAT no recorta más allá de `U+0020`, como `String.trim()` | Recorta con semántica Unicode |
+| 2 | **I-02** | `NumSerieFactura` con dos espacios interiores | Los conserva | Los colapsa a uno |
+| 3 | **I-03** | `NumSerieFactura` con `é` en NFD (`e` + `U+0301`) | No normaliza Unicode | Normaliza a NFC |
+| 4 | **I-04** | `ImporteTotal` = `121.10` — **control positivo del par** | La forma que emite `core` cuadra | **PARA**: el problema no son los decimales |
+| 5 | **I-04** | `ImporteTotal` = `121.1`, el mismo importe | Hashea el literal dado | Normaliza a dos decimales |
+| 6 | **I-05** | `ImporteTotal` con `+` explícito: `+121.00` | Conserva el signo en la cadena | Lo quita al recalcular |
+| 7 | **I-05** | Rectificativa por diferencias, importes negativos | El `-` entra en la huella tal cual | Otra cosa |
+
+**I-04 va en par, y ese es el cambio respecto al plan anterior.** Un solo caso con `121.1` distingue
+«hashea el literal» de «normaliza», pero no dice nada si falla por otro motivo. Con `121.10` delante
+—la forma que emite `core`— hay control positivo: si ese no cuadra, el problema no son los decimales
+y el segundo caso no mediría nada. Y juntos contestan la pregunta de fondo de F1, que es **cómo**
+consigue la AEAT que `123.1` y `123.10` sean «igualmente válidos»: aceptándolos como cadenas
+distintas, o normalizándolos a una.
+
+**El caso 1 no cierra I-01 aunque salga `Correcto`.** I-01 ya está degradada (§12.2) porque el
+diseño la vuelve inalcanzable; medirla es información, no desbloqueo. Va porque cuesta un registro
+y porque afecta a la **verificación** de cadenas ajenas, que sí pueden llevar esos caracteres.
+
+### Cuáles se saltan la validación de `core`, y por qué
+
+| # | ¿Se salta? | Motivo |
+|---|:--:|---|
+| 1 | **sí** | `core` lanza `ESPACIO_AMBIGUO_EN_BORDE` sobre el NBSP. Es la decisión de §1.3.1 y es correcta: se niega a elegir por el usuario. El objeto de la medición es precisamente lo que se niega a construir |
+| 2 | no | Los espacios interiores son legales y `core` los conserva |
+| 3 | no | NFD es texto válido; `core` no normaliza, que es justo lo que se quiere medir |
+| 4 | no | `121.10` es la forma canónica |
+| 5 | no | `121.1` cumple el XSD (`(\.\d{0,2})?`) y `core` lo acepta |
+| 6 | no | El `+` explícito lo permite el XSD |
+| 7 | no | Es un registro legal, solo que más laborioso de montar |
+
+Es decir: **solo el caso 1**. Se construye su cadena canónica a mano y se hashea en el script,
+marcado, igual que hicieron los casos 2 y 3 de S-3. La librería no se toca.
+
+### Las dos reglas que vienen de lo que costó S-2
+
+1. **Cada caso genera su sello justo antes de enviar**, nunca derivado de otro. Con siete registros
+   y esperas de 60 s, el último saldría 360 s después del primero — fuera de los 240 s de margen,
+   y volvería `2004` sin haber medido nada. Es el modo de fallo de §22.9.
+2. **`NumeroInstalacion` distinta por caso**, para que un `2007` no tape el `2000`. Recuérdese que
+   `CodigoErrorRegistro` es `maxOccurs="1"`: un solo código por registro, y el que llegue tapa al
+   resto.
+
+### Riesgos conocidos de cada caso
+
+- **1** — el NBSP podría chocar con `1104` («NumSerieFactura no es válido») o `1130`
+  («caracteres no permitidos») antes de llegar a la huella. La lista de `1287` es `< > " ' =` y no
+  incluye el NBSP, así que en principio pasa; si no pasa, es no concluyente para I-01 pero es un
+  hallazgo propio sobre qué caracteres admite la serie.
+- **4 y 5** — pueden chocar con `1210` («ImporteTotal tiene un valor incorrecto para… los campos
+  suministrados»), que es aritmética y no huella. El desglose va cuadrado para que no sea el caso.
+  Si el 4 —el control— vuelve `2000`, **se para**: sin control positivo el 5 no mide nada.
+- **6** — el `+` podría rebotar en el XSD antes que nada (`4102`). Sería una respuesta útil igual:
+  significaría que la forma `+121.00` no viaja, y entonces I-05 se reduce al signo negativo.
+- **7** — es el único con montaje aparte (`TipoFactura` R1-R5, `TipoRectificativa`,
+  `FacturasRectificadas`) y el único que puede volver rechazado por reglas de negocio —`1140` y
+  `1143`, los signos de base y cuota deben coincidir— sin llegar a medir la huella. Si pasa, se
+  anota **no concluyente** y se rehace el montaje. No se interpreta.
+
+### Qué NO se hace
+
+- No se barre el espacio de formatos de importe. Un caso por pregunta.
+- No se reintenta un caso que vuelva con un código que no mide la huella. Se anota y se rehace el
+  montaje con el plan revisado.
+- No se deduce I-03 de lo medido en S-2. Que la AEAT no normalice el `xs:dateTime` sube la
+  probabilidad de que tampoco normalice Unicode, pero son capas distintas (§12.2).
+
 ## Resumen
 
 | Sonda | Envíos | Registros | Incógnitas |
@@ -235,12 +322,13 @@ abierta — no se fuerza una conclusión.
 | S-1 `errores.properties` ✅ | 0 | 0 | I-15 **cerrada** |
 | S-2 fechas ✅ | 6 | 6 | I-07 **cerrada**, I-09 **cerrada**, I-08 a medias |
 | S-2b `+00:00` ✅ | 1 | 1 | I-08 **cerrada** |
-| S-3 caracteres | 3 | 3 | I-28 |
-| S-4 cabecera | 1 | 1 | D-16 |
-| **Total** | **11** | **11** | |
+| S-3 caracteres ✅ | 3 | 3 | I-28 **cerrada** |
+| S-4 cabecera ✅ | 1 | 1 | D-16 **confirmada** |
+| S-5 huella (aprobada, sin enviar) | 7 | 7 | I-01…I-05 |
+| **Total** | **18** | **18** | |
 
 **Orden y paradas:** S-1 ✅ → *parada, tabla de códigos* ✅ → S-2 ✅ → *parada, las tres
-incógnitas* ✅ → S-2b ✅ → **S-3** → S-4.
+incógnitas* ✅ → S-2b ✅ → S-3 ✅ → S-4 ✅ → *parada, plan de S-5* ✅ → **S-5**.
 
 El total sube de 10 a 11 registros: el envío de más es el reintento de I-08, y sale de un fallo de
 diseño de S-2, no de un cambio de alcance.
@@ -294,4 +382,5 @@ pnpm --filter @verifactu-js/client probe:s2   # 6 envíos. PARADA.
 pnpm --filter @verifactu-js/client probe:s2b  # 1 envío  (reintento de I-08)
 pnpm --filter @verifactu-js/client probe:s3   # 3 envíos
 pnpm --filter @verifactu-js/client probe:s4   # 1 envío
+pnpm --filter @verifactu-js/client probe:s5   # 7 envíos
 ```
