@@ -33,6 +33,7 @@
     "format": "biome format --write .",
     "prepare": "node scripts/install-hooks.mjs",
     "probe:qr": "node scripts/probe-qr-encoding.mjs",
+    "probe:qr-importe": "node scripts/probe-qr-importe.mjs",
     "check:workspace": "node scripts/check-workspace-deps.mjs",
     "check:changelog": "node scripts/changelog.mjs --check",
     "check:publishable": "node scripts/check-first-publish.mjs"
