@@ -1,5 +1,9 @@
 packages:
   - 'packages/*'
+  # Los ejemplos entran en el workspace para que resuelvan `@verifactu-js/*` por su nombre
+  # —igual que lo haría quien los copie— en vez de por una ruta relativa a `dist`. Son
+  # privados y no se publican.
+  - 'examples'
 
 # Link sibling packages from this repository when the local version satisfies the declared range.
 #

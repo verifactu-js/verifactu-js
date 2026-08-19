@@ -12,6 +12,7 @@
     "spain"
   ],
   "license": "MIT",
+  "author": "Ridel Saavedra Flores <cosmoframeworks@gmail.com>",
   "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/xml#readme",
   "repository": {
     "type": "git",

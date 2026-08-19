@@ -14,9 +14,38 @@ Núcleo sin dependencias en runtime e isomórfico.
 | [`@verifactu-js/xml`](https://www.npmjs.com/package/@verifactu-js/xml) | `0.1.0` | Serialización al esquema oficial, envoltorio SOAP y lectura de la respuesta |
 | [`@verifactu-js/validation`](https://www.npmjs.com/package/@verifactu-js/validation) | `0.1.0` | Validaciones de negocio de la AEAT, cada regla citada y versionada |
 | [`@verifactu-js/client`](https://www.npmjs.com/package/@verifactu-js/client) | `0.1.0` | Envío con mTLS, cola de `TiempoEsperaEnvio`, mapa de los 247 códigos |
+| `@verifactu-js/cli` | sin publicar | `doctor` y `verify` en la línea de comandos |
 
 Los cuatro primeros son **isomórficos y sin dependencias de terceros**. `client` no lo es:
 necesita un socket TLS con certificado cliente, y eso no existe igual en todas partes.
+
+## Probarlo sin escribir una línea
+
+```bash
+npx @verifactu-js/cli doctor
+```
+
+```
+OK     node      v24.15.0
+OK     servicio  preproducción responde 200
+OK     reloj     0 s respecto a la AEAT (margen medido: 240 s)
+```
+
+Comprueba lo que de verdad se rompe en silencio: **el reloj**. La AEAT compara
+`FechaHoraHusoGenRegistro` contra el suyo con un margen de 240 s, y pasarse no rechaza el
+registro — devuelve el código 2004, que lo **acepta y lo almacena** marcado con error. No envía
+nada ni necesita certificado: cualquier respuesta HTTP de la AEAT trae su hora en la cabecera
+`Date`.
+
+```bash
+npx @verifactu-js/cli verify cadena.json
+```
+
+Coge una cadena de huellas ya emitidas, **de cualquier sistema**, y dice si están enteras.
+
+Y tres ejemplos ejecutables en [`examples/`](https://github.com/verifactu-js/verifactu-js/tree/main/examples),
+de menos a más compromiso: la cadena que se hashea, una cadena manipulada, y un envío real a
+preproducción.
 
 ---
 
@@ -158,8 +187,9 @@ Las fuentes oficiales están descargadas en [`docs/reference/`](docs/reference/)
 | 1b | `qr`: URL de cotejo, medida contra el servicio real | ✅ publicada |
 | 2 | `xml` + `validation`: esquema oficial, SOAP, respuesta, reglas de negocio | ✅ publicada |
 | 3 | `client`: envío con mTLS, sondas contra preproducción y cola | ✅ publicada |
-| 4 | Consulta, eventos | no empezada |
-| 5 | XAdES para el flujo no VERI\*FACTU | no empezada |
+| 4 | `cli`: `doctor` y `verify`, y tres ejemplos ejecutables | 🔧 lista, sin publicar |
+| 5 | Consulta, eventos | no empezada |
+| 6 | XAdES para el flujo no VERI\*FACTU | no empezada |
 
 **Dieciocho registros validados contra preproducción** con un certificado cualificado real. Nueve
 incógnitas de `spec-notes.md` §11 dejaron de ser inferencia, y **ninguna sigue bloqueando** declarar

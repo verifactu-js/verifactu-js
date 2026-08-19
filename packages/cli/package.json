@@ -1,33 +1,34 @@
 {
-  "name": "@verifactu-js/validation",
+  "name": "@verifactu-js/cli",
   "version": "0.1.0",
-  "description": "Validaciones de negocio de la AEAT para registros VERI*FACTU, cada regla con su cita y la versión del documento. / AEAT business validations for Spanish VERI*FACTU billing records, each rule cited to its source document and version.",
+  "description": "CLI para VERI*FACTU: comprueba el entorno antes de facturar y verifica cadenas de huellas ya emitidas. / CLI for Spanish VERI*FACTU: check the environment before invoicing, and verify already-issued hash chains.",
   "keywords": [
     "verifactu",
     "veri-factu",
     "aeat",
+    "cli",
     "facturacion",
-    "factura",
-    "sif",
-    "validacion",
-    "validation",
+    "huella",
     "spain",
     "invoicing",
     "tax"
   ],
   "license": "MIT",
   "author": "Ridel Saavedra Flores <cosmoframeworks@gmail.com>",
-  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/validation#readme",
+  "homepage": "https://github.com/verifactu-js/verifactu-js/tree/main/packages/cli#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/verifactu-js/verifactu-js.git",
-    "directory": "packages/validation"
+    "directory": "packages/cli"
   },
   "bugs": {
     "url": "https://github.com/verifactu-js/verifactu-js/issues"
   },
   "type": "module",
   "sideEffects": false,
+  "bin": {
+    "verifactu-js": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": {
@@ -56,6 +57,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@verifactu-js/client": "^0.1.0",
     "@verifactu-js/core": "^0.2.0"
   },
   "scripts": {
@@ -65,5 +67,8 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0"
   }
 }

@@ -36,6 +36,34 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0(@types/node@26.2.0)
 
+  examples:
+    dependencies:
+      '@verifactu-js/client':
+        specifier: ^0.1.0
+        version: link:../packages/client
+      '@verifactu-js/core':
+        specifier: ^0.2.0
+        version: link:../packages/core
+      '@verifactu-js/qr':
+        specifier: ^0.1.0
+        version: link:../packages/qr
+      '@verifactu-js/xml':
+        specifier: ^0.1.0
+        version: link:../packages/xml
+
+  packages/cli:
+    dependencies:
+      '@verifactu-js/client':
+        specifier: ^0.1.0
+        version: link:../client
+      '@verifactu-js/core':
+        specifier: ^0.2.0
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.13.3
+
   packages/client:
     dependencies:
       '@verifactu-js/core':
