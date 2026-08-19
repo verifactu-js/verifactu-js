@@ -16,6 +16,7 @@ import {
   crearCola,
   type EntradaCola,
   esperaTrasRespuesta,
+  explicarCodigo,
   type PeticionHttp,
   procedeReintentar,
   type Transporte,
@@ -65,6 +66,19 @@ function entrada(serie: string): EntradaCola {
       ImporteTotal: '121.00',
     },
     datos: DATOS,
+  };
+}
+
+/** Una entrada de anulación, que es la otra mitad de lo que puede llevar la cola. */
+function anulacion(serie: string): EntradaCola {
+  return {
+    tipo: 'anulacion',
+    factura: {
+      IDEmisorFacturaAnulada: '89890001K',
+      NumSerieFacturaAnulada: serie,
+      FechaExpedicionFacturaAnulada: '19-08-2026',
+    },
+    datos: { SistemaInformatico: DATOS.SistemaInformatico },
   };
 }
 
@@ -294,6 +308,22 @@ describe('R-2 · estrictamente secuencial dentro de una cadena', () => {
 
     expect(b.dormidas).toEqual([60_000]);
   });
+
+  it('no vuelve a esperar si el tiempo ya pasó por su cuenta', async () => {
+    const b = banco();
+    const cola = b.cola({ tamanoLote: 1 });
+    cola.encolar(entrada('A/1'));
+    await cola.procesar();
+
+    // Dos minutos haciendo otra cosa entre una tanda y la siguiente. La ventana de la AEAT ya
+    // está cumplida: dormir otros 60 s sería tiempo regalado.
+    b.avanzar(120);
+    cola.encolar(entrada('A/2'));
+    await cola.procesar();
+
+    expect(b.dormidas).toEqual([]);
+    expect(b.peticiones).toHaveLength(2);
+  });
 });
 
 describe('R-6 · un lote es un segmento contiguo, de 1 a 1000', () => {
@@ -451,5 +481,180 @@ describe('R-3 · el reloj de la máquina se comprueba con lo que devuelve la AEA
 
     expect(resultado.envios[0]?.desfaseReloj).toBeUndefined();
     expect(resultado.avisos).toEqual([]);
+  });
+});
+
+describe('la cola también anula', () => {
+  it('sella y encadena una anulación igual que un alta', async () => {
+    const b = banco((peticion) =>
+      respuesta(new Array(registrosEn(peticion.cuerpo)).fill('Correcto')),
+    );
+    const cola = b.cola({ tamanoLote: 2 });
+    cola.encolar(entrada('A/1'), anulacion('A/1'));
+
+    const resultado = await cola.procesar();
+
+    expect(resultado.aceptados).toBe(2);
+    expect(b.peticiones[0]?.cuerpo).toContain('RegistroAnulacion');
+    // La anulación cuelga del alta: su encadenamiento trae la huella de la anterior.
+    expect(resultado.ultimoEslabon?.tipo).toBe('anulacion');
+  });
+});
+
+describe('lo que la cola deja consultar sin procesar', () => {
+  it('dice cuántas quedan, de qué eslabón cuelga y qué espera aplica', async () => {
+    const b = banco();
+    const cola = b.cola();
+
+    expect(cola.pendientes).toBe(0);
+    expect(cola.ultimoEslabon).toBeNull();
+    expect(cola.esperaSegundos).toBe(60);
+
+    expect(cola.encolar(entrada('A/1'), entrada('A/2'))).toBe(2);
+    expect(cola.pendientes).toBe(2);
+
+    await cola.procesar();
+
+    expect(cola.pendientes).toBe(0);
+    expect(cola.ultimoEslabon).not.toBeNull();
+  });
+
+  it('arranca desde el eslabón que se le dé, para una cadena que viene de antes', async () => {
+    const b = banco();
+    const previa = b.cola();
+    previa.encolar(entrada('A/1'));
+    const { ultimoEslabon } = await previa.procesar();
+
+    const seguida = b.cola({ ultimoEslabon });
+    expect(seguida.ultimoEslabon).toBe(ultimoEslabon);
+
+    seguida.encolar(entrada('A/2'));
+    await seguida.procesar();
+
+    const huellaPrevia = ultimoEslabon?.huella;
+    expect(b.peticiones[1]?.cuerpo).toContain(`<sf:Huella>${huellaPrevia}</sf:Huella>`);
+  });
+});
+
+describe('respuestas incompletas', () => {
+  it('no da nada por almacenado cuando la respuesta no trae ninguna línea', async () => {
+    const b = banco(() => respuesta([], 'Incorrecto'));
+    const cola = b.cola();
+    cola.encolar(entrada('A/1'));
+
+    const resultado = await cola.procesar();
+
+    expect(resultado.aceptados).toBe(0);
+    expect(resultado.ultimoEslabon).toBeNull();
+    expect(resultado.parada?.motivo).toBe('ENVIO_RECHAZADO');
+    expect(resultado.parada?.codigo).toBeUndefined();
+  });
+
+  it('no da por buenos los registros para los que no vino línea', async () => {
+    // Dos registros enviados, una sola línea de vuelta. El segundo no consta.
+    const b = banco(() => respuesta(['Correcto'], 'ParcialmenteCorrecto'));
+    const cola = b.cola({ tamanoLote: 2 });
+    cola.encolar(entrada('A/1'), entrada('A/2'));
+
+    const resultado = await cola.procesar();
+
+    expect(resultado.aceptados).toBe(1);
+    expect(resultado.pendientes).toBe(1);
+    expect(resultado.parada?.motivo).toBe('REGISTRO_RECHAZADO');
+  });
+});
+
+describe('R-5 · los caminos por los que llega un fallo', () => {
+  it('no reintenta a ciegas un código que no está en la tabla de la AEAT', () => {
+    const decision = procedeReintentar({ tipo: 'codigo', codigo: '9998' });
+
+    expect(decision.reintentar).toBe(false);
+    expect(decision.motivo).toContain('no está en la tabla');
+  });
+
+  it('no reintenta un cuerpo que no es una respuesta de VERI*FACTU', async () => {
+    const b = banco(() => '<html>una página de error de la sede</html>');
+    const cola = b.cola();
+    cola.encolar(entrada('A/1'));
+
+    const resultado = await cola.procesar();
+
+    // El cliente levanta RESPUESTA_HTTP_INESPERADA con su estado, y la cola lo lee como un error
+    // HTTP: no es una ausencia de respuesta, así que reenviar lo mismo daría lo mismo.
+    expect(resultado.parada?.motivo).toBe('ERROR_HTTP');
+    expect(b.peticiones).toHaveLength(1);
+  });
+
+  it('un error de cabecera llega como SOAP Fault, y la cola saca su código', async () => {
+    // Medido en la sonda S-4: los errores de cabecera NO llegan como respuesta de negocio. El
+    // texto es el real, con la coma de «facturación» y todo.
+    const fault =
+      '<?xml version="1.0" encoding="UTF-8"?>' +
+      '<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Body><env:Fault>' +
+      '<faultcode>env:Client</faultcode>' +
+      '<faultstring>Codigo[4126].Error en la cabecera: el campo RefRequerimiento solo debe ' +
+      'informarse en sistemas en remisiones al endpoint del servicio a usar para la contestación ' +
+      'a requerimientos de registros de facturación.</faultstring>' +
+      '</env:Fault></env:Body></env:Envelope>';
+
+    const b = banco(() => fault);
+    const cola = b.cola();
+    cola.encolar(entrada('A/1'));
+
+    const resultado = await cola.procesar();
+
+    // El código viaja hasta la parada, así que se puede pasar por explicarCodigo() sin que quien
+    // integra tenga que saber por cuál de los dos caminos llegó.
+    expect(resultado.parada?.codigo).toBe('4126');
+    expect(explicarCodigo(resultado.parada?.codigo ?? '')?.categoria).toBe('envio');
+    // 4126 es un error de datos: no se reintenta.
+    expect(b.peticiones).toHaveLength(1);
+  });
+
+  it('para cuando agota los reintentos, y lo dice', async () => {
+    const b = banco(() => SIN_RESPUESTA);
+    const cola = b.cola({ reintentos: 2 });
+    cola.encolar(entrada('A/1'));
+
+    const resultado = await cola.procesar();
+
+    // Tres envíos: el primero y dos reintentos. El margen de 240 s no llega a agotarse.
+    expect(b.peticiones).toHaveLength(3);
+    expect(resultado.parada?.motivo).toBe('SIN_RESPUESTA');
+    expect(resultado.parada?.explicacion).toContain('Agotados los 2 reintentos');
+  });
+});
+
+describe('sin nada inyectado', () => {
+  it('duerme de verdad y usa el reloj del sistema cuando no se le da ninguno', async () => {
+    const peticiones: PeticionHttp[] = [];
+    const transporte: Transporte = async (peticion) => {
+      peticiones.push(peticion);
+      // Un segundo: lo mínimo que el esquema puede pedir sin ser cero.
+      return {
+        estado: 200,
+        cabeceras: {},
+        cuerpo: respuesta(['Correcto']).replace(
+          '<sfR:TiempoEsperaEnvio>60</sfR:TiempoEsperaEnvio>',
+          '<sfR:TiempoEsperaEnvio>1</sfR:TiempoEsperaEnvio>',
+        ),
+      };
+    };
+
+    const cola = crearCola({
+      cliente: crearClientePruebas({ transporte, certificado: 'representante' }),
+      cadena: createSifChain({ timeZone: 'Europe/Madrid' }),
+      cabecera: CABECERA,
+      tamanoLote: 1,
+    });
+    cola.encolar(entrada('A/1'), entrada('A/2'));
+
+    const comienzo = Date.now();
+    const resultado = await cola.procesar();
+
+    expect(resultado.aceptados).toBe(2);
+    expect(peticiones).toHaveLength(2);
+    // Ha esperado de verdad: el segundo envío no salió pegado al primero.
+    expect(Date.now() - comienzo).toBeGreaterThanOrEqual(900);
   });
 });

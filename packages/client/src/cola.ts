@@ -491,7 +491,9 @@ export function crearCola(configuracion: ConfiguracionCola): Cola {
           esperaSegundos = esperaTrasRespuesta(resultado.respuesta, esperaSegundos);
 
           // La cadena avanza hasta donde la AEAT dijo que había almacenado, y ni un eslabón más.
-          const lineas = resultado.respuesta.RespuestaLinea ?? [];
+          // `RespuestaLinea` no es opcional: `parsearRespuesta` siempre la construye con un
+          // `.map()`, así que un lote sin líneas llega como array vacío, no como ausencia.
+          const lineas = resultado.respuesta.RespuestaLinea;
           let avanzados = 0;
           for (let i = 0; i < enlaces.length; i += 1) {
             const linea = lineas[i];
