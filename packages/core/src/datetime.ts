@@ -25,15 +25,16 @@
  * Rejecting on read what we refuse to write would break every historic chain we are meant to
  * be able to check.
  *
- * ## Medido contra preproducción el 18/08/2026 (sonda S-2)
+ * ## Medido contra preproducción los días 18 y 19/08/2026 (sondas S-2 y S-2b)
  *
- * Seis altas idénticas salvo por este literal. Lo que contestó la AEAT:
+ * Siete altas idénticas salvo por este literal. Lo que contestó la AEAT:
  *
  * | Literal enviado | Respuesta | Lectura |
  * |---|---|---|
  * | `2026-08-18T17:19:06+02:00` | `Correcto` | La forma que emitimos |
  * | `2026-08-18T17:19:06.123+02:00` | **1244** | Fracciones de segundo: **rechazadas** (I-07) |
  * | `2026-08-18T15:21:06Z` | **`Correcto`** | `Z`: **aceptado** (I-08) |
+ * | `2026-08-18T23:36:50+00:00` | **`Correcto`** | `+00:00` explícito: **aceptado** (I-08) |
  * | `2026-08-18T17:19:06+02:00:00` | **1244** | Offset con segundos: **rechazado** (I-09) |
  * | `2026-08-18T17:19:06+0200` | **1244** | Offset sin dos puntos: **rechazado** (I-09) |
  *
@@ -46,9 +47,11 @@
  * llega**. Y por eso {@link inspectFechaHoraHuso} no puede tratar `Z` como un error — una cadena
  * histórica que lo lleve es válida, verificable, y su huella cuadra.
  *
- * Sigue abierto si `+00:00` explícito se acepta igual que `Z`, que es el caso de Canarias en
- * invierno. El caso de S-2 que debía medirlo estaba mal construido y midió otra cosa. Ver
- * docs/spec-notes.md §22.
+ * **`+00:00` explícito también se acepta** (S-2b, 19/08/2026), que es el caso de Canarias en
+ * invierno y lo que esta librería emite allí. Las dos formas del huso cero valen, y cada una se
+ * hashea como viene escrita: son literales distintos, con huellas distintas, y las dos correctas.
+ *
+ * Con eso I-07, I-08 e I-09 quedan cerradas. Análisis y crudo en docs/spec-notes.md §22.
  */
 
 import { VerifactuError } from './errors.js';
@@ -254,15 +257,14 @@ export function offsetForInstant(instant: Date, timeZone: string): string {
  * drops milliseconds, because neither `Z` nor fractional seconds appear in any official
  * example and both would change the hash.
  *
- * **La medición de S-2 no relaja nada de esto, y en dos casos lo confirma.** Las fracciones de
- * segundo (I-07) y los offsets con segundos o sin dos puntos (I-09) los rechaza la AEAT con el
- * código 1244: emitirlos habría sido un fallo, no una diferencia de estilo. Que además acepte
- * `Z` (I-08) no es motivo para empezar a emitirlo — la forma `±hh:mm` está medida como buena,
- * es la que usa la propia AEAT en su `TimestampPresentacion`, y cambiar lo que se genera solo
- * puede restar.
+ * **Medido, y sin una sola concesión que hacer.** Las fracciones de segundo (I-07) y los offsets
+ * con segundos o sin dos puntos (I-09) los rechaza la AEAT con el código 1244: emitirlos habría
+ * sido un fallo, no una diferencia de estilo. Y `+00:00` explícito —lo que esta función emite en
+ * `Atlantic/Canary` en invierno— vuelve `Correcto` (I-08, S-2b).
  *
- * TODO(verify: I-08) — queda por medir si `+00:00` explícito se acepta igual que `Z`. Es el caso
- * de Canarias en invierno, y es justo lo que esta función emite allí. Ver docs/spec-notes.md §22.
+ * Que la AEAT acepte además `Z` no es motivo para empezar a emitirlo: `±hh:mm` está medido como
+ * bueno, es la forma que usa la propia AEAT en su `TimestampPresentacion`, y cambiar lo que se
+ * genera solo puede restar.
  *
  * @example
  * ```ts

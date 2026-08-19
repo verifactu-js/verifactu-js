@@ -268,8 +268,11 @@ describe('aceptadoPorLaAeat — lo medido en preproducción, no lo supuesto (spe
     expect(report.aceptadoPorLaAeat).toBe(false);
   });
 
-  it('la forma estricta se da por aceptada sin avisos', () => {
+  it('la forma estricta sale aceptada, y está medida', () => {
+    // El control de S-2 (+02:00) y S-2b (+00:00) volvieron los dos `Correcto`.
     expect(inspectFechaHoraHuso('2024-01-01T19:20:30+01:00').aceptadoPorLaAeat).toBe(true);
+    expect(inspectFechaHoraHuso('2024-01-01T19:20:30+00:00').aceptadoPorLaAeat).toBe(true);
+    expect(inspectFechaHoraHuso('2024-01-01T19:20:30+00:00').ok).toBe(true);
   });
 
   it('VEREDICTO_AEAT solo contiene lo que se ha enviado de verdad', () => {
