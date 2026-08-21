@@ -200,9 +200,16 @@ describe('validarParametrosQR — AEAT error codes (QR spec §10)', () => {
     expect(problemas.map((p) => p.codigo)).toEqual(['2006']);
   });
 
-  it('reports 2005 for twelve integer digits with too many decimals', () => {
-    const problemas = validarParametrosQR({ ...EJEMPLO, importe: '999999999999.999' });
-    expect(problemas.map((p) => p.codigo)).toEqual(['2005']);
+  it.each([
+    ['el caso medido', '241.400'],
+    ['con la parte entera al límite', '999999999999.999'],
+  ])('reports 2006, not 2005, for too many decimals (%s)', (_label, importe) => {
+    // Medido el 19/08/2026 contra el servicio de cotejo: «241.400» vuelve con el código 2006,
+    // «El importe excede el número máximo de caracteres», no con el 2005 de formato. La AEAT
+    // trata los decimales de más como un problema de LONGITUD, no de forma, y aquí se suponía
+    // lo contrario. Ver docs/spec-notes.md §25.
+    const problemas = validarParametrosQR({ ...EJEMPLO, importe });
+    expect(problemas.map((p) => p.codigo)).toEqual(['2006']);
   });
 
   it('never throws, whatever it is handed', () => {

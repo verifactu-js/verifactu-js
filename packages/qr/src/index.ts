@@ -235,12 +235,18 @@ export function validarParametrosQR(params: ParametrosQR): ProblemaQR[] {
         'No se ha remitido el parámetro: importe (El parámetro "importe" es el importe total de la factura)',
     });
   } else if (!RE_IMPORTE.test(importe)) {
-    // Integer digits, counted without allocating: `indexOf` returns -1 when there is no decimal
+    // Digits per part, counted without allocating: `indexOf` returns -1 when there is no decimal
     // separator, in which case the whole (unsigned) string is the integer part.
     const sinSigno = importe.replace(/^[+-]/, '');
     const punto = sinSigno.indexOf('.');
     const parteEntera = punto === -1 ? sinSigno.length : punto;
-    const excedeLongitud = parteEntera > 12;
+    const parteDecimal = punto === -1 ? 0 : sinSigno.length - punto - 1;
+
+    // Ambos lados cuentan como longitud, y el segundo está **medido**: `241.400` vuelve del
+    // servicio de cotejo con el código 2006, «excede el número máximo de caracteres», no con el
+    // 2005 de formato. La AEAT trata los decimales de más como longitud, no como forma, y aquí
+    // se suponía lo contrario (docs/spec-notes.md §25, 19/08/2026).
+    const excedeLongitud = parteEntera > 12 || parteDecimal > 2;
 
     problemas.push({
       codigo: excedeLongitud ? '2006' : '2005',

@@ -130,6 +130,34 @@ Herramienta técnica. El SIF que exige la norma es la aplicación completa que l
 librería, y la declaración responsable la firma quien distribuye el producto final. Se ofrece
 «tal cual», sin garantía de conformidad fiscal.
 
+## El importe, medido contra el servicio
+
+F2 dice «máximo 12 dígitos en la parte entera, y 2 dígitos en la parte decimal», y luego usa
+`241.4` en un ejemplo y `241.40` en otro. Lo medimos (19/08/2026, seis peticiones al servicio de
+cotejo, sin certificado):
+
+| Enviado | Devuelto | Resultado |
+|---|---|---|
+| `241.40` | `241.40` | **Encontrada** |
+| `241.4` | `241.40` | **Encontrada** — un decimal vale, y el servicio lo reescribe |
+| `241` | `241.00` | Aceptado, reescrito |
+| `-241.40` | `-241.40` | Aceptado — el negativo de una rectificativa viaja tal cual |
+| `241.400` | — | Rechazado, código **2006** (longitud, no formato) |
+| `241,40` | — | Rechazado, código **2005** |
+
+Dos consecuencias que conviene tener claras.
+
+**El servicio de cotejo normaliza el importe; la huella no.** En el registro, `121.4` y `121.40`
+producen **huellas distintas** —las dos válidas—, mientras que en el cotejo son la misma consulta.
+De ahí:
+
+> Que el cotejo del QR encuentre la factura **no demuestra que la huella esté bien**. Para eso
+> está `verifyChain`, o `npx @verifactu-js/cli verify`.
+
+**El importe forma parte de la clave de búsqueda.** No es informativo: si no cuadra, la respuesta
+es «No encontrada» sin más explicación. Un importe mal formateado no da un error visible, da una
+factura que no aparece.
+
 ## Licencia
 
 MIT.
