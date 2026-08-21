@@ -248,7 +248,7 @@ resuelto a ojo.
 
 ```bash
 pnpm install
-pnpm test          # 725 tests
+pnpm test          # 884 tests
 pnpm test:coverage # umbrales al 95%
 pnpm typecheck
 pnpm lint

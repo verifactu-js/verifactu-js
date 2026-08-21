@@ -1,6 +1,6 @@
 {
   "name": "@verifactu-js/qr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "URL de cotejo y especificación del código QR tributario VERI*FACTU (AEAT). Cero dependencias. / Cotejo URL and tax QR specification for Spanish VERI*FACTU invoices.",
   "keywords": [
     "verifactu",

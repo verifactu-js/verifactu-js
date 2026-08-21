@@ -3,7 +3,7 @@
 Las versiones siguen [semver](https://semver.org/lang/es/). Mientras el paquete esté en `0.x`, un
 cambio incompatible sube la versión menor.
 
-## Sin publicar
+## 0.1.2 — 2026-08-21
 
 - `validarParametrosQR` devolvía **2005** («El importe tiene un formato incorrecto») cuando el
   importe traía más de dos decimales. La AEAT devuelve **2006** («excede el número máximo de
