@@ -155,7 +155,14 @@ if (plus?.echoed == null && pct20?.echoed == null) {
   console.log(`  "A+B"   -> ${JSON.stringify(plus?.echoed)}`);
   if (plus?.echoed === 'A B') {
     console.log('\n  => Decodifica form-urlencoded: "+" se convierte en espacio.');
-    console.log('     Hay que codificar como java.net.URLEncoder, NO como encodeURIComponent.');
+    // Ojo con el paso de mas. Que el servicio decodifique form-urlencoded NO significa que haya
+    // que codificar como Java: `encodeURIComponent` escapa el "+" a "%2B", asi que ya es seguro.
+    // El unico camino roto es concatenar el valor sin codificar. La conclusion contraria estuvo
+    // impresa aqui una temporada, y contradecia lo que dice el README sobre esta misma medicion.
+    console.log('     PERO encodeURIComponent SIGUE SIENDO CORRECTO: escapa "+" a "%2B".');
+    console.log('     Lo que rompe no es la funcion, es concatenar sin codificar:');
+    console.log('       `...?numserie=${serie}`                       una serie "A+B" llega "A B"');
+    console.log('       `...?numserie=${encodeURIComponent(serie)}`   correcto');
   } else if (plus?.echoed === 'A+B') {
     console.log('\n  => Decodifica RFC 3986: "+" se conserva literal.');
     console.log('     encodeURIComponent es correcto; un espacio DEBE ir como %20.');

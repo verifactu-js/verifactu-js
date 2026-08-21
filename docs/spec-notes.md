@@ -1152,16 +1152,16 @@ antes de declarar `0.1.0` estable.
   `encodeURIComponent` es correcto porque escapa `+` a `%2B`. Texto original de la incógnita:
   `URLEncoder` (form-urlencoded, espacio → `+`) vs `encodeURIComponent` (espacio → `%20`);
   el único ejemplo oficial con carácter especial (`&` → `%26`) no discriminaba.
-- **I-11 `BLOQUEA-FASE-2` — Formato del `importe` en la URL del QR.** F2 dice «máximo 12 dígitos en la parte entera,
+- **I-11 ~~`BLOQUEA-FASE-2`~~ `RESUELTA` (19/08/2026) — Formato del `importe` en la URL del QR.** Medida en §25: un decimal vale y encuentra la misma factura que dos —el servicio normaliza a dos—, cero decimales también, y el negativo viaja tal cual. Texto original: F2 dice «máximo 12 dígitos en la parte entera,
   y 2 dígitos en la parte decimal», y los ejemplos usan `241.4` (un decimal) y `241.40`.
   No consta si es obligatorio 2 decimales, ni cómo se representan importes negativos.
   **Sin confirmar.**
-- **I-12 `ABIERTA` — Coherencia `importe` del QR ↔ `ImporteTotal` del registro.** La respuesta JSON del
+- **I-12 ~~`ABIERTA`~~ `RESUELTA` (19/08/2026) — Coherencia `importe` del QR ↔ `ImporteTotal` del registro.** Medida en §25.4: no hay tolerancia. El importe forma parte de la clave de búsqueda y, si no cuadra, la respuesta es `No encontrada` sin más. Texto original: La respuesta JSON del
   cotejo devuelve el importe y F2 rev. 0.4.7 menciona «Nuevo mensaje informativo en respuesta de
   cotejo de QR sobre importe», pero no consta la tolerancia. **Sin confirmar.**
 - **I-13 `ABIERTA` — Tamaño mínimo en píxeles / DPI.** La norma da milímetros (30×30 a 40×40) y nivel de
   corrección M. Para render SVG/PNG hay que elegir un DPI. No hay norma oficial. **Sin confirmar.**
-- **I-14 `BLOQUEA-FASE-2` — «Modo verificable» ≠ «modo VERI\*FACTU».** F2 distingue «sistema que emite facturas
+- **I-14 ~~`BLOQUEA-FASE-2`~~ `NO BLOQUEA` (19/08/2026) — «Modo verificable» ≠ «modo VERI\*FACTU».** Sigue sin cita y **no es medible por esta vía**: es una pregunta de semántica documental, no de comportamiento observable. El servicio de cotejo no puede contestarla porque no hay forma de darle de alta una factura no verificable para preguntarle por ella. Se documenta el criterio que aplica `qr` —`modo` es un parámetro explícito y sin valor por defecto, así que la decisión es de quien integra— y se deja abierta. Texto original: F2 distingue «sistema que emite facturas
   verificables» de «no verificables» y usa URLs distintas, pero un SIF **no** VERI\*FACTU que
   remite bajo requerimiento ¿usa `ValidarQRNoVerifactu` siempre? No he encontrado la regla
   explícita de qué URL usar cuando un sistema puede operar en ambos modos. **Sin confirmar.**
@@ -1255,7 +1255,7 @@ Lo que sí está condicionado, según la clasificación de §11:
 | Empezar a implementar `@verifactu/core` | **ninguna** |
 | Publicar `0.1.0` como **preestreno** (con las salvedades en el README) | **ninguna** |
 | Declarar `0.1.0` **estable** | **ninguna** (19/08/2026) · ver §12.2 |
-| Cerrar fase 2 (`xml` + `qr`) | I-10, I-11, I-14 |
+| Cerrar fase 2 (`xml` + `qr`) | **ninguna** (19/08/2026) · ~~I-10~~ (§17) ~~I-11~~ (§25) · I-14 degradada, ver §11 |
 | Cerrar fase 3 (`client`) | ~~I-15~~ (cerrada 18/08/2026, §21) |
 
 Las `BLOQUEA-ESTABLE` afectaban a casos borde (Unicode, signos, decimales exóticos, formato del
@@ -2742,3 +2742,87 @@ de dos formas distintas en dos sitios del código producirá registros irreprodu
 falle en el momento. Por eso `core` obliga a pasar el importe ya serializado y `xml` escribe
 exactamente lo que se hasheó.
 
+
+## 25. El importe en la URL del QR: medido (resolución de I-11 e I-12)
+
+> Medido el **19/08/2026** con `scripts/probe-qr-importe.mjs` contra
+> `https://prewww2.aeat.es/wlpl/TIKE-CONT/ValidarQR`. Seis peticiones espaciadas 1,5 s. No
+> requiere certificado y no usa un NIF real: va con el `89890001K` de la propia documentación.
+
+### 25.1 Resultados
+
+| Enviado como `importe=` | Devuelto | `mensaje` | Lectura |
+|---|---|---|---|
+| `241.40` | `241.40` | **Encontrada** | Control positivo |
+| `241.4` | **`241.40`** | **Encontrada** | Un decimal vale, y **el servicio lo reescribe** |
+| `241` | **`241.00`** | No encontrada | Cero decimales vale, y también lo reescribe |
+| `-241.40` | `-241.40` | No encontrada | **El negativo viaja tal cual** |
+| `241.400` | — | código **2006** | Rechazado por **longitud**, no por formato |
+| `241,40` | — | código **2005** | La coma se rechaza |
+
+### 25.2 De regalo: la factura del ejemplo canónico EXISTE en preproducción
+
+Los dos primeros casos volvieron **`Encontrada`**, no `No encontrada`. El
+`89890001K` / `12345678-G33` / `01-09-2024` / `241.40` que la AEAT usa en toda su documentación
+está dado de alta en el entorno de pruebas.
+
+Eso convierte el servicio en un oráculo mucho mejor de lo que era en §17, donde todas las
+respuestas fueron `No encontrada` y solo se podía leer el eco: ahora se puede distinguir
+**«lo ha entendido»** de **«lo ha entendido y además cuadra con una factura real»**.
+
+### 25.3 I-11 cerrada: los dos decimales no son obligatorios, y el negativo viaja
+
+- **Un decimal vale.** `241.4` se admite y **encuentra la misma factura** que `241.40`. Los dos
+  decimales no son obligatorios, y el ejemplo de F2 que usa uno solo es válido.
+- **Cero decimales también.** `241` se admite y se reescribe a `241.00`.
+- **El signo menos viaja tal cual.** Era la otra mitad de I-11 y la que no tenía ninguna cita:
+  una rectificativa por diferencias puede llevar su importe negativo en el QR.
+
+### 25.4 I-12 cerrada: no hay tolerancia, el importe es parte de la clave de búsqueda
+
+`241` se normalizó a `241.00` y la respuesta fue **`No encontrada`** — la factura real vale
+`241.40`. Es decir: el importe **no** es informativo, forma parte de lo que se busca, y si no
+coincide la factura simplemente no aparece.
+
+No se observó ningún «mensaje informativo sobre importe» de los que menciona F2 rev. 0.4.7. Lo
+que hay es `Encontrada` o `No encontrada`.
+
+### 25.5 El hallazgo que cruza los dos servicios
+
+Es lo más importante de esta tanda y no se buscaba.
+
+| | `241.4` frente a `241.40` |
+|---|---|
+| **Registro** (huella, §24.7) | **Dos huellas distintas**, las dos válidas. La AEAT hashea el literal |
+| **Cotejo del QR** (§25.1) | **La misma consulta**. El servicio normaliza a dos decimales |
+
+**El mismo campo, dos servicios, dos reglas.** De ahí una consecuencia práctica que conviene tener
+clara:
+
+> **Que el cotejo del QR encuentre la factura no demuestra que la huella esté bien.** El cotejo
+> normaliza el importe antes de comparar; la huella no. Un registro con `ImporteTotal` escrito de
+> una forma en el XML y de otra en la entrada de la huella se cotejaría igual de bien y estaría
+> igual de roto.
+
+Encaja con §7.9 —la huella no va en el QR— y refuerza lo mismo: **el cotejo no es un verificador
+de huellas**. Para eso está `verifyChain`, o `verifactu-js verify`.
+
+### 25.6 Un error nuestro que la medición destapó
+
+`validarParametrosQR` devolvía **2005** («El importe tiene un formato incorrecto») para
+`241.400`. La AEAT devuelve **2006** («El importe excede el número máximo de caracteres»): trata
+los decimales de más como un problema de **longitud**, no de forma. Nuestro código contaba solo
+los dígitos de la parte entera para decidir entre los dos códigos.
+
+Corregido: `2006` cuando la parte entera pasa de 12 dígitos **o** la decimal pasa de 2. Es el tipo
+de detalle por el que existe este paquete — si el código de error no coincide con el que daría la
+AEAT, el mapa de errores deja de valer para diagnosticar.
+
+### 25.7 Lo que sigue sin medirse
+
+- **El signo `+` explícito.** `core` lo admite en `ImporteTotal` y está medido (§24.8), pero
+  `validarParametrosQR` lo rechaza en la URL del QR y eso es **decisión nuestra, no medición**.
+  Hay además un filo conocido: un `+` sin escapar en una URL se decodifica como espacio (§17), así
+  que quien lo concatene a mano lo manda partido.
+- **El umbral exacto del código 3002**, el bloqueo por número de intentos diarios. No se va a
+  medir: medirlo es provocarlo.

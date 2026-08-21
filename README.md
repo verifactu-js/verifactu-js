@@ -134,6 +134,7 @@ concretas, y la lectura estaba escrita antes de mandarlo.
 | **El `&` no se escapa.** El código 1287 enumera `<`, `>`, `"`, `'` y `=`, y no lo incluye; una serie con `&` vuelve `Correcto` y con la misma huella | La cadena de la huella usa `&` como separador. Escaparlo «por si acaso» produce una huella distinta de la que calcula la AEAT |
 | **La AEAT hashea el literal tal y como llega.** `Z` como designador de huso vuelve `Correcto`; `121.10` y `121.1` también, cada uno con su propia huella | No hay normalización previa a la que agarrarse. **La huella no es función del importe: es función de cómo lo escribas** |
 | **La exclusión de `RemisionRequerimiento` va por *endpoint*, no por cabecera** (código 4126) | Explica por qué el XSD los admite juntos: el esquema es común a los dos servicios y la restricción vive en el servicio |
+| **El cotejo del QR SÍ normaliza el importe**: `241.4` y `241.40` encuentran la misma factura | El mismo campo, dos servicios, dos reglas. **Que el cotejo encuentre la factura no demuestra que la huella esté bien** |
 
 Cada valor lleva pegada su procedencia en
 [`packages/client/src/medido.ts`](packages/client/src/medido.ts) — un número sin procedencia es
